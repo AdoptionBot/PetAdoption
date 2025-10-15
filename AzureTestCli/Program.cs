@@ -2,9 +2,11 @@
 using Azure.Security.KeyVault.Secrets;
 using Microsoft.Extensions.Configuration;
 
+namespace AzureTestCli;
+
 public class TestAzureAuth
 {
-    public static async Task Main(string[] args)
+    public static async Task Main()
     {
         try
         {
@@ -61,7 +63,7 @@ public class TestAzureAuth
             Console.WriteLine();
             Console.WriteLine($"✅ Authentication successful! Found {secretCount} secret(s).");
         }
-        catch (Azure.Identity.AuthenticationFailedException ex)
+        catch (AuthenticationFailedException ex)
         {
             Console.WriteLine("❌ Authentication failed!");
             Console.WriteLine($"Error: {ex.Message}");
