@@ -114,7 +114,7 @@ namespace Services.Data
         /// <summary>
         /// Gets an entity by partition key and row key
         /// </summary>
-        public async Task<T> GetEntityAsync<T>(string tableName, string partitionKey, string rowKey) where T : class, ITableEntity
+        public async Task<T?> GetEntityAsync<T>(string tableName, string partitionKey, string rowKey) where T : class, ITableEntity
         {
             var tableClient = await GetTableClientAsync(tableName);
             try
@@ -132,7 +132,7 @@ namespace Services.Data
         /// <summary>
         /// Queries entities from the specified table using a filter expression
         /// </summary>
-        public async Task<IEnumerable<T>> QueryEntitiesAsync<T>(string tableName, string filter = null) where T : class, ITableEntity, new()
+        public async Task<IEnumerable<T>> QueryEntitiesAsync<T>(string tableName, string? filter = null) where T : class, ITableEntity, new()
         {
             var tableClient = await GetTableClientAsync(tableName);
 

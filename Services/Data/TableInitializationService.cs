@@ -9,18 +9,12 @@ namespace Services.Data
     /// <summary>
     /// Service for initializing and managing Azure Table Storage tables
     /// </summary>
-    public class TableInitializationService : ITableInitializationService
+    public class TableInitializationService(
+        IAzureTableStorageService storageService,
+        ILogger<TableInitializationService> logger) : ITableInitializationService
     {
-        private readonly IAzureTableStorageService _storageService;
-        private readonly ILogger<TableInitializationService> _logger;
-
-        public TableInitializationService(
-            IAzureTableStorageService storageService,
-            ILogger<TableInitializationService> logger)
-        {
-            _storageService = storageService;
-            _logger = logger;
-        }
+        private readonly IAzureTableStorageService _storageService = storageService;
+        private readonly ILogger<TableInitializationService> _logger = logger;
 
         /// <summary>
         /// Initializes all tables defined in the Data.TableStorage namespace
@@ -33,24 +27,24 @@ namespace Services.Data
 
                 // Get all entity types from the Data assembly
                 var entityTypes = TableSchemaManager.GetTableEntityTypes();
-                _logger.LogInformation($"Found {entityTypes.Count} table entity types to process");
+                _logger.LogInformation("Found {EntityCount} table entity types to process", entityTypes.Count);
 
                 // Get existing tables from Azure
                 var existingTables = (await _storageService.GetTablesAsync()).ToHashSet();
 
                 foreach (var (tableName, entityType) in entityTypes)
                 {
-                    _logger.LogInformation($"Processing table: {tableName}");
+                    _logger.LogInformation("Processing table: {TableName}", tableName);
 
                     bool tableExists = existingTables.Contains(tableName);
 
                     if (tableExists)
                     {
-                        _logger.LogInformation($"Table '{tableName}' exists in Azure");
+                        _logger.LogInformation("Table {TableName} exists in Azure", tableName);
 
                         if (forceRecreate)
                         {
-                            _logger.LogWarning($"Force recreate enabled. Deleting table '{tableName}'...");
+                            _logger.LogWarning("Force recreate enabled. Deleting table {TableName}...", tableName);
                             await DeleteAndRecreateTableAsync(tableName, entityType);
                         }
                         else
@@ -60,20 +54,20 @@ namespace Services.Data
 
                             if (!schemaValid)
                             {
-                                _logger.LogWarning($"Schema mismatch detected for table '{tableName}'. Recreating...");
+                                _logger.LogWarning("Schema mismatch detected for table {TableName}. Recreating...", tableName);
                                 await DeleteAndRecreateTableAsync(tableName, entityType);
                             }
                             else
                             {
-                                _logger.LogInformation($"Table '{tableName}' schema is valid (or empty)");
+                                _logger.LogInformation("Table {TableName} schema is valid (or empty)", tableName);
                             }
                         }
                     }
                     else
                     {
-                        _logger.LogInformation($"Table '{tableName}' does not exist. Creating...");
+                        _logger.LogInformation("Table {TableName} does not exist. Creating...", tableName);
                         await _storageService.CreateTableAsync(tableName);
-                        _logger.LogInformation($"Table '{tableName}' created successfully");
+                        _logger.LogInformation("Table {TableName} created successfully", tableName);
                     }
                 }
 
@@ -95,11 +89,11 @@ namespace Services.Data
         {
             try
             {
-                _logger.LogInformation($"Validating schema for table '{tableName}'...");
+                _logger.LogInformation("Validating schema for table {tableName}...", tableName);
 
                 // Get expected properties from entity type definition
                 var expectedProperties = TableSchemaManager.GetPropertyNames(entityType);
-                _logger.LogDebug($"Expected properties for '{tableName}': {string.Join(", ", expectedProperties)}");
+                _logger.LogDebug("Expected properties for table {tableName}: {expectedProperties}", tableName, string.Join(", ", expectedProperties));
 
                 // Try to get entities from the table to sample the schema
                 var entities = await _storageService.QueryEntitiesAsync<TableEntity>(tableName);
@@ -109,11 +103,11 @@ namespace Services.Data
                 {
                     // Empty table - cannot validate schema, but that's okay
                     // Azure Table Storage is schema-less, properties appear when data is inserted
-                    _logger.LogInformation($"Table '{tableName}' is empty. Schema will be defined when entities are inserted.");
+                    _logger.LogInformation("Table {tableName} is empty. Schema will be defined when entities are inserted.", tableName);
                     return true;
                 }
 
-                _logger.LogInformation($"Sampling {entityList.Count} entities from '{tableName}' for schema validation");
+                _logger.LogInformation("Sampling {entityCount} entities from table {tableName} for schema validation", entityList.Count, tableName);
 
                 // Check if ANY entity in the sample has missing properties
                 bool allEntitiesValid = true;
@@ -129,8 +123,8 @@ namespace Services.Data
 
                     if (missingProperties.Any())
                     {
-                        _logger.LogWarning($"Entity with PartitionKey='{entity.PartitionKey}', RowKey='{entity.RowKey}' is missing properties:");
-                        _logger.LogWarning($"  Missing: {string.Join(", ", missingProperties)}");
+                        _logger.LogWarning("Entity with PartitionKey='{PartitionKey}', RowKey='{RowKey}' is missing properties:", entity.PartitionKey, entity.RowKey);
+                        _logger.LogWarning("  Missing: {MissingProperties}", string.Join(", ", missingProperties));
                         allEntitiesValid = false;
                     }
                 }
@@ -140,29 +134,29 @@ namespace Services.Data
 
                 if (extraProperties.Any())
                 {
-                    _logger.LogWarning($"Found extra properties in table '{tableName}' not defined in entity class:");
-                    _logger.LogWarning($"  Extra properties: {string.Join(", ", extraProperties)}");
+                    _logger.LogWarning("Found extra properties in table {tableName} not defined in entity class:", tableName);
+                    _logger.LogWarning("  Extra properties: {ExtraProperties}", string.Join(", ", extraProperties));
                     _logger.LogInformation("This may indicate old schema or data from a previous version.");
                     // Extra properties alone don't invalidate the schema, but log them
                 }
 
                 if (!allEntitiesValid)
                 {
-                    _logger.LogWarning($"Schema validation failed for table '{tableName}' - entities have incomplete properties");
+                    _logger.LogWarning("Schema validation failed for table {tableName} - entities have incomplete properties", tableName);
                     return false;
                 }
 
-                _logger.LogInformation($"Schema validation passed for table '{tableName}'");
+                _logger.LogInformation("Schema validation passed for table {tableName}", tableName);
                 return true;
             }
             catch (RequestFailedException ex) when (ex.Status == 404)
             {
-                _logger.LogWarning($"Table '{tableName}' not found during validation");
+                _logger.LogWarning("Table {tableName} not found during validation", tableName);
                 return false;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error validating schema for table '{tableName}'");
+                _logger.LogError(ex, "Error validating schema for table {tableName}", tableName);
                 // In case of error, assume schema is valid to avoid unnecessary recreation
                 return true;
             }
@@ -175,21 +169,21 @@ namespace Services.Data
         {
             try
             {
-                _logger.LogInformation($"Deleting table '{tableName}'...");
+                _logger.LogInformation("Deleting table {tableName}...", tableName);
                 await _storageService.DeleteTableAsync(tableName);
 
                 // Wait a bit for Azure to process the deletion
                 _logger.LogInformation("Waiting for table deletion to complete...");
                 await Task.Delay(TimeSpan.FromSeconds(10)); // Increased wait time
 
-                _logger.LogInformation($"Creating table '{tableName}'...");
+                _logger.LogInformation("Creating table {tableName}...", tableName);
                 await _storageService.CreateTableAsync(tableName);
 
-                _logger.LogInformation($"Table '{tableName}' recreated successfully");
+                _logger.LogInformation("Table {tableName} recreated successfully", tableName);
             }
             catch (RequestFailedException ex)
             {
-                _logger.LogError(ex, $"Error recreating table '{tableName}'");
+                _logger.LogError(ex, "Error recreating table {tableName}", tableName);
                 throw;
             }
         }
@@ -221,7 +215,7 @@ namespace Services.Data
                         var entityList = entities.ToList();
                         status.EntityCount = entityList.Count;
 
-                        if (entityList.Any())
+                        if (entityList.Count != 0)
                         {
                             status.SchemaValid = await ValidateTableSchemaAsync(tableName, entityType);
                         }
