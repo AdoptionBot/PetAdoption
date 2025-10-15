@@ -1,5 +1,6 @@
 ﻿using Azure;
 using Azure.Data.Tables;
+using Data.TableStorage.SchemaUtilities;
 
 namespace Data.TableStorage
 {
@@ -15,10 +16,11 @@ namespace Data.TableStorage
         public string PetName { get; set; }
         public DateTime PetBirthDate { get; set; }
         public DateTime DateSubmitted { get; set; }
-        public string AdoptionStatus { get; set; } // Option
-        public string Notes { get; set; }
+        public AdoptionStatus AdoptionStatus { get; set; }
+        public string? Notes { get; set; }
 
-        public AdoptionApplication(string userName, string userEmail)
+        public AdoptionApplication(
+            string userName, string userEmail, string petName, DateTime petBirthDate, string? notes)
         {
             if (string.IsNullOrWhiteSpace(userName))
             {
@@ -28,8 +30,22 @@ namespace Data.TableStorage
             {
                 throw new ArgumentException("User email cannot be null or empty.", nameof(userEmail));
             }
+            if (string.IsNullOrWhiteSpace(petName))
+            {
+                throw new ArgumentException("Pet name cannot be null or empty.", nameof(petName));
+            }
+            if (petBirthDate == default)
+            {
+                throw new ArgumentException("Pet birth date is not valid.", nameof(petBirthDate));
+            }
+
             PartitionKey = userName;
             RowKey = userEmail;
+            PetName = petName;
+            PetBirthDate = petBirthDate;
+            DateSubmitted = DateTime.Now;
+            AdoptionStatus = AdoptionStatus.Submitted;
+            Notes = notes;
         }
     }
 }

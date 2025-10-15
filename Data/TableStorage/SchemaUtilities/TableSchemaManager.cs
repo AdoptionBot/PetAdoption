@@ -1,7 +1,7 @@
 ﻿using Azure.Data.Tables;
 using System.Reflection;
 
-namespace Data.TableStorage.SchemaManager
+namespace Data.TableStorage.SchemaUtilities
 {
     /// <summary>
     /// Manages table schemas and validation for Azure Table Storage entities

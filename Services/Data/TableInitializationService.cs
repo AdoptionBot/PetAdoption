@@ -1,6 +1,6 @@
 using Azure;
 using Azure.Data.Tables;
-using Data.TableStorage.SchemaManager;
+using Data.TableStorage.SchemaUtilities;
 using Microsoft.Extensions.Logging;
 using Services.Interfaces;
 
