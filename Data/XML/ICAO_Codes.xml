@@ -1,0 +1,1043 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<TabelasReferencia>
+    <ICAO>
+        <Codigo_ICAO>AFG</Codigo_ICAO>
+        <Designacao>Afeganistão</Designacao>
+        <Abreviatura>AFEGANISTÃO</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>ALB</Codigo_ICAO>
+        <Designacao>Albânia</Designacao>
+        <Abreviatura>ALBÂNIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>DZA</Codigo_ICAO>
+        <Designacao>Argélia</Designacao>
+        <Abreviatura>ARGÉLIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>AND</Codigo_ICAO>
+        <Designacao>Andorra</Designacao>
+        <Abreviatura>ANDORRA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>AGO</Codigo_ICAO>
+        <Designacao>Angola</Designacao>
+        <Abreviatura>ANGOLA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>ATG</Codigo_ICAO>
+        <Designacao>Antígua e Barbuda</Designacao>
+        <Abreviatura>ANTÍGUA E BARBUDA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>ARG</Codigo_ICAO>
+        <Designacao>Argentina</Designacao>
+        <Abreviatura>ARGENTINA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>ARM</Codigo_ICAO>
+        <Designacao>Arménia</Designacao>
+        <Abreviatura>ARMÉNIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>AUS</Codigo_ICAO>
+        <Designacao>Austrália</Designacao>
+        <Abreviatura>AUSTRÁLIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>AUT</Codigo_ICAO>
+        <Designacao>Áustria</Designacao>
+        <Abreviatura>ÁUSTRIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>AZE</Codigo_ICAO>
+        <Designacao>República Azerbaijão</Designacao>
+        <Abreviatura>AZERBAIJÃO</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>BHS</Codigo_ICAO>
+        <Designacao>Bahamas</Designacao>
+        <Abreviatura>BAHAMAS</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>BHR</Codigo_ICAO>
+        <Designacao>Barém</Designacao>
+        <Abreviatura>BARÉM</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>BGD</Codigo_ICAO>
+        <Designacao>Bangladesh</Designacao>
+        <Abreviatura>BANGLADESH</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>BRB</Codigo_ICAO>
+        <Designacao>Barbados</Designacao>
+        <Abreviatura>BARBADOS</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>BLR</Codigo_ICAO>
+        <Designacao>República Bielorrússia</Designacao>
+        <Abreviatura>BIELORÚSSIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>PLW</Codigo_ICAO>
+        <Designacao>PALAU</Designacao>
+        <Abreviatura>PALAU</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>BEL</Codigo_ICAO>
+        <Designacao>Bélgica</Designacao>
+        <Abreviatura>BÉLGICA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>BLZ</Codigo_ICAO>
+        <Designacao>Belize</Designacao>
+        <Abreviatura>BELIZE</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>BEN</Codigo_ICAO>
+        <Designacao>Benim</Designacao>
+        <Abreviatura>BENIM</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>BMU</Codigo_ICAO>
+        <Designacao>Bermudas</Designacao>
+        <Abreviatura>BERMUDAS</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>BTN</Codigo_ICAO>
+        <Designacao>Butão</Designacao>
+        <Abreviatura>BUTÃO</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>BOL</Codigo_ICAO>
+        <Designacao>Bolívia</Designacao>
+        <Abreviatura>BOLÍVIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>BIH</Codigo_ICAO>
+        <Designacao>Bósnia Herzegovina</Designacao>
+        <Abreviatura>BÓSNIA HERZEGOVINA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>BWA</Codigo_ICAO>
+        <Designacao>Botswana</Designacao>
+        <Abreviatura>BOTSWANA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>BRA</Codigo_ICAO>
+        <Designacao>Brasil</Designacao>
+        <Abreviatura>BRASIL</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>BRN</Codigo_ICAO>
+        <Designacao>Brunei Darussalam</Designacao>
+        <Abreviatura>BRUNEI DARUSSALAM</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>BGR</Codigo_ICAO>
+        <Designacao>Bulgaria</Designacao>
+        <Abreviatura>BULGÁRIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>BFA</Codigo_ICAO>
+        <Designacao>Burkina Faso</Designacao>
+        <Abreviatura>BURKINA FASO</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>MMR</Codigo_ICAO>
+        <Designacao>Myanmar (Birmânia)</Designacao>
+        <Abreviatura>MYANMAR</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>BDI</Codigo_ICAO>
+        <Designacao>Burundi</Designacao>
+        <Abreviatura>BURUNDI</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>KHM</Codigo_ICAO>
+        <Designacao>Camboja</Designacao>
+        <Abreviatura>CAMBOJA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>CMR</Codigo_ICAO>
+        <Designacao>Camarões</Designacao>
+        <Abreviatura>CAMARÕES</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>CAN</Codigo_ICAO>
+        <Designacao>Canadá</Designacao>
+        <Abreviatura>CANADÁ</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>CPV</Codigo_ICAO>
+        <Designacao>Cabo Verde</Designacao>
+        <Abreviatura>CABO VERDE</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>CAF</Codigo_ICAO>
+        <Designacao>República Centro Africana</Designacao>
+        <Abreviatura>REP. CENTRO AFRICANA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>TCD</Codigo_ICAO>
+        <Designacao>Chade</Designacao>
+        <Abreviatura>CHADE</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>CHL</Codigo_ICAO>
+        <Designacao>Chile</Designacao>
+        <Abreviatura>CHILE</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>CHN</Codigo_ICAO>
+        <Designacao>China</Designacao>
+        <Abreviatura>CHINA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>COL</Codigo_ICAO>
+        <Designacao>Colômbia</Designacao>
+        <Abreviatura>COLOMBIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>COM</Codigo_ICAO>
+        <Designacao>União das Comores</Designacao>
+        <Abreviatura>COMORES</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>COG</Codigo_ICAO>
+        <Designacao>Congo</Designacao>
+        <Abreviatura>CONGO</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>COK</Codigo_ICAO>
+        <Designacao>Ilhas Cook</Designacao>
+        <Abreviatura>ILHAS COOK</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>CRI</Codigo_ICAO>
+        <Designacao>Costa Rica</Designacao>
+        <Abreviatura>COSTA RICA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>HRV</Codigo_ICAO>
+        <Designacao>Croácia</Designacao>
+        <Abreviatura>CROÁCIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>CZE</Codigo_ICAO>
+        <Designacao>República Checa</Designacao>
+        <Abreviatura>REPÚBLICA CHECA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>CUB</Codigo_ICAO>
+        <Designacao>Cuba</Designacao>
+        <Abreviatura>CUBA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>CYP</Codigo_ICAO>
+        <Designacao>Chipre</Designacao>
+        <Abreviatura>CHIPRE</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>DNK</Codigo_ICAO>
+        <Designacao>Dinamarca</Designacao>
+        <Abreviatura>DINAMARCA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>DJI</Codigo_ICAO>
+        <Designacao>Jibuti</Designacao>
+        <Abreviatura>JIBUTI</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>DMA</Codigo_ICAO>
+        <Designacao>Dominica</Designacao>
+        <Abreviatura>DOMINICA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>DOM</Codigo_ICAO>
+        <Designacao>República Dominicana</Designacao>
+        <Abreviatura>REPÚBLICA DOMINICANA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>TLS</Codigo_ICAO>
+        <Designacao>Timor-Leste</Designacao>
+        <Abreviatura>TIMOR-LESTE</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>ECU</Codigo_ICAO>
+        <Designacao>Equador</Designacao>
+        <Abreviatura>EQUADOR</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>EGY</Codigo_ICAO>
+        <Designacao>Egipto</Designacao>
+        <Abreviatura>EGIPTO</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>SLV</Codigo_ICAO>
+        <Designacao>El Salvador</Designacao>
+        <Abreviatura>EL SALVADOR</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>GNQ</Codigo_ICAO>
+        <Designacao>Guiné Equatorial</Designacao>
+        <Abreviatura>GUINÉ EQUATORIAL</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>ERI</Codigo_ICAO>
+        <Designacao>Eritreia</Designacao>
+        <Abreviatura>ERITREIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>EST</Codigo_ICAO>
+        <Designacao>Estónia</Designacao>
+        <Abreviatura>ESTÓNIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>ETH</Codigo_ICAO>
+        <Designacao>Etiópia</Designacao>
+        <Abreviatura>ETIÓPIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>FJI</Codigo_ICAO>
+        <Designacao>Ilhas Fiji</Designacao>
+        <Abreviatura>ILHAS FIJI</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>FIN</Codigo_ICAO>
+        <Designacao>Finlândia</Designacao>
+        <Abreviatura>FINLÂNDIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>FRA</Codigo_ICAO>
+        <Designacao>França</Designacao>
+        <Abreviatura>FRANÇA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>GAB</Codigo_ICAO>
+        <Designacao>Gabão</Designacao>
+        <Abreviatura>GABÃO</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>GMB</Codigo_ICAO>
+        <Designacao>Gâmbia</Designacao>
+        <Abreviatura>GÂMBIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>GEO</Codigo_ICAO>
+        <Designacao>Geórgia</Designacao>
+        <Abreviatura>GEÓRGIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>D  </Codigo_ICAO>
+        <Designacao>Alemanha</Designacao>
+        <Abreviatura>ALEMANHA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>GHA</Codigo_ICAO>
+        <Designacao>Gana</Designacao>
+        <Abreviatura>GANA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>GRC</Codigo_ICAO>
+        <Designacao>Grécia</Designacao>
+        <Abreviatura>GRÉCIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>GRD</Codigo_ICAO>
+        <Designacao>Granada</Designacao>
+        <Abreviatura>GRANADA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>GUM</Codigo_ICAO>
+        <Designacao>Guam</Designacao>
+        <Abreviatura>GUAM</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>GTM</Codigo_ICAO>
+        <Designacao>Guatemala</Designacao>
+        <Abreviatura>GUATEMALA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>GIN</Codigo_ICAO>
+        <Designacao>Guiné Conacri</Designacao>
+        <Abreviatura>GUINÉ</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>GNB</Codigo_ICAO>
+        <Designacao>Guiné-Bissau</Designacao>
+        <Abreviatura>GUINÉ-BISSAU</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>GUY</Codigo_ICAO>
+        <Designacao>Guiana</Designacao>
+        <Abreviatura>GUIANA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>HTI</Codigo_ICAO>
+        <Designacao>Haiti</Designacao>
+        <Abreviatura>HAITI</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>HND</Codigo_ICAO>
+        <Designacao>Honduras</Designacao>
+        <Abreviatura>HONDURAS</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>HKG</Codigo_ICAO>
+        <Designacao>Hong-Kong</Designacao>
+        <Abreviatura>HONG KONG</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>HUN</Codigo_ICAO>
+        <Designacao>Hungria</Designacao>
+        <Abreviatura>HUNGRIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>ISL</Codigo_ICAO>
+        <Designacao>Islândia</Designacao>
+        <Abreviatura>ISLANDIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>IND</Codigo_ICAO>
+        <Designacao>Índia</Designacao>
+        <Abreviatura>ÍNDIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>IDN</Codigo_ICAO>
+        <Designacao>Indonésia</Designacao>
+        <Abreviatura>INDONÉSIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>IRN</Codigo_ICAO>
+        <Designacao>Irão, República Islâmica</Designacao>
+        <Abreviatura>IRÃO</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>IRQ</Codigo_ICAO>
+        <Designacao>Iraque</Designacao>
+        <Abreviatura>IRAQUE</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>IRL</Codigo_ICAO>
+        <Designacao>Irlanda</Designacao>
+        <Abreviatura>IRLANDA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>ISR</Codigo_ICAO>
+        <Designacao>Israel</Designacao>
+        <Abreviatura>ISRAEL</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>ITA</Codigo_ICAO>
+        <Designacao>Itália</Designacao>
+        <Abreviatura>ITÁLIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>CIV</Codigo_ICAO>
+        <Designacao>Costa do Marfim</Designacao>
+        <Abreviatura>COSTA DO MARFIM</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>JAM</Codigo_ICAO>
+        <Designacao>Jamaica</Designacao>
+        <Abreviatura>JAMAICA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>JPN</Codigo_ICAO>
+        <Designacao>Japão</Designacao>
+        <Abreviatura>JAPÃO</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>JOR</Codigo_ICAO>
+        <Designacao>Jordânia</Designacao>
+        <Abreviatura>JORDANIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>KAZ</Codigo_ICAO>
+        <Designacao>República do Cazaquistão</Designacao>
+        <Abreviatura>CAZAQUISTÃO</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>KEN</Codigo_ICAO>
+        <Designacao>Quénia</Designacao>
+        <Abreviatura>QUÉNIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>KIR</Codigo_ICAO>
+        <Designacao>Kiribati</Designacao>
+        <Abreviatura>KIRIBATI</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>PRK</Codigo_ICAO>
+        <Designacao>Coreia</Designacao>
+        <Abreviatura>COREIA DO NORTE</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>KOR</Codigo_ICAO>
+        <Designacao>República da Coreia</Designacao>
+        <Abreviatura>COREIA DO SUL</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>RKS</Codigo_ICAO>
+        <Designacao>Kosovo, República do</Designacao>
+        <Abreviatura>KOSOVO</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>KWT</Codigo_ICAO>
+        <Designacao>Kuwait</Designacao>
+        <Abreviatura>KUWAIT</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>KGZ</Codigo_ICAO>
+        <Designacao>Quirguizistão</Designacao>
+        <Abreviatura>QUIRGUIZISTÃO</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>LAO</Codigo_ICAO>
+        <Designacao>Laos, República Popular Democrática</Designacao>
+        <Abreviatura>LAOS</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>LVA</Codigo_ICAO>
+        <Designacao>Letónia</Designacao>
+        <Abreviatura>LETÓNIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>LBN</Codigo_ICAO>
+        <Designacao>Líbano</Designacao>
+        <Abreviatura>LÍBANO</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>LSO</Codigo_ICAO>
+        <Designacao>Lesoto</Designacao>
+        <Abreviatura>LESOTO</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>LBR</Codigo_ICAO>
+        <Designacao>Libéria</Designacao>
+        <Abreviatura>LIBÉRIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>LBY</Codigo_ICAO>
+        <Designacao>Líbia</Designacao>
+        <Abreviatura>LÍBIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>LIE</Codigo_ICAO>
+        <Designacao>Liechtenstein</Designacao>
+        <Abreviatura>LIECHTENSTEIN</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>LTU</Codigo_ICAO>
+        <Designacao>Lituânia</Designacao>
+        <Abreviatura>LITUANIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>LUX</Codigo_ICAO>
+        <Designacao>Luxemburgo</Designacao>
+        <Abreviatura>LUXEMBURGO</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>MAC</Codigo_ICAO>
+        <Designacao>Macau</Designacao>
+        <Abreviatura>MACAU</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>MKD</Codigo_ICAO>
+        <Designacao>República da Macedónia do Norte</Designacao>
+        <Abreviatura>MACEDÓNIA DO NORTE</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>MDG</Codigo_ICAO>
+        <Designacao>Madagáscar</Designacao>
+        <Abreviatura>MADAGÁSCAR</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>MWI</Codigo_ICAO>
+        <Designacao>Malawi</Designacao>
+        <Abreviatura>MALAWI</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>MYS</Codigo_ICAO>
+        <Designacao>Malásia</Designacao>
+        <Abreviatura>MALÁSIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>MDV</Codigo_ICAO>
+        <Designacao>Maldivas</Designacao>
+        <Abreviatura>MALDIVAS</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>MLI</Codigo_ICAO>
+        <Designacao>Mali</Designacao>
+        <Abreviatura>MALI</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>MLT</Codigo_ICAO>
+        <Designacao>Malta</Designacao>
+        <Abreviatura>MALTA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>MHL</Codigo_ICAO>
+        <Designacao>Ilhas Marshall</Designacao>
+        <Abreviatura>ILHAS MARSHALL</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>MRT</Codigo_ICAO>
+        <Designacao>Mauritânia</Designacao>
+        <Abreviatura>MAURITÂNIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>MUS</Codigo_ICAO>
+        <Designacao>Ilhas Maurícias</Designacao>
+        <Abreviatura>MAURÍCIAS</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>MYT</Codigo_ICAO>
+        <Designacao>Mayotte</Designacao>
+        <Abreviatura>MAYOTTE</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>MEX</Codigo_ICAO>
+        <Designacao>México</Designacao>
+        <Abreviatura>MÉXICO</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>FSM</Codigo_ICAO>
+        <Designacao>Micronésia, Estados Federados da</Designacao>
+        <Abreviatura>MICRONÉSIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>MDA</Codigo_ICAO>
+        <Designacao>República Moldávia</Designacao>
+        <Abreviatura>MOLDÁVIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>MCO</Codigo_ICAO>
+        <Designacao>Mónaco</Designacao>
+        <Abreviatura>MÓNACO</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>MNG</Codigo_ICAO>
+        <Designacao>Mongólia</Designacao>
+        <Abreviatura>MONGÓLIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>MSR</Codigo_ICAO>
+        <Designacao>Monserrate</Designacao>
+        <Abreviatura>MONSERRATE</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>MNE</Codigo_ICAO>
+        <Designacao>Montenegro, República de</Designacao>
+        <Abreviatura>MONTENEGRO</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>MAR</Codigo_ICAO>
+        <Designacao>Marrocos</Designacao>
+        <Abreviatura>MARROCOS</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>MOZ</Codigo_ICAO>
+        <Designacao>Moçambique</Designacao>
+        <Abreviatura>MOÇAMBIQUE</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>NAM</Codigo_ICAO>
+        <Designacao>Namíbia</Designacao>
+        <Abreviatura>NAMÍBIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>NRU</Codigo_ICAO>
+        <Designacao>Nauru</Designacao>
+        <Abreviatura>NAURU</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>NPL</Codigo_ICAO>
+        <Designacao>Nepal</Designacao>
+        <Abreviatura>NEPAL</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>NLD</Codigo_ICAO>
+        <Designacao>Países Baixos</Designacao>
+        <Abreviatura>PAÍSES BAIXOS</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>NCL</Codigo_ICAO>
+        <Designacao>Nova Caledónia</Designacao>
+        <Abreviatura>NOVA CALEDÓNIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>NZL</Codigo_ICAO>
+        <Designacao>Nova Zelândia</Designacao>
+        <Abreviatura>NOVA ZELÂNDIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>NIC</Codigo_ICAO>
+        <Designacao>Nicarágua</Designacao>
+        <Abreviatura>NICARÁGUA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>NER</Codigo_ICAO>
+        <Designacao>Níger</Designacao>
+        <Abreviatura>NÍGER</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>NGA</Codigo_ICAO>
+        <Designacao>Nigéria</Designacao>
+        <Abreviatura>NIGÉRIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>NIU</Codigo_ICAO>
+        <Designacao>Niue</Designacao>
+        <Abreviatura>NIUE</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>NOR</Codigo_ICAO>
+        <Designacao>Noruega</Designacao>
+        <Abreviatura>NORUEGA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>OMN</Codigo_ICAO>
+        <Designacao>Oman</Designacao>
+        <Abreviatura>OMAN</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>PAK</Codigo_ICAO>
+        <Designacao>Paquistão</Designacao>
+        <Abreviatura>PAQUISTÃO</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>PSE</Codigo_ICAO>
+        <Designacao>Palestina</Designacao>
+        <Abreviatura>PALESTINA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>PAN</Codigo_ICAO>
+        <Designacao>Panamá</Designacao>
+        <Abreviatura>PANAMÁ</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>PNG</Codigo_ICAO>
+        <Designacao>Papuásia Nova Guiné</Designacao>
+        <Abreviatura>PAPUÁSIA NOVA GUINÉ</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>PRY</Codigo_ICAO>
+        <Designacao>Paraguai</Designacao>
+        <Abreviatura>PARAGUAI</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>PER</Codigo_ICAO>
+        <Designacao>Peru</Designacao>
+        <Abreviatura>PERU</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>PHL</Codigo_ICAO>
+        <Designacao>Filipinas</Designacao>
+        <Abreviatura>FILIPINAS</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>POL</Codigo_ICAO>
+        <Designacao>Polónia</Designacao>
+        <Abreviatura>POLÓNIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>PRT</Codigo_ICAO>
+        <Designacao>Portugal</Designacao>
+        <Abreviatura>PORTUGAL</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>PRI</Codigo_ICAO>
+        <Designacao>Porto Rico</Designacao>
+        <Abreviatura>PORTO RICO</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>QAT</Codigo_ICAO>
+        <Designacao>Quatar</Designacao>
+        <Abreviatura>CATAR</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>COD</Codigo_ICAO>
+        <Designacao>Rep. Democ. Congo (Zaire)</Designacao>
+        <Abreviatura>REP. DEMOCRÁTICA CONGO</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>REU</Codigo_ICAO>
+        <Designacao>Reunião</Designacao>
+        <Abreviatura>REUNIÃO</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>ROU</Codigo_ICAO>
+        <Designacao>Roménia</Designacao>
+        <Abreviatura>ROMÉNIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>RUS</Codigo_ICAO>
+        <Designacao>Rússia, Federação</Designacao>
+        <Abreviatura>RÚSSIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>RWA</Codigo_ICAO>
+        <Designacao>Ruanda</Designacao>
+        <Abreviatura>RUANDA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>STP</Codigo_ICAO>
+        <Designacao>São Tomé Príncipe</Designacao>
+        <Abreviatura>SÃO TOMÉ PRÍNCIPE</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>VCT</Codigo_ICAO>
+        <Designacao>São Vicente e Grenadinas</Designacao>
+        <Abreviatura>SÃO VICENTE E GRANADINAS</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>WSM</Codigo_ICAO>
+        <Designacao>Samoa</Designacao>
+        <Abreviatura>SAMOA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>SMR</Codigo_ICAO>
+        <Designacao>São Marino</Designacao>
+        <Abreviatura>SÃO MARINO</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>SAU</Codigo_ICAO>
+        <Designacao>Arábia Saudita</Designacao>
+        <Abreviatura>ARÁBIA SAUDITA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>SEN</Codigo_ICAO>
+        <Designacao>Senegal</Designacao>
+        <Abreviatura>SENEGAL</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>SRB</Codigo_ICAO>
+        <Designacao>Sérvia, República da</Designacao>
+        <Abreviatura>SÉRVIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>SYC</Codigo_ICAO>
+        <Designacao>Seychelles</Designacao>
+        <Abreviatura>SEYCHELLES</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>SLE</Codigo_ICAO>
+        <Designacao>Serra Leoa</Designacao>
+        <Abreviatura>SERRA LEOA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>SGP</Codigo_ICAO>
+        <Designacao>Singapura</Designacao>
+        <Abreviatura>SINGAPURA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>SVK</Codigo_ICAO>
+        <Designacao>República Eslovaca</Designacao>
+        <Abreviatura>REPÚBLICA ESLOVACA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>SVN</Codigo_ICAO>
+        <Designacao>Eslovénia</Designacao>
+        <Abreviatura>ESLOVÉNIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>SLB</Codigo_ICAO>
+        <Designacao>Ilhas Salomão</Designacao>
+        <Abreviatura>ILHAS SALOMÃO</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>SOM</Codigo_ICAO>
+        <Designacao>Somália</Designacao>
+        <Abreviatura>SOMÁLIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>ZAF</Codigo_ICAO>
+        <Designacao>África do Sul</Designacao>
+        <Abreviatura>ÁFRICA DO SUL</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>SSD</Codigo_ICAO>
+        <Designacao>República do Sudão do Sul</Designacao>
+        <Abreviatura>SUDÃO DO SUL</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>ESP</Codigo_ICAO>
+        <Designacao>Espanha</Designacao>
+        <Abreviatura>ESPANHA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>LKA</Codigo_ICAO>
+        <Designacao>Sri Lanka</Designacao>
+        <Abreviatura>SRI LANCA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>KNA</Codigo_ICAO>
+        <Designacao>São Cristóvão e Nevis</Designacao>
+        <Abreviatura>SÃO CRISTÓVÃO E NEVIS</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>LCA</Codigo_ICAO>
+        <Designacao>Santa Lúcia</Designacao>
+        <Abreviatura>SANTA LÚCIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>SDN</Codigo_ICAO>
+        <Designacao>Sudão</Designacao>
+        <Abreviatura>SUDÃO</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>SUR</Codigo_ICAO>
+        <Designacao>Suriname</Designacao>
+        <Abreviatura>SURINAME</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>SWZ</Codigo_ICAO>
+        <Designacao>Suazilândia</Designacao>
+        <Abreviatura>SUAZILÂNDIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>SWE</Codigo_ICAO>
+        <Designacao>Suécia</Designacao>
+        <Abreviatura>SUÉCIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>CHE</Codigo_ICAO>
+        <Designacao>Suíça</Designacao>
+        <Abreviatura>SUÍÇA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>SYR</Codigo_ICAO>
+        <Designacao>Síria, República Árabe da</Designacao>
+        <Abreviatura>SÍRIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>TWN</Codigo_ICAO>
+        <Designacao>Taiwan</Designacao>
+        <Abreviatura>TAIWAN</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>TJK</Codigo_ICAO>
+        <Designacao>Tajiquistão</Designacao>
+        <Abreviatura>TAJIQUISTÃO</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>TZA</Codigo_ICAO>
+        <Designacao>Tanzânia, República da</Designacao>
+        <Abreviatura>TANZÂNIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>THA</Codigo_ICAO>
+        <Designacao>Tailândia</Designacao>
+        <Abreviatura>TAILÂNDIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>TGO</Codigo_ICAO>
+        <Designacao>Togo</Designacao>
+        <Abreviatura>TOGO</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>TON</Codigo_ICAO>
+        <Designacao>Tonga</Designacao>
+        <Abreviatura>TONGA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>TTO</Codigo_ICAO>
+        <Designacao>Trindade e Tobago</Designacao>
+        <Abreviatura>TRINDADE E TOBAGO</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>TUN</Codigo_ICAO>
+        <Designacao>Tunísia</Designacao>
+        <Abreviatura>TUNÍSIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>TUR</Codigo_ICAO>
+        <Designacao>Turquia</Designacao>
+        <Abreviatura>TURQUIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>TKM</Codigo_ICAO>
+        <Designacao>Turquemenistão</Designacao>
+        <Abreviatura>TURQUEMENISTÃO</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>TUV</Codigo_ICAO>
+        <Designacao>Tuvalu</Designacao>
+        <Abreviatura>TUVALU</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>UGA</Codigo_ICAO>
+        <Designacao>Uganda</Designacao>
+        <Abreviatura>UGANDA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>UKR</Codigo_ICAO>
+        <Designacao>República Ucrânia</Designacao>
+        <Abreviatura>UCRANIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>ARE</Codigo_ICAO>
+        <Designacao>Emiratos Árabes Unidos</Designacao>
+        <Abreviatura>EMIRATOS ÁRABES UNIDOS</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>GBR</Codigo_ICAO>
+        <Designacao>Reino Unido</Designacao>
+        <Abreviatura>REINO UNIDO</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>URY</Codigo_ICAO>
+        <Designacao>Uruguai</Designacao>
+        <Abreviatura>URUGUAI</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>USA</Codigo_ICAO>
+        <Designacao>Estados Unidos da América</Designacao>
+        <Abreviatura>E. U. AMÉRICA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>UZB</Codigo_ICAO>
+        <Designacao>Usbequistão</Designacao>
+        <Abreviatura>USBEQUISTÃO</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>VUT</Codigo_ICAO>
+        <Designacao>Vanuatu</Designacao>
+        <Abreviatura>VANUATU</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>VAT</Codigo_ICAO>
+        <Designacao>Santa Sé (Cidade Estado do Vaticano)</Designacao>
+        <Abreviatura>SANTA SÉ</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>VEN</Codigo_ICAO>
+        <Designacao>Venezuela</Designacao>
+        <Abreviatura>VENEZUELA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>VNM</Codigo_ICAO>
+        <Designacao>Vietname</Designacao>
+        <Abreviatura>VIETNAME</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>YEM</Codigo_ICAO>
+        <Designacao>Republica Árabe do Iémen</Designacao>
+        <Abreviatura>IÉMEN</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>ZMB</Codigo_ICAO>
+        <Designacao>Zâmbia</Designacao>
+        <Abreviatura>ZAMBIA</Abreviatura>
+    </ICAO>
+    <ICAO>
+        <Codigo_ICAO>ZWE</Codigo_ICAO>
+        <Designacao>Zimbabwe</Designacao>
+        <Abreviatura>ZIMBABWE</Abreviatura>
+    </ICAO>
+</TabelasReferencia>
