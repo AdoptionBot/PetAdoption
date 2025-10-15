@@ -22,14 +22,27 @@ namespace Data.TableStorage
         public string? Image8Url { get; set; }
         public string? Video1Url { get; set; }
 
-        public Media(string petName, DateTime petBirthDate)
+        public Media(string petName, DateTime birthDate)
         {
             if (string.IsNullOrWhiteSpace(petName))
             {
                 throw new ArgumentException("Pet name cannot be null or empty.", nameof(petName));
             }
+            if (birthDate == default)
+            {
+                throw new ArgumentException("Pet birth date is not valid.", nameof(birthDate));
+            }
+            if (birthDate > DateTime.Now)
+            {
+                throw new ArgumentException("Pet birth date cannot be in the future.", nameof(birthDate));
+            }
+            if (birthDate < DateTime.Now.AddYears(-25))
+            {
+                throw new ArgumentException("Pet birth date is not realistic.", nameof(birthDate));
+            }
+
             PartitionKey = petName;
-            RowKey = petBirthDate.ToString("yyyy-MM-dd");
+            RowKey = birthDate.ToString("yyyy-MM-dd");
         }
     }
 }
