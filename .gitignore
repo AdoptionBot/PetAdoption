@@ -361,3 +361,10 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Azure Functions
+local.settings.json
+
+# App Settings (if you accidentally create files with secrets)
+appsettings.Local.json
+appsettings.*.Local.json
