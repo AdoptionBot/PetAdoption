@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Data.TableStorage.SchemaUtilities
+namespace Data.TableStorage.Validation
 {
     /// <summary>
     /// Validates that a country value is a valid ICAO country designation from the XML file

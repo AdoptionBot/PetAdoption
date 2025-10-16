@@ -1,71 +1,95 @@
 ﻿using Azure;
 using Azure.Data.Tables;
-using Data.TableStorage.SchemaUtilities;
+using Data.TableStorage.Enums;
+using Data.TableStorage.Validation;
+using System.ComponentModel.DataAnnotations;
 
 namespace Data.TableStorage
 {
     public class Pet : ITableEntity
     {
         // ITableEntity required properties
-        public string PartitionKey { get; set; } // Pet Name
-        public string RowKey { get; set; } // Pet Birth Date
+        [Required(ErrorMessage = "Pet name is required.")]
+        [StringLength(50, MinimumLength = 3, ErrorMessage = "Pet name must be between 3 and 50 characters.")]
+        public string PartitionKey { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Pet birth date is required.")]
+        [ValidBirthDate]
+        public string RowKey { get; set; } = string.Empty;
+
         public DateTimeOffset? Timestamp { get; set; }
         public ETag ETag { get; set; }
 
         // Custom properties
-        public string? Species { get; set; } // Option
-        public string? Breed { get; set; } // Option
-        public string? Colour { get; set; } // Option
+        [StringLength(50, ErrorMessage = "Species cannot exceed 50 characters.")]
+        public string? Species { get; set; }
+
+        [StringLength(50, ErrorMessage = "Breed cannot exceed 50 characters.")]
+        public string? Breed { get; set; }
+
+        [StringLength(50, ErrorMessage = "Colour cannot exceed 50 characters.")]
+        public string? Colour { get; set; }
+
+        [Required(ErrorMessage = "Gender is required.")]
+        [EnumDataType(typeof(Gender), ErrorMessage = "Invalid gender.")]
         public Gender Gender { get; set; }
+
+        [Required(ErrorMessage = "Size is required.")]
+        [EnumDataType(typeof(Size), ErrorMessage = "Invalid size.")]
         public Size Size { get; set; }
-        public string About { get; set; }
+
+        [Required(ErrorMessage = "About description is required.")]
+        [StringLength(2000, MinimumLength = 1, ErrorMessage = "About description must be between 1 and 2000 characters.")]
+        public string About { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Adoption status is required.")]
+        [EnumDataType(typeof(AdoptionStatus), ErrorMessage = "Invalid adoption status.")]
         public AdoptionStatus AdoptionStatus { get; set; }
+
+        [Required(ErrorMessage = "Vaccinations status is required.")]
+        [EnumDataType(typeof(Vaccinations), ErrorMessage = "Invalid vaccinations status.")]
         public Vaccinations Vaccinations { get; set; }
+
+        [StringLength(1000, ErrorMessage = "Medical treatments cannot exceed 1000 characters.")]
         public string? MedicalTreatments { get; set; }
+
+        [StringLength(1000, ErrorMessage = "Known medical issues cannot exceed 1000 characters.")]
         public string? KnownMedicalIssues { get; set; }
+
         public bool Dewormed { get; set; }
         public bool Chipped { get; set; }
-        public string ShelterName { get; set; }
-        public string ShelterLocation { get; set; }
+
+        [Required(ErrorMessage = "Shelter name is required.")]
+        [StringLength(50, MinimumLength = 3, ErrorMessage = "Shelter name must be between 3 and 50 characters.")]
+        public string ShelterName { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Shelter location is required.")]
+        [StringLength(50, MinimumLength = 3, ErrorMessage = "Shelter location must be between 3 and 50 characters.")]
+        public string ShelterLocation { get; set; } = string.Empty;
+
+        // Parameterless constructor for deserialization
+        public Pet() { }
 
         public Pet(string name, DateTime birthDate, string? species, string? breed, string? colour, Gender gender, Size size,
             string about, AdoptionStatus adoptionStatus, Vaccinations vaccinations, string? medicalTreatments,
             string? knownMedicalIssues, bool dewormed, bool chipped, string shelterName, string shelterLocation)
         {
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                throw new ArgumentException("Pet name cannot be null or empty.", nameof(name));
-            }
-            if (birthDate == default)
-            {
-                throw new ArgumentException("Pet birth date is not valid.", nameof(birthDate));
-            }
-            if (birthDate > DateTime.Now)
-            {
-                throw new ArgumentException("Pet birth date cannot be in the future.", nameof(birthDate));
-            }
-            if (birthDate < DateTime.Now.AddYears(-25))
-            {
-                throw new ArgumentException("Pet birth date is not realistic.", nameof(birthDate));
-            }
-
-
-            PartitionKey = name ?? throw new ArgumentNullException(nameof(name));
+            PartitionKey = name;
             RowKey = birthDate.ToString("yyyy-MM-dd");
             Species = species;
             Breed = breed;
             Colour = colour;
             Gender = gender;
             Size = size;
-            About = about ?? throw new ArgumentNullException(nameof(about));
+            About = about;
             AdoptionStatus = adoptionStatus;
             Vaccinations = vaccinations;
             MedicalTreatments = medicalTreatments;
             KnownMedicalIssues = knownMedicalIssues;
             Dewormed = dewormed;
             Chipped = chipped;
-            ShelterName = shelterName ?? throw new ArgumentNullException(nameof(shelterName));
-            ShelterLocation = shelterLocation ?? throw new ArgumentNullException(nameof(shelterLocation));
+            ShelterName = shelterName;
+            ShelterLocation = shelterLocation;
         }
     }
 }
