@@ -1,11 +1,8 @@
 ﻿using Azure;
 using Azure.Data.Tables;
-using Azure.Identity;
-using Azure.Security.KeyVault.Secrets;
-using Microsoft.Extensions.Configuration;
-using Services.Interfaces;
+using PetAdoption.Services.Interfaces;
 
-namespace Services.Data
+namespace PetAdoption.Services.Data
 {
     /// <summary>
     /// Service for interacting with multiple Azure Table Storage tables
@@ -16,27 +13,19 @@ namespace Services.Data
         private readonly Dictionary<string, TableClient> _tableClients;
 
         /// <summary>
-        /// Constructor that takes a configuration object to retrieve Key Vault settings
+        /// Constructor that uses KeyVaultSecretService to retrieve connection string
         /// </summary>
-        public AzureTableStorageService(IConfiguration configuration)
+        public AzureTableStorageService(KeyVaultSecretService keyVaultService)
         {
-            // Get Key Vault settings
-            var keyVaultUri = configuration["KeyVault:VaultUri"];
-            var secretName = configuration["KeyVault:TableStorageConnectionStringSecret"];
-
-            if (string.IsNullOrEmpty(keyVaultUri) || string.IsNullOrEmpty(secretName))
+            if (keyVaultService == null)
             {
-                throw new ArgumentException("Key Vault URI and secret name must be provided in configuration.");
+                throw new ArgumentNullException(nameof(keyVaultService));
             }
 
-            // Create a secret client using managed identity or DefaultAzureCredential
-            var secretClient = new SecretClient(
-                new Uri(keyVaultUri),
-                new DefaultAzureCredential());
-
-            // Retrieve the connection string from Key Vault - use async version
-            KeyVaultSecret secret = secretClient.GetSecretAsync(secretName).GetAwaiter().GetResult();
-            _connectionString = secret.Value;
+            // Retrieve the connection string from Key Vault using the service
+            _connectionString = keyVaultService.GetTableStorageConnectionStringAsync()
+                .GetAwaiter()
+                .GetResult();
 
             _tableClients = new Dictionary<string, TableClient>();
         }

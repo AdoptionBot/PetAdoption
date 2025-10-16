@@ -1,10 +1,10 @@
 ﻿using Azure;
 using Azure.Data.Tables;
-using Data.TableStorage.Enums;
-using Data.TableStorage.Validation;
+using PetAdoption.Data.TableStorage.Enums;
+using PetAdoption.Data.TableStorage.Validation;
 using System.ComponentModel.DataAnnotations;
 
-namespace Data.TableStorage
+namespace PetAdoption.Data.TableStorage
 {
     public class AdoptionApplication : ITableEntity
     {

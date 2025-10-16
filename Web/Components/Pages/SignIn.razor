@@ -1,0 +1,28 @@
+@page "/signin-google"
+@page "/signin-microsoft"
+@page "/signin-apple"
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Google
+@using Microsoft.AspNetCore.Authentication.MicrosoftAccount
+@inject NavigationManager Navigation
+@code {
+    protected override void OnInitialized()
+    {
+        var path = Navigation.ToAbsoluteUri(Navigation.Uri).AbsolutePath;
+        var scheme = path switch
+        {
+            "/signin-google" => GoogleDefaults.AuthenticationScheme,
+            "/signin-microsoft" => MicrosoftAccountDefaults.AuthenticationScheme,
+            "/signin-apple" => "Apple",
+            _ => GoogleDefaults.AuthenticationScheme
+        };
+
+        var authProperties = new AuthenticationProperties
+        {
+            RedirectUri = "/profile"
+        };
+
+        // This will be handled by middleware
+        Navigation.NavigateTo($"/api/auth/login?scheme={scheme}&returnUrl=/profile", true);
+    }
+}

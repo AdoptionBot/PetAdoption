@@ -1,7 +1,7 @@
 ﻿using Azure;
 using Azure.Data.Tables;
 
-namespace Services.Interfaces
+namespace PetAdoption.Services.Interfaces
 {
     /// <summary>
     /// Interface for Azure Table Storage service

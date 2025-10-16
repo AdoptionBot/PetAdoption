@@ -1,4 +1,4 @@
-﻿namespace Data.TableStorage.Enums
+﻿namespace PetAdoption.Data.TableStorage.Enums
 {
     [Flags]
     public enum Vaccinations
