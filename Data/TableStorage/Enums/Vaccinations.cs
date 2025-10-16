@@ -1,4 +1,4 @@
-﻿namespace Data.TableStorage.SchemaUtilities
+﻿namespace Data.TableStorage.Enums
 {
     [Flags]
     public enum Vaccinations

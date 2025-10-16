@@ -1,6 +1,6 @@
 using System.Xml.Linq;
 
-namespace Data.TableStorage.SchemaUtilities
+namespace Data.TableStorage.Validation
 {
     /// <summary>
     /// Loads and caches valid ICAO country designations from XML
