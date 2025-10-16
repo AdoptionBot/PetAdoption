@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Data.TableStorage.Validation
+namespace PetAdoption.Data.TableStorage.Validation
 {
     /// <summary>
     /// Validates that a country value is a valid ICAO country designation from the XML file

@@ -1,25 +1,42 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Services.Interfaces;
+using PetAdoption.Services.Interfaces;
 
-namespace Services.Data.Extensions
+namespace PetAdoption.Services.Data.Extensions
 {
     /// <summary>
-    /// Extensions for registering Azure Table Storage service with DI
+    /// Extensions for registering Azure Table Storage services with dependency injection
     /// </summary>
     public static class AzureTableStorageServiceExtensions
     {
-        public static IServiceCollection AddAzureTableStorageService(this IServiceCollection services)
+        /// <summary>
+        /// Adds Azure Table Storage service with a direct connection string (for testing)
+        /// </summary>
+        /// <param name="services">The service collection</param>
+        /// <param name="connectionString">The Azure Table Storage connection string</param>
+        /// <returns>The service collection for chaining</returns>
+        public static IServiceCollection AddAzureTableStorageService(
+            this IServiceCollection services,
+            string connectionString)
         {
-            services.AddSingleton<IAzureTableStorageService, AzureTableStorageService>();
+            services.AddSingleton<IAzureTableStorageService>(sp =>
+                new AzureTableStorageService(connectionString));
+            
             services.AddScoped<ITableInitializationService, TableInitializationService>();
+
             return services;
         }
 
         /// <summary>
-        /// Adds Azure Table Storage service with Key Vault integration
+        /// Adds Azure Table Storage service with Key Vault integration for production use
         /// </summary>
-        public static IServiceCollection AddAzureTableStorageWithKeyVault(this IServiceCollection services, IConfiguration configuration)
+        /// <param name="services">The service collection</param>
+        /// <param name="configuration">The application configuration</param>
+        /// <returns>The service collection for chaining</returns>
+        /// <exception cref="InvalidOperationException">Thrown when Key Vault configuration is missing</exception>
+        public static IServiceCollection AddAzureTableStorageWithKeyVault(
+            this IServiceCollection services,
+            IConfiguration configuration)
         {
             // Validate configuration
             var keyVaultUri = configuration["KeyVault:VaultUri"];
@@ -27,19 +44,44 @@ namespace Services.Data.Extensions
 
             if (string.IsNullOrEmpty(keyVaultUri))
             {
-                throw new InvalidOperationException("KeyVault:VaultUri is not configured in appsettings.json");
+                throw new InvalidOperationException(
+                    "KeyVault:VaultUri is not configured in appsettings.json");
             }
 
             if (string.IsNullOrEmpty(secretName))
             {
-                throw new InvalidOperationException("KeyVault:TableStorageConnectionStringSecret is not configured in appsettings.json");
+                throw new InvalidOperationException(
+                    "KeyVault:TableStorageConnectionStringSecret is not configured in appsettings.json");
             }
 
-            // Register the services
+            // Register Key Vault Secret Service first (as it's a dependency for AzureTableStorageService)
+            services.AddSingleton<KeyVaultSecretService>();
+
+            // Register Azure Table Storage Service with Key Vault integration
+            // This now depends on KeyVaultSecretService being registered first
             services.AddSingleton<IAzureTableStorageService, AzureTableStorageService>();
+
+            // Register Table Initialization Service
             services.AddScoped<ITableInitializationService, TableInitializationService>();
 
+            // Register User Service for authentication and user management
+            services.AddScoped<IUserService, UserService>();
+
             return services;
+        }
+
+        /// <summary>
+        /// Adds all Azure Table Storage related services
+        /// This is a convenience method that registers all services needed for the application
+        /// </summary>
+        /// <param name="services">The service collection</param>
+        /// <param name="configuration">The application configuration</param>
+        /// <returns>The service collection for chaining</returns>
+        public static IServiceCollection AddAllTableStorageServices(
+            this IServiceCollection services,
+            IConfiguration configuration)
+        {
+            return services.AddAzureTableStorageWithKeyVault(configuration);
         }
     }
 }

@@ -1,8 +1,12 @@
-using Web.Components;
-using Services.Data.Extensions;
-using Services.Interfaces;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
+using PetAdoption.Web.Components;
+using PetAdoption.Services.Data.Extensions;
+using PetAdoption.Services.Data;
+using PetAdoption.Services.Interfaces;
 
-namespace Web
+namespace PetAdoption.Web
 {
     public class Program
     {
@@ -14,8 +18,75 @@ namespace Web
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
 
+            // Add controllers for auth endpoints
+            builder.Services.AddControllers();
+
+            // Add cascading authentication state
+            builder.Services.AddCascadingAuthenticationState();
+
+            // Retrieve authentication secrets BEFORE registering services
+            var authSecrets = await KeyVaultSecretService.RetrieveAuthenticationSecretsAsync(builder.Configuration);
+
             // Add Azure Table Storage with Key Vault integration
+            // This registers: KeyVaultSecretService, IAzureTableStorageService, ITableInitializationService, IUserService
             builder.Services.AddAzureTableStorageWithKeyVault(builder.Configuration);
+
+            // Configure authentication with retrieved secrets
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            })
+            .AddCookie(options =>
+            {
+                options.LoginPath = "/login";
+                options.LogoutPath = "/api/auth/logout";
+                options.AccessDeniedPath = "/access-denied";
+                options.ExpireTimeSpan = TimeSpan.FromDays(30);
+                options.SlidingExpiration = true;
+            })
+            .AddGoogle(options =>
+            {
+                options.ClientId = authSecrets.GoogleClientId;
+                options.ClientSecret = authSecrets.GoogleClientSecret;
+                options.SaveTokens = true;
+                options.CallbackPath = "/signin-google-callback";
+            })
+            .AddMicrosoftAccount(options =>
+            {
+                options.ClientId = authSecrets.MicrosoftClientId;
+                options.ClientSecret = authSecrets.MicrosoftClientSecret;
+                options.SaveTokens = true;
+                options.CallbackPath = "/signin-microsoft-callback";
+            })
+            .AddApple(options =>
+            {
+                options.ClientId = authSecrets.AppleClientId;
+                options.TeamId = authSecrets.AppleTeamId;
+                options.KeyId = authSecrets.AppleKeyId;
+                
+                // Use private key from Key Vault
+                if (!string.IsNullOrEmpty(authSecrets.ApplePrivateKey))
+                {
+                    // Handle escaped newlines and create temporary file
+                    var formattedKey = authSecrets.ApplePrivateKey.Replace("\\n", "\n");
+                    var tempKeyFile = Path.Combine(Path.GetTempPath(), $"apple_key_{Guid.NewGuid()}.p8");
+                    File.WriteAllText(tempKeyFile, formattedKey);
+                    
+                    options.UsePrivateKey(keyId => 
+                        new Microsoft.Extensions.FileProviders.PhysicalFileProvider(Path.GetTempPath())
+                            .GetFileInfo(Path.GetFileName(tempKeyFile)));
+                }
+                
+                options.SaveTokens = true;
+                options.CallbackPath = "/signin-apple-callback";
+            });
+
+            // Add authorization
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("AdminOnly", policy =>
+                    policy.RequireRole("Admin"));
+            });
 
             var app = builder.Build();
 
@@ -23,23 +94,22 @@ namespace Web
             using (var scope = app.Services.CreateScope())
             {
                 var tableInitService = scope.ServiceProvider.GetRequiredService<ITableInitializationService>();
-                var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+                var appLogger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
                 try
                 {
-                    logger.LogInformation("Initializing Azure Table Storage tables...");
+                    appLogger.LogInformation("Initializing Azure Table Storage tables...");
                     
-                    // Set forceRecreate to true only during development if you want to reset tables
                     bool forceRecreate = app.Environment.IsDevelopment() && 
                                        builder.Configuration.GetValue<bool>("ForceRecreateTablesOnStartup", false);
                     
                     await tableInitService.InitializeTablesAsync(forceRecreate);
                     
-                    logger.LogInformation("Table initialization completed successfully");
+                    appLogger.LogInformation("Table initialization completed successfully");
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "Failed to initialize tables");
+                    appLogger.LogError(ex, "Failed to initialize tables");
                     throw;
                 }
             }
@@ -56,7 +126,15 @@ namespace Web
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+
+            // Add authentication and authorization middleware
+            app.UseAuthentication();
+            app.UseAuthorization();
+
             app.UseAntiforgery();
+
+            // Map controllers for auth endpoints
+            app.MapControllers();
 
             app.MapRazorComponents<App>()
                 .AddInteractiveServerRenderMode();

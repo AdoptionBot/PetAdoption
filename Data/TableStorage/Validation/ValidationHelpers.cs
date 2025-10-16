@@ -1,4 +1,4 @@
-namespace Data.TableStorage.Validation
+namespace PetAdoption.Data.TableStorage.Validation
 {
     /// <summary>
     /// Helper class for UI validation utilities

@@ -1,0 +1,190 @@
+@page "/profile"
+@using Microsoft.AspNetCore.Authorization
+@using PetAdoption.Services.Interfaces
+@attribute [Authorize]
+@inject IUserService UserService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>My Profile - Madeira Pet Adoption</PageTitle>
+
+<div class="container mt-5 mb-5">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">My Profile</h3>
+                </div>
+                <div class="card-body p-4">
+                    @if (isLoading)
+                    {
+                        <div class="text-center">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    }
+                    else if (currentUser != null)
+                    {
+                        <EditForm Model="currentUser" OnValidSubmit="HandleValidSubmit">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary class="alert alert-danger" />
+
+                            @if (!string.IsNullOrEmpty(successMessage))
+                            {
+                                <div class="alert alert-success">@successMessage</div>
+                            }
+
+                            @if (!string.IsNullOrEmpty(errorMessage))
+                            {
+                                <div class="alert alert-danger">@errorMessage</div>
+                            }
+
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" value="@currentUser.RowKey" disabled />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">User Name</label>
+                                <InputText @bind-Value="currentUser.PartitionKey" class="form-control" />
+                                <ValidationMessage For="@(() => currentUser.PartitionKey)" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Phone Number</label>
+                                <InputText @bind-Value="currentUser.PhoneNumber" class="form-control" />
+                                <ValidationMessage For="@(() => currentUser.PhoneNumber)" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Address</label>
+                                <InputTextArea @bind-Value="currentUser.Address" class="form-control" rows="3" />
+                                <ValidationMessage For="@(() => currentUser.Address)" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Country</label>
+                                <InputText @bind-Value="currentUser.Country" class="form-control" />
+                                <ValidationMessage For="@(() => currentUser.Country)" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Website (Optional)</label>
+                                <InputText @bind-Value="currentUser.Website" class="form-control" />
+                                <ValidationMessage For="@(() => currentUser.Website)" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Facebook (Optional)</label>
+                                <InputText @bind-Value="currentUser.Facebook" class="form-control" />
+                                <ValidationMessage For="@(() => currentUser.Facebook)" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Instagram (Optional)</label>
+                                <InputText @bind-Value="currentUser.Instagram" class="form-control" />
+                                <ValidationMessage For="@(() => currentUser.Instagram)" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Role</label>
+                                <input type="text" class="form-control" value="@currentUser.Role" disabled />
+                                <small class="text-muted">Only administrators can change user roles</small>
+                            </div>
+
+                            @if (currentUser.Role == UserRole.Shelter)
+                            {
+                                <div class="mb-3">
+                                    <label class="form-label">Shelter Name</label>
+                                    <InputText @bind-Value="currentUser.ShelterName" class="form-control" />
+                                    <ValidationMessage For="@(() => currentUser.ShelterName)" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Shelter Location</label>
+                                    <InputText @bind-Value="currentUser.ShelterLocation" class="form-control" />
+                                    <ValidationMessage For="@(() => currentUser.ShelterLocation)" />
+                                </div>
+                            }
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg" disabled="@isSaving">
+                                    @if (isSaving)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2"></span>
+                                    }
+                                    Save Changes
+                                </button>
+                            </div>
+                        </EditForm>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+                            Unable to load user profile. Please try again later.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private User? currentUser;
+    private bool isLoading = true;
+    private bool isSaving = false;
+    private string? successMessage;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                var email = user.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+                if (!string.IsNullOrEmpty(email))
+                {
+                    currentUser = await UserService.GetUserByEmailAsync(email);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Failed to load profile: " + ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (currentUser == null) return;
+
+        isSaving = true;
+        successMessage = null;
+        errorMessage = null;
+
+        try
+        {
+            await UserService.UpdateUserAsync(currentUser);
+            successMessage = "Profile updated successfully!";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Failed to update profile: " + ex.Message;
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+}

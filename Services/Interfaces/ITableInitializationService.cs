@@ -1,6 +1,6 @@
-using Services.Data;
+using PetAdoption.Services.Data;
 
-namespace Services.Interfaces
+namespace PetAdoption.Services.Interfaces
 {
     /// <summary>
     /// Interface for table initialization service

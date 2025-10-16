@@ -1,10 +1,10 @@
 using Azure;
 using Azure.Data.Tables;
-using Data.TableStorage.SchemaUtilities;
+using PetAdoption.Data.TableStorage.SchemaUtilities;
 using Microsoft.Extensions.Logging;
-using Services.Interfaces;
+using PetAdoption.Services.Interfaces;
 
-namespace Services.Data
+namespace PetAdoption.Services.Data
 {
     /// <summary>
     /// Service for initializing and managing Azure Table Storage tables

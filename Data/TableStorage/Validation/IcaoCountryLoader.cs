@@ -1,6 +1,6 @@
 using System.Xml.Linq;
 
-namespace Data.TableStorage.Validation
+namespace PetAdoption.Data.TableStorage.Validation
 {
     /// <summary>
     /// Loads and caches valid ICAO country designations from XML

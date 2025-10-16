@@ -1,4 +1,4 @@
-﻿namespace Data.TableStorage.Enums
+﻿namespace PetAdoption.Data.TableStorage.Enums
 {
     public enum UserRole
     {
