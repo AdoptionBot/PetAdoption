@@ -18,4 +18,8 @@
     <ProjectReference Include="..\Data\Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="AdoptionProcess\" />
+  </ItemGroup>
+
 </Project>

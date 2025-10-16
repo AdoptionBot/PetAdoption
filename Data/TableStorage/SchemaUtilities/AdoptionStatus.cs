@@ -4,9 +4,10 @@
     {
         NotAdopted,
         Submitted,
-        InProcess,
-        Accepted,
-        Rejected,
+        AcceptedByShelter,
+        AcceptedByUser,
+        RejectedByShelter,
+        RejectedByUser,
         Adopted
     }
 }
