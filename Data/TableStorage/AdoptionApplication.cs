@@ -1,5 +1,6 @@
 ﻿using Azure;
 using Azure.Data.Tables;
+using Data.TableStorage.Enums;
 using Data.TableStorage.Validation;
 using System.ComponentModel.DataAnnotations;
 
