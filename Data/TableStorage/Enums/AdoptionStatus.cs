@@ -1,4 +1,4 @@
-﻿namespace Data.TableStorage.Validation
+﻿namespace Data.TableStorage.Enums
 {
     public enum AdoptionStatus
     {
