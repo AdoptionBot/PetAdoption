@@ -15,6 +15,7 @@ namespace Data.TableStorage
         // Custom properties
         public string PhoneNumber { get; set; }
         public string Address { get; set; }
+        public string Country { get; set; } // ICAO xml
         public string? Website { get; set; }
         public string? Facebook { get; set; }
         public string? Instagram { get; set; }
@@ -23,8 +24,8 @@ namespace Data.TableStorage
         public string? ShelterName { get; set; }
         public string? ShelterLocation{ get; set; }
 
-        public User(string userName, string userEmail, string phoneNumber, string address, string? website, string? facebook,
-            string? instagram, bool accountDisabled, UserRole role, string? shelterName, string? shelterLocation)
+        public User(string userName, string userEmail, string phoneNumber, string address, string country, string? website,
+            string? facebook, string? instagram, bool accountDisabled, UserRole role, string? shelterName, string? shelterLocation)
         {
             if (string.IsNullOrWhiteSpace(userName))
             {
@@ -39,6 +40,7 @@ namespace Data.TableStorage
             RowKey = userEmail;
             PhoneNumber = phoneNumber ?? throw new ArgumentNullException(nameof(phoneNumber));
             Address = address ?? throw new ArgumentNullException(nameof(address));
+            Country = country ?? throw new ArgumentNullException(nameof(country));
             Website = website;
             Facebook = facebook;
             Instagram = instagram;
