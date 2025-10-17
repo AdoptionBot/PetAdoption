@@ -1,6 +1,6 @@
 @page "/signin-google"
 @page "/signin-microsoft"
-@page "/signin-apple"
+@* @page "/signin-apple" *@
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Authentication.Google
 @using Microsoft.AspNetCore.Authentication.MicrosoftAccount
@@ -13,7 +13,7 @@
         {
             "/signin-google" => GoogleDefaults.AuthenticationScheme,
             "/signin-microsoft" => MicrosoftAccountDefaults.AuthenticationScheme,
-            "/signin-apple" => "Apple",
+            // "/signin-apple" => "Apple",
             _ => GoogleDefaults.AuthenticationScheme
         };
 

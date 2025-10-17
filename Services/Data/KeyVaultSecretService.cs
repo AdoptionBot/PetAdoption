@@ -138,11 +138,11 @@ namespace PetAdoption.Services.Data
                 GoogleClientId = await GetSecretAsync("GoogleClientIdSecret"),
                 GoogleClientSecret = await GetSecretAsync("GoogleClientSecretSecret"),
                 MicrosoftClientId = await GetSecretAsync("MicrosoftClientIdSecret"),
-                MicrosoftClientSecret = await GetSecretAsync("MicrosoftClientSecretSecret"),
-                AppleClientId = await GetSecretAsync("AppleClientIdSecret"),
-                AppleTeamId = await GetSecretAsync("AppleTeamIdSecret"),
-                AppleKeyId = await GetSecretAsync("AppleKeyIdSecret"),
-                ApplePrivateKey = await GetSecretAsync("ApplePrivateKeySecret")
+                MicrosoftClientSecret = await GetSecretAsync("MicrosoftClientSecretSecret")
+                //AppleClientId = await GetSecretAsync("AppleClientIdSecret"),
+                //AppleTeamId = await GetSecretAsync("AppleTeamIdSecret"),
+                //AppleKeyId = await GetSecretAsync("AppleKeyIdSecret"),
+                //ApplePrivateKey = await GetSecretAsync("ApplePrivateKeySecret")
             };
 
             _logger.LogInformation("Authentication secrets retrieved successfully");
