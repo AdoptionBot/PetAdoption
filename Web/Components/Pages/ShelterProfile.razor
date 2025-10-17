@@ -1,0 +1,221 @@
+﻿@page "/shelter"
+@using Microsoft.AspNetCore.Authorization
+@using PetAdoption.Services.Interfaces
+@using PetAdoption.Data.TableStorage
+@using PetAdoption.Data.TableStorage.Enums
+@attribute [Authorize]
+@inject IUserService UserService
+@inject IShelterService ShelterService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
+
+<PageTitle>Shelter Registration - Madeira Pet Adoption</PageTitle>
+
+<div class="container mt-5 mb-5">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Shelter Registration</h3>
+                </div>
+                <div class="card-body p-4">
+                    @if (isLoading)
+                    {
+                        <div class="text-center">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    }
+                    else if (currentShelter != null)
+                    {
+                        <EditForm Model="currentShelter" OnValidSubmit="HandleValidSubmit">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary class="alert alert-danger" />
+
+                            @if (!string.IsNullOrEmpty(successMessage))
+                            {
+                                <div class="alert alert-success">@successMessage</div>
+                            }
+
+                            @if (!string.IsNullOrEmpty(errorMessage))
+                            {
+                                <div class="alert alert-danger">@errorMessage</div>
+                            }
+
+                            <div class="mb-4">
+                                <h5 class="border-bottom pb-2">Shelter Information</h5>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Shelter Name <span class="text-danger">*</span></label>
+                                    <InputText @bind-Value="currentShelter.PartitionKey" class="form-control" />
+                                    <ValidationMessage For="@(() => currentShelter.PartitionKey)" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Shelter City/Town <span class="text-danger">*</span></label>
+                                    <InputText @bind-Value="currentShelter.RowKey" class="form-control" />
+                                    <ValidationMessage For="@(() => currentShelter.RowKey)" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Country <span class="text-danger">*</span></label>
+                                    <InputText @bind-Value="currentShelter.Country" class="form-control" />
+                                    <ValidationMessage For="@(() => currentShelter.Country)" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                    <InputText @bind-Value="currentShelter.PhoneNumber" class="form-control" />
+                                    <ValidationMessage For="@(() => currentShelter.PhoneNumber)" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Address <span class="text-danger">*</span></label>
+                                    <InputTextArea @bind-Value="currentShelter.Address" class="form-control" rows="3" />
+                                    <ValidationMessage For="@(() => currentShelter.Address)" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Email <span class="text-danger">*</span></label>
+                                    <InputText @bind-Value="currentShelter.Email" class="form-control" type="email" />
+                                    <ValidationMessage For="@(() => currentShelter.Email)" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Website (Optional)</label>
+                                    <InputText @bind-Value="currentShelter.Website" class="form-control" />
+                                    <ValidationMessage For="@(() => currentShelter.Website)" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Facebook (Optional)</label>
+                                    <InputText @bind-Value="currentShelter.Facebook" class="form-control" />
+                                    <ValidationMessage For="@(() => currentShelter.Facebook)" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Instagram (Optional)</label>
+                                    <InputText @bind-Value="currentShelter.Instagram" class="form-control" />
+                                    <ValidationMessage For="@(() => currentShelter.Instagram)" />
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg" disabled="@isSaving">
+                                    @if (isSaving)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2"></span>
+                                    }
+                                    Save Shelter
+                                </button>
+                            </div>
+                        </EditForm>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+                            Unable to load shelter information. Please try again later.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private Shelter? currentShelter;
+    private User? currentUser;
+    private bool isLoading = true;
+    private bool isSaving = false;
+    private string? successMessage;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                var email = user.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+                if (!string.IsNullOrEmpty(email))
+                {
+                    currentUser = await UserService.GetUserByEmailAsync(email);
+                    if (currentUser != null)
+                    {
+                        // Check if user has shelter data
+                        if (!string.IsNullOrEmpty(currentUser.ShelterName) && !string.IsNullOrEmpty(currentUser.ShelterLocation))
+                        {
+                            // Try to load existing shelter
+                            currentShelter = await ShelterService.GetShelterAsync(currentUser.ShelterName, currentUser.ShelterLocation);
+                        }
+
+                        // Initialize empty shelter if not loaded
+                        if (currentShelter == null)
+                        {
+                            currentShelter = new Shelter();
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Failed to load shelter information: " + ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (currentShelter == null || currentUser == null) return;
+
+        isSaving = true;
+        successMessage = null;
+        errorMessage = null;
+
+        try
+        {
+            // Save shelter entity
+            if (string.IsNullOrEmpty(currentShelter.ETag.ToString()) || currentShelter.ETag == default)
+            {
+                await ShelterService.AddShelterAsync(currentShelter);
+            }
+            else
+            {
+                await ShelterService.UpdateShelterAsync(currentShelter);
+            }
+
+            // Update user with shelter reference
+            currentUser.ShelterName = currentShelter.PartitionKey;
+            currentUser.ShelterLocation = currentShelter.RowKey;
+            currentUser.Role = UserRole.Shelter;
+
+            await UserService.UpdateUserAsync(currentUser);
+
+            successMessage = "Shelter information saved successfully!";
+            
+            // Scroll to top of page
+            await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Failed to save shelter information: " + ex.Message;
+            
+            // Scroll to top to show error message
+            await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0);
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+}

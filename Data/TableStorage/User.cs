@@ -46,7 +46,7 @@ namespace PetAdoption.Data.TableStorage
         [StringLength(256, ErrorMessage = "Instagram URL cannot exceed 256 characters.")]
         public string? Instagram { get; set; }
 
-        public bool AccountDisabled { get; set; }
+        public bool IsAccountDisabled { get; set; }
 
         [Required(ErrorMessage = "User role is required.")]
         [EnumDataType(typeof(UserRole), ErrorMessage = "Invalid user role.")]
@@ -58,7 +58,9 @@ namespace PetAdoption.Data.TableStorage
         [StringLength(50, ErrorMessage = "Shelter location cannot exceed 50 characters.")]
         public string? ShelterLocation { get; set; }
 
-        public bool ProfileCompleted { get; set; }
+        public bool IsFoster { get; set; }
+
+        public bool IsProfileCompleted { get; set; }
 
         // Parameterless constructor for deserialization
         public User() { }
@@ -74,11 +76,11 @@ namespace PetAdoption.Data.TableStorage
             Website = website;
             Facebook = facebook;
             Instagram = instagram;
-            AccountDisabled = false;
+            IsAccountDisabled = false;
             Role = role;
             ShelterName = shelterName;
             ShelterLocation = shelterLocation;
-            ProfileCompleted = false;
+            IsProfileCompleted = false;
         }
     }
 }

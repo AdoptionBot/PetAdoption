@@ -1,8 +1,10 @@
 @page "/admin/users"
 @using Microsoft.AspNetCore.Authorization
 @using PetAdoption.Services.Interfaces
+@using PetAdoption.Data.TableStorage
 @attribute [Authorize(Policy = "AdminOnly")]
 @inject IUserService UserService
+@inject IShelterService ShelterService
 @rendermode InteractiveServer
 
 <PageTitle>Manage Users - Admin</PageTitle>
@@ -21,7 +23,7 @@
                     </div>
                 </div>
             }
-            else if (users != null && users.Any())
+            else if (userWithShelters != null && userWithShelters.Any())
             {
                 @if (!string.IsNullOrEmpty(successMessage))
                 {
@@ -43,27 +45,29 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Phone</th>
-                                <th>Country</th>
+                                <th>User Name</th>
+                                <th>User Email</th>
+                                <th>Shelter Name</th>
+                                <th>Shelter City/Town</th>
+                                <th>Shelter Email</th>
                                 <th>Role</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var user in users)
+                            @foreach (var item in userWithShelters)
                             {
                                 <tr>
-                                    <td>@user.PartitionKey</td>
-                                    <td>@user.RowKey</td>
-                                    <td>@user.PhoneNumber</td>
-                                    <td>@user.Country</td>
+                                    <td>@item.User.PartitionKey</td>
+                                    <td>@item.User.RowKey</td>
+                                    <td>@(item.Shelter?.PartitionKey ?? "")</td>
+                                    <td>@(item.Shelter?.RowKey ?? "")</td>
+                                    <td>@(item.Shelter?.Email ?? "")</td>
                                     <td>
                                         <select class="form-select form-select-sm" 
-                                                value="@user.Role"
-                                                @onchange="@(e => HandleRoleChange(user, e))">
+                                                value="@item.User.Role"
+                                                @onchange="@(e => HandleRoleChange(item.User, e))">
                                             @foreach (UserRole role in Enum.GetValues(typeof(UserRole)))
                                             {
                                                 <option value="@role">@role</option>
@@ -71,7 +75,7 @@
                                         </select>
                                     </td>
                                     <td>
-                                        @if (user.AccountDisabled)
+                                        @if (item.User.IsAccountDisabled)
                                         {
                                             <span class="badge bg-danger">Disabled</span>
                                         }
@@ -81,12 +85,12 @@
                                         }
                                     </td>
                                     <td>
-                                        <button class="btn btn-sm @(user.AccountDisabled ? "btn-success" : "btn-warning")"
-                                                @onclick="() => ToggleUserStatus(user)">
-                                            @(user.AccountDisabled ? "Enable" : "Disable")
+                                        <button class="btn btn-sm @(item.User.IsAccountDisabled ? "btn-success" : "btn-warning")"
+                                                @onclick="() => ToggleUserStatus(item.User)">
+                                            @(item.User.IsAccountDisabled ? "Enable" : "Disable")
                                         </button>
                                         <button class="btn btn-sm btn-danger ms-2"
-                                                @onclick="() => DeleteUser(user)">
+                                                @onclick="() => DeleteUser(item.User)">
                                             Delete
                                         </button>
                                     </td>
@@ -97,7 +101,7 @@
                 </div>
 
                 <div class="mt-3">
-                    <p class="text-muted">Total Users: @users.Count()</p>
+                    <p class="text-muted">Total Users: @userWithShelters.Count()</p>
                 </div>
             }
             else
@@ -111,7 +115,13 @@
 </div>
 
 @code {
-    private List<User>? users;
+    private class UserWithShelter
+    {
+        public User User { get; set; } = null!;
+        public Shelter? Shelter { get; set; }
+    }
+
+    private List<UserWithShelter>? userWithShelters;
     private bool isLoading = true;
     private string? successMessage;
     private string? errorMessage;
@@ -127,7 +137,31 @@
         try
         {
             var allUsers = await UserService.GetAllUsersAsync();
-            users = allUsers.ToList();
+            userWithShelters = new List<UserWithShelter>();
+
+            foreach (var user in allUsers)
+            {
+                Shelter? shelter = null;
+
+                // Try to load shelter if user has shelter references
+                if (!string.IsNullOrEmpty(user.ShelterName) && !string.IsNullOrEmpty(user.ShelterLocation))
+                {
+                    try
+                    {
+                        shelter = await ShelterService.GetShelterAsync(user.ShelterName, user.ShelterLocation);
+                    }
+                    catch
+                    {
+                        // Shelter not found or error loading - continue with null
+                    }
+                }
+
+                userWithShelters.Add(new UserWithShelter
+                {
+                    User = user,
+                    Shelter = shelter
+                });
+            }
         }
         catch (Exception ex)
         {
@@ -162,9 +196,9 @@
     {
         try
         {
-            user.AccountDisabled = !user.AccountDisabled;
+            user.IsAccountDisabled = !user.IsAccountDisabled;
             await UserService.UpdateUserAsync(user);
-            successMessage = $"User {user.PartitionKey} {(user.AccountDisabled ? "disabled" : "enabled")} successfully";
+            successMessage = $"User {user.PartitionKey} {(user.IsAccountDisabled ? "disabled" : "enabled")} successfully";
             errorMessage = null;
         }
         catch (Exception ex)
@@ -176,12 +210,19 @@
 
     private async Task DeleteUser(User user)
     {
-        if (users == null) return;
+        if (userWithShelters == null) return;
 
         try
         {
             await UserService.DeleteUserAsync(user.PartitionKey, user.RowKey);
-            users.Remove(user);
+            
+            // Remove from local list
+            var itemToRemove = userWithShelters.FirstOrDefault(x => x.User == user);
+            if (itemToRemove != null)
+            {
+                userWithShelters.Remove(itemToRemove);
+            }
+            
             successMessage = $"User {user.PartitionKey} deleted successfully";
             errorMessage = null;
         }

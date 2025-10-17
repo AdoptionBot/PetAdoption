@@ -1,0 +1,452 @@
+@page "/addpet"
+@using Microsoft.AspNetCore.Authorization
+@using PetAdoption.Services.Interfaces
+@using PetAdoption.Data.TableStorage
+@using PetAdoption.Data.TableStorage.Enums
+@using System.ComponentModel.DataAnnotations
+@attribute [Authorize(Roles = "Shelter")]
+@inject IUserService UserService
+@inject IShelterService ShelterService
+@inject IPetService PetService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
+
+<PageTitle>Add Pet - Madeira Pet Adoption</PageTitle>
+
+<div class="container mt-5 mb-5">
+    <div class="row">
+        <div class="col-md-10 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">Add New Pet</h3>
+                </div>
+                <div class="card-body p-4">
+                    @if (!isPetSaved)
+                    {
+                        <div class="alert alert-info">
+                            <strong>Complete Pet Information</strong>
+                            <p class="mb-0">Please complete all required fields and save the pet information before you can navigate to other pages.</p>
+                        </div>
+                    }
+
+                    @if (isLoading)
+                    {
+                        <div class="text-center">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    }
+                    else if (currentPet != null && currentShelter != null)
+                    {
+                        <EditForm Model="currentPet" OnValidSubmit="HandleValidSubmit">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary class="alert alert-danger" />
+
+                            @if (!string.IsNullOrEmpty(successMessage))
+                            {
+                                <div class="alert alert-success">@successMessage</div>
+                            }
+
+                            @if (!string.IsNullOrEmpty(errorMessage))
+                            {
+                                <div class="alert alert-danger">@errorMessage</div>
+                            }
+
+                            <!-- Pet Basic Information -->
+                            <div class="mb-4">
+                                <h5 class="border-bottom pb-2">Basic Information</h5>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Pet Name <span class="text-danger">*</span></label>
+                                        <InputText @bind-Value="currentPet.PartitionKey" class="form-control" placeholder="Enter pet name" />
+                                        <ValidationMessage For="@(() => currentPet.PartitionKey)" />
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Birth Date <span class="text-danger">*</span></label>
+                                        <InputDate @bind-Value="petBirthDate" class="form-control" />
+                                        <ValidationMessage For="@(() => currentPet.RowKey)" />
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Species (Optional)</label>
+                                        <InputText @bind-Value="currentPet.Species" class="form-control" placeholder="e.g., Dog, Cat" />
+                                        <ValidationMessage For="@(() => currentPet.Species)" />
+                                    </div>
+
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Breed (Optional)</label>
+                                        <InputText @bind-Value="currentPet.Breed" class="form-control" placeholder="e.g., Labrador, Siamese" />
+                                        <ValidationMessage For="@(() => currentPet.Breed)" />
+                                    </div>
+
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Colour (Optional)</label>
+                                        <InputText @bind-Value="currentPet.Colour" class="form-control" placeholder="e.g., Brown, Black" />
+                                        <ValidationMessage For="@(() => currentPet.Colour)" />
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Gender <span class="text-danger">*</span></label>
+                                        <InputSelect @bind-Value="currentPet.Gender" class="form-select">
+                                            <option value="">-- Select Gender --</option>
+                                            @foreach (Gender gender in Enum.GetValues(typeof(Gender)))
+                                            {
+                                                <option value="@gender">@gender</option>
+                                            }
+                                        </InputSelect>
+                                        <ValidationMessage For="@(() => currentPet.Gender)" />
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Size <span class="text-danger">*</span></label>
+                                        <InputSelect @bind-Value="currentPet.Size" class="form-select">
+                                            <option value="">-- Select Size --</option>
+                                            @foreach (Size size in Enum.GetValues(typeof(Size)))
+                                            {
+                                                <option value="@size">@size</option>
+                                            }
+                                        </InputSelect>
+                                        <ValidationMessage For="@(() => currentPet.Size)" />
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">About <span class="text-danger">*</span></label>
+                                    <InputTextArea @bind-Value="currentPet.About" class="form-control" rows="4" 
+                                                   placeholder="Describe the pet's personality, behavior, and any special needs..." />
+                                    <ValidationMessage For="@(() => currentPet.About)" />
+                                    <small class="text-muted">@(currentPet.About?.Length ?? 0) / 2000 characters</small>
+                                </div>
+                            </div>
+
+                            <!-- Adoption Status -->
+                            <div class="mb-4">
+                                <h5 class="border-bottom pb-2">Adoption Status</h5>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Adoption Status <span class="text-danger">*</span></label>
+                                    <InputSelect @bind-Value="currentPet.AdoptionStatus" class="form-select">
+                                        <option value="">-- Select Status --</option>
+                                        @foreach (AdoptionStatus status in Enum.GetValues(typeof(AdoptionStatus)))
+                                        {
+                                            <option value="@status">@status</option>
+                                        }
+                                    </InputSelect>
+                                    <ValidationMessage For="@(() => currentPet.AdoptionStatus)" />
+                                </div>
+                            </div>
+
+                            <!-- Medical Information -->
+                            <div class="mb-4">
+                                <h5 class="border-bottom pb-2">Medical Information</h5>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Vaccinations <span class="text-danger">*</span></label>
+                                    <div class="card p-3">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h6 class="text-muted">Common Vaccinations</h6>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="vaccRabies"
+                                                           @onchange="@(e => ToggleVaccination(Vaccinations.Rabies, (bool)e.Value!))" />
+                                                    <label class="form-check-label" for="vaccRabies">Rabies</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h6 class="text-muted">Cat Vaccinations</h6>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="vaccTrivalent"
+                                                           @onchange="@(e => ToggleVaccination(Vaccinations.Trivalent, (bool)e.Value!))" />
+                                                    <label class="form-check-label" for="vaccTrivalent">Trivalent</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="vaccFelv"
+                                                           @onchange="@(e => ToggleVaccination(Vaccinations.Felv, (bool)e.Value!))" />
+                                                    <label class="form-check-label" for="vaccFelv">FeLV</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="vaccFIP"
+                                                           @onchange="@(e => ToggleVaccination(Vaccinations.FIP, (bool)e.Value!))" />
+                                                    <label class="form-check-label" for="vaccFIP">FIP</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="vaccFIV"
+                                                           @onchange="@(e => ToggleVaccination(Vaccinations.FIV, (bool)e.Value!))" />
+                                                    <label class="form-check-label" for="vaccFIV">FIV</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-md-12">
+                                                <h6 class="text-muted">Dog Vaccinations</h6>
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" id="vaccParvovirus"
+                                                                   @onchange="@(e => ToggleVaccination(Vaccinations.Parvovirus, (bool)e.Value!))" />
+                                                            <label class="form-check-label" for="vaccParvovirus">Parvovirus</label>
+                                                        </div>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" id="vaccDistemper"
+                                                                   @onchange="@(e => ToggleVaccination(Vaccinations.Distemper, (bool)e.Value!))" />
+                                                            <label class="form-check-label" for="vaccDistemper">Distemper</label>
+                                                        </div>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" id="vaccHepatitis"
+                                                                   @onchange="@(e => ToggleVaccination(Vaccinations.Hepatitis, (bool)e.Value!))" />
+                                                            <label class="form-check-label" for="vaccHepatitis">Hepatitis</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" id="vaccLeptospirosis"
+                                                                   @onchange="@(e => ToggleVaccination(Vaccinations.Leptospirosis, (bool)e.Value!))" />
+                                                            <label class="form-check-label" for="vaccLeptospirosis">Leptospirosis</label>
+                                                        </div>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" id="vaccParainfluenza"
+                                                                   @onchange="@(e => ToggleVaccination(Vaccinations.Parainfluenza, (bool)e.Value!))" />
+                                                            <label class="form-check-label" for="vaccParainfluenza">Parainfluenza</label>
+                                                        </div>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" id="vaccBordetella"
+                                                                   @onchange="@(e => ToggleVaccination(Vaccinations.Bordetella, (bool)e.Value!))" />
+                                                            <label class="form-check-label" for="vaccBordetella">Bordetella</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" id="vaccLymeDisease"
+                                                                   @onchange="@(e => ToggleVaccination(Vaccinations.LymeDisease, (bool)e.Value!))" />
+                                                            <label class="form-check-label" for="vaccLymeDisease">Lyme Disease</label>
+                                                        </div>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" id="vaccCoronavirus"
+                                                                   @onchange="@(e => ToggleVaccination(Vaccinations.Coronavirus, (bool)e.Value!))" />
+                                                            <label class="form-check-label" for="vaccCoronavirus">Coronavirus</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <ValidationMessage For="@(() => currentPet.Vaccinations)" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Medical Treatments (Optional)</label>
+                                    <InputTextArea @bind-Value="currentPet.MedicalTreatments" class="form-control" rows="3" 
+                                                   placeholder="List any medical treatments the pet has received..." />
+                                    <ValidationMessage For="@(() => currentPet.MedicalTreatments)" />
+                                    <small class="text-muted">@(currentPet.MedicalTreatments?.Length ?? 0) / 1000 characters</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Known Medical Issues (Optional)</label>
+                                    <InputTextArea @bind-Value="currentPet.KnownMedicalIssues" class="form-control" rows="3" 
+                                                   placeholder="List any known medical issues..." />
+                                    <ValidationMessage For="@(() => currentPet.KnownMedicalIssues)" />
+                                    <small class="text-muted">@(currentPet.KnownMedicalIssues?.Length ?? 0) / 1000 characters</small>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-check">
+                                            <InputCheckbox @bind-Value="currentPet.Dewormed" class="form-check-input" id="dewormed" />
+                                            <label class="form-check-label" for="dewormed">
+                                                Dewormed
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-check">
+                                            <InputCheckbox @bind-Value="currentPet.Chipped" class="form-check-input" id="chipped" />
+                                            <label class="form-check-label" for="chipped">
+                                                Microchipped
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Shelter Information (Read-only) -->
+                            <div class="mb-4">
+                                <h5 class="border-bottom pb-2">Shelter Information</h5>
+                                <div class="alert alert-light">
+                                    <p class="mb-1"><strong>Shelter Name:</strong> @currentShelter.PartitionKey</p>
+                                    <p class="mb-0"><strong>Shelter Location:</strong> @currentShelter.RowKey</p>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-success btn-lg" disabled="@isSaving">
+                                    @if (isSaving)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2"></span>
+                                    }
+                                    Add Pet
+                                </button>
+                            </div>
+                        </EditForm>
+                    }
+                    else
+                    {
+                        <div class="alert alert-danger">
+                            <strong>Unable to load shelter information.</strong>
+                            <p class="mb-0">You must be registered as a shelter to add pets. Please complete your profile first.</p>
+                            <a href="/profile" class="btn btn-primary mt-2">Go to Profile</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private Pet? currentPet;
+    private Shelter? currentShelter;
+    private User? currentUser;
+    private DateTime petBirthDate = DateTime.Today;
+    private bool isLoading = true;
+    private bool isSaving = false;
+    private bool isPetSaved = false;
+    private string? successMessage;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                var email = user.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+                if (!string.IsNullOrEmpty(email))
+                {
+                    currentUser = await UserService.GetUserByEmailAsync(email);
+                    if (currentUser != null && !string.IsNullOrEmpty(currentUser.ShelterName) && !string.IsNullOrEmpty(currentUser.ShelterLocation))
+                    {
+                        currentShelter = await ShelterService.GetShelterAsync(currentUser.ShelterName, currentUser.ShelterLocation);
+                        
+                        if (currentShelter != null)
+                        {
+                            // Initialize a new pet with shelter information
+                            currentPet = new Pet
+                            {
+                                ShelterName = currentShelter.PartitionKey,
+                                ShelterLocation = currentShelter.RowKey,
+                                AdoptionStatus = AdoptionStatus.NotAdopted,
+                                Vaccinations = Vaccinations.none
+                            };
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Failed to load shelter information: " + ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !isPetSaved)
+        {
+            // Register navigation guard using JavaScript
+            await JSRuntime.InvokeVoidAsync("eval", @"
+                window.addEventListener('beforeunload', function(e) {
+                    if (!window.petSaved) {
+                        e.preventDefault();
+                        e.returnValue = '';
+                    }
+                });
+            ");
+        }
+    }
+
+    private void ToggleVaccination(Vaccinations vaccination, bool isChecked)
+    {
+        if (currentPet == null) return;
+
+        if (isChecked)
+        {
+            currentPet.Vaccinations |= vaccination;
+        }
+        else
+        {
+            currentPet.Vaccinations &= ~vaccination;
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (currentPet == null || currentShelter == null) return;
+
+        isSaving = true;
+        successMessage = null;
+        errorMessage = null;
+
+        try
+        {
+            // Set the RowKey from the birth date
+            currentPet.RowKey = petBirthDate.ToString("yyyy-MM-dd");
+
+            // Validate that required fields are set
+            var validationContext = new ValidationContext(currentPet);
+            var validationResults = new List<ValidationResult>();
+            bool isValid = Validator.TryValidateObject(currentPet, validationContext, validationResults, true);
+
+            if (!isValid)
+            {
+                errorMessage = "Please complete all required fields: " + 
+                    string.Join(", ", validationResults.Select(r => r.ErrorMessage));
+                return;
+            }
+
+            // Add pet to storage
+            await PetService.AddPetAsync(currentPet);
+            
+            isPetSaved = true;
+            successMessage = $"Pet '{currentPet.PartitionKey}' has been added successfully! You can now navigate to other pages or add another pet.";
+            
+            // Allow navigation after pet is saved
+            await JSRuntime.InvokeVoidAsync("eval", "window.petSaved = true;");
+
+            // Reset form for another pet
+            currentPet = new Pet
+            {
+                ShelterName = currentShelter.PartitionKey,
+                ShelterLocation = currentShelter.RowKey,
+                AdoptionStatus = AdoptionStatus.NotAdopted,
+                Vaccinations = Vaccinations.none
+            };
+            petBirthDate = DateTime.Today;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Failed to add pet: " + ex.Message;
+            isPetSaved = false;
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+}

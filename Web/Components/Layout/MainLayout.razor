@@ -1,6 +1,5 @@
 ﻿@inherits LayoutComponentBase
 @using Microsoft.AspNetCore.Components.Authorization
-@using PetAdoption.Services.Interfaces
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IUserService UserService
 @inject NavigationManager Navigation
@@ -27,7 +26,7 @@
                 var currentUser = await UserService.GetUserByEmailAsync(email);
                 
                 // Redirect to profile if not completed and not already on profile page
-                if (currentUser != null && !currentUser.ProfileCompleted)
+                if (currentUser != null && !currentUser.IsProfileCompleted)
                 {
                     var currentUri = new Uri(Navigation.Uri);
                     if (!currentUri.AbsolutePath.Contains("/profile") && 
@@ -55,7 +54,7 @@
                 {
                     var currentUser = await UserService.GetUserByEmailAsync(email);
                     
-                    if (currentUser != null && !currentUser.ProfileCompleted)
+                    if (currentUser != null && !currentUser.IsProfileCompleted)
                     {
                         var currentUri = new Uri(Navigation.Uri);
                         if (!currentUri.AbsolutePath.Contains("/profile") && 
