@@ -40,6 +40,17 @@
     /* Optional: add any parent styling here */
 }
 
+/* Disabled navigation links when profile is incomplete */
+.navbar-nav .nav-link.disabled {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
+
+.navbar-nav .nav-link.disabled:hover {
+    color: inherit !important;
+}
+
 /* For larger screens, align with other nav items */
 @media (min-width: 992px) {
     .navbar-nav .nav-item .nav-link.btn {

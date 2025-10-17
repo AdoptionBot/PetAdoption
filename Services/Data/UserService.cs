@@ -76,5 +76,11 @@ namespace PetAdoption.Services.Data
             var allUsers = await GetAllUsersAsync();
             return allUsers.Where(u => u.Role == role);
         }
+
+        public async Task<bool> IsProfileCompleteAsync(string email)
+        {
+            var user = await GetUserByEmailAsync(email);
+            return user?.ProfileCompleted ?? false;
+        }
     }
 }
