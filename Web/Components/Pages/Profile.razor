@@ -2,8 +2,11 @@
 @using Microsoft.AspNetCore.Authorization
 @using PetAdoption.Services.Interfaces
 @using PetAdoption.Services
+@using PetAdoption.Data.TableStorage
+@using System.ComponentModel.DataAnnotations
 @attribute [Authorize]
 @inject IUserService UserService
+@inject IShelterService ShelterService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager Navigation
 @inject IJSRuntime JSRuntime
@@ -52,66 +55,134 @@
                                 <div class="alert alert-danger">@errorMessage</div>
                             }
 
-                            <div class="mb-3">
-                                <label class="form-label">Email</label>
-                                <input type="email" class="form-control" value="@currentUser.RowKey" disabled />
+                            <!-- User Form Section -->
+                            <div class="mb-4">
+                                <h5 class="border-bottom pb-2">User Information</h5>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" value="@currentUser.RowKey" disabled />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">User Name <span class="text-danger">*</span></label>
+                                    <InputText @bind-Value="currentUser.PartitionKey" class="form-control" />
+                                    <ValidationMessage For="@(() => currentUser.PartitionKey)" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                    <InputText @bind-Value="currentUser.PhoneNumber" class="form-control" />
+                                    <ValidationMessage For="@(() => currentUser.PhoneNumber)" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Address <span class="text-danger">*</span></label>
+                                    <InputTextArea @bind-Value="currentUser.Address" class="form-control" rows="3" />
+                                    <ValidationMessage For="@(() => currentUser.Address)" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Country <span class="text-danger">*</span></label>
+                                    <InputText @bind-Value="currentUser.Country" class="form-control" />
+                                    <ValidationMessage For="@(() => currentUser.Country)" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Website (Optional)</label>
+                                    <InputText @bind-Value="currentUser.Website" class="form-control" />
+                                    <ValidationMessage For="@(() => currentUser.Website)" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Facebook (Optional)</label>
+                                    <InputText @bind-Value="currentUser.Facebook" class="form-control" />
+                                    <ValidationMessage For="@(() => currentUser.Facebook)" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Instagram (Optional)</label>
+                                    <InputText @bind-Value="currentUser.Instagram" class="form-control" />
+                                    <ValidationMessage For="@(() => currentUser.Instagram)" />
+                                </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">User Name <span class="text-danger">*</span></label>
-                                <InputText @bind-Value="currentUser.PartitionKey" class="form-control" />
-                                <ValidationMessage For="@(() => currentUser.PartitionKey)" />
+                            <!-- Shelter Toggle -->
+                            <div class="mb-4 p-3 bg-light rounded">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="shelterToggle" 
+                                           @bind="isShelterMode" @bind:after="OnShelterToggleChanged">
+                                    <label class="form-check-label fw-bold" for="shelterToggle">
+                                        I am registering a Shelter
+                                    </label>
+                                </div>
+                                <small class="text-muted">Enable this if you want to register your organization as a shelter</small>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Phone Number <span class="text-danger">*</span></label>
-                                <InputText @bind-Value="currentUser.PhoneNumber" class="form-control" />
-                                <ValidationMessage For="@(() => currentUser.PhoneNumber)" />
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Address <span class="text-danger">*</span></label>
-                                <InputTextArea @bind-Value="currentUser.Address" class="form-control" rows="3" />
-                                <ValidationMessage For="@(() => currentUser.Address)" />
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Country <span class="text-danger">*</span></label>
-                                <InputText @bind-Value="currentUser.Country" class="form-control" />
-                                <ValidationMessage For="@(() => currentUser.Country)" />
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Website (Optional)</label>
-                                <InputText @bind-Value="currentUser.Website" class="form-control" />
-                                <ValidationMessage For="@(() => currentUser.Website)" />
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Facebook (Optional)</label>
-                                <InputText @bind-Value="currentUser.Facebook" class="form-control" />
-                                <ValidationMessage For="@(() => currentUser.Facebook)" />
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Instagram (Optional)</label>
-                                <InputText @bind-Value="currentUser.Instagram" class="form-control" />
-                                <ValidationMessage For="@(() => currentUser.Instagram)" />
-                            </div>
-
-                            @if (currentUser.Role == UserRole.Shelter)
+                            <!-- Shelter Form Section (conditionally displayed) -->
+                            @if (isShelterMode && currentShelter != null)
                             {
-                                <div class="mb-3">
-                                    <label class="form-label">Shelter Name</label>
-                                    <InputText @bind-Value="currentUser.ShelterName" class="form-control" />
-                                    <ValidationMessage For="@(() => currentUser.ShelterName)" />
-                                </div>
+                                <EditForm Model="currentShelter" Context="shelterFormContext">
+                                    <DataAnnotationsValidator />
+                                    
+                                    <div class="mb-4 border-top pt-4">
+                                        <h5 class="border-bottom pb-2">Shelter Information</h5>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Shelter Name <span class="text-danger">*</span></label>
+                                            <InputText @bind-Value="currentShelter.PartitionKey" class="form-control" />
+                                            <ValidationMessage For="@(() => currentShelter.PartitionKey)" />
+                                        </div>
 
-                                <div class="mb-3">
-                                    <label class="form-label">Shelter Location</label>
-                                    <InputText @bind-Value="currentUser.ShelterLocation" class="form-control" />
-                                    <ValidationMessage For="@(() => currentUser.ShelterLocation)" />
-                                </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Shelter City/Town <span class="text-danger">*</span></label>
+                                            <InputText @bind-Value="currentShelter.RowKey" class="form-control" />
+                                            <ValidationMessage For="@(() => currentShelter.RowKey)" />
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Country <span class="text-danger">*</span></label>
+                                            <InputText @bind-Value="currentShelter.Country" class="form-control" />
+                                            <ValidationMessage For="@(() => currentShelter.Country)" />
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                            <InputText @bind-Value="currentShelter.PhoneNumber" class="form-control" />
+                                            <ValidationMessage For="@(() => currentShelter.PhoneNumber)" />
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Address <span class="text-danger">*</span></label>
+                                            <InputTextArea @bind-Value="currentShelter.Address" class="form-control" rows="3" />
+                                            <ValidationMessage For="@(() => currentShelter.Address)" />
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Email <span class="text-danger">*</span></label>
+                                            <InputText @bind-Value="currentShelter.Email" class="form-control" type="email" />
+                                            <ValidationMessage For="@(() => currentShelter.Email)" />
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Website (Optional)</label>
+                                            <InputText @bind-Value="currentShelter.Website" class="form-control" />
+                                            <ValidationMessage For="@(() => currentShelter.Website)" />
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Facebook (Optional)</label>
+                                            <InputText @bind-Value="currentShelter.Facebook" class="form-control" />
+                                            <ValidationMessage For="@(() => currentShelter.Facebook)" />
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Instagram (Optional)</label>
+                                            <InputText @bind-Value="currentShelter.Instagram" class="form-control" />
+                                            <ValidationMessage For="@(() => currentShelter.Instagram)" />
+                                        </div>
+                                    </div>
+                                </EditForm>
                             }
 
                             <div class="d-grid gap-2">
@@ -139,9 +210,11 @@
 
 @code {
     private User? currentUser;
+    private Shelter? currentShelter;
     private bool isLoading = true;
     private bool isSaving = false;
     private bool isProfileComplete = false;
+    private bool isShelterMode = false;
     private string? successMessage;
     private string? errorMessage;
 
@@ -161,6 +234,20 @@
                     if (currentUser != null)
                     {
                         isProfileComplete = currentUser.ProfileCompleted;
+                        
+                        // Check if user has shelter data
+                        if (!string.IsNullOrEmpty(currentUser.ShelterName) && !string.IsNullOrEmpty(currentUser.ShelterLocation))
+                        {
+                            // Try to load existing shelter
+                            currentShelter = await ShelterService.GetShelterAsync(currentUser.ShelterName, currentUser.ShelterLocation);
+                            isShelterMode = currentShelter != null;
+                        }
+                        
+                        // Initialize empty shelter if not loaded
+                        if (currentShelter == null)
+                        {
+                            currentShelter = new Shelter();
+                        }
                     }
                 }
             }
@@ -191,6 +278,15 @@
         }
     }
 
+    private void OnShelterToggleChanged()
+    {
+        if (!isShelterMode)
+        {
+            // Reset shelter data when toggled off
+            currentShelter = new Shelter();
+        }
+    }
+
     private async Task HandleValidSubmit()
     {
         if (currentUser == null) return;
@@ -201,13 +297,55 @@
 
         try
         {
+            // Validate shelter form if shelter mode is enabled
+            if (isShelterMode && currentShelter != null)
+            {
+                var shelterValidationContext = new ValidationContext(currentShelter);
+                var shelterValidationResults = new List<ValidationResult>();
+                bool isShelterValid = Validator.TryValidateObject(currentShelter, shelterValidationContext, shelterValidationResults, true);
+
+                if (!isShelterValid)
+                {
+                    errorMessage = "Please complete all required shelter fields: " + 
+                        string.Join(", ", shelterValidationResults.Select(r => r.ErrorMessage));
+                    return;
+                }
+
+                // Save shelter entity
+                if (string.IsNullOrEmpty(currentShelter.ETag.ToString()) || currentShelter.ETag == default)
+                {
+                    await ShelterService.AddShelterAsync(currentShelter);
+                }
+                else
+                {
+                    await ShelterService.UpdateShelterAsync(currentShelter);
+                }
+
+                // Update user with shelter reference
+                currentUser.ShelterName = currentShelter.PartitionKey;
+                currentUser.ShelterLocation = currentShelter.RowKey;
+                currentUser.Role = UserRole.Shelter;
+            }
+            else
+            {
+                // Clear shelter references if not in shelter mode
+                currentUser.ShelterName = null;
+                currentUser.ShelterLocation = null;
+                if (currentUser.Role == UserRole.Shelter)
+                {
+                    currentUser.Role = UserRole.User;
+                }
+            }
+
             // Mark profile as completed
             currentUser.ProfileCompleted = true;
             
             await UserService.UpdateUserAsync(currentUser);
             
             isProfileComplete = true;
-            successMessage = "Profile updated successfully! You can now navigate to other pages.";
+            successMessage = isShelterMode 
+                ? "Profile and shelter information updated successfully! You can now navigate to other pages."
+                : "Profile updated successfully! You can now navigate to other pages.";
             
             // Allow navigation after profile completion
             await JSRuntime.InvokeVoidAsync("eval", "window.profileCompleted = true;");
