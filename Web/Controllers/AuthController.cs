@@ -61,7 +61,8 @@ namespace PetAdoption.Web.Controllers
                     Address = "",
                     Country = "",
                     Role = UserRole.User,
-                    AccountDisabled = false
+                    AccountDisabled = false,
+                    ProfileCompleted = false
                 };
                 
                 try
@@ -99,6 +100,12 @@ namespace PetAdoption.Web.Controllers
                     IsPersistent = true,
                     ExpiresUtc = DateTimeOffset.UtcNow.AddDays(30)
                 });
+
+            // Redirect to profile page if profile is not complete
+            if (!user.ProfileCompleted)
+            {
+                return Redirect("/profile");
+            }
 
             return Redirect(returnUrl);
         }

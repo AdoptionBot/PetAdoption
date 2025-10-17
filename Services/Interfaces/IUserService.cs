@@ -15,5 +15,6 @@ namespace PetAdoption.Services.Interfaces
         Task<bool> IsUserAdminAsync(string email);
         Task UpdateUserRoleAsync(string userName, string email, UserRole newRole);
         Task<IEnumerable<User>> GetUsersByRoleAsync(UserRole role);
+        Task<bool> IsProfileCompleteAsync(string email);
     }
 }

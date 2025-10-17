@@ -58,6 +58,8 @@ namespace PetAdoption.Data.TableStorage
         [StringLength(50, ErrorMessage = "Shelter location cannot exceed 50 characters.")]
         public string? ShelterLocation { get; set; }
 
+        public bool ProfileCompleted { get; set; }
+
         // Parameterless constructor for deserialization
         public User() { }
 
@@ -76,6 +78,7 @@ namespace PetAdoption.Data.TableStorage
             Role = role;
             ShelterName = shelterName;
             ShelterLocation = shelterLocation;
+            ProfileCompleted = false;
         }
     }
 }

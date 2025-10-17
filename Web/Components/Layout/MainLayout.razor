@@ -1,4 +1,9 @@
 ﻿@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components.Authorization
+@using PetAdoption.Services.Interfaces
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IUserService UserService
+@inject NavigationManager Navigation
 
 <NavBar />
 
@@ -7,3 +12,60 @@
 </main>
 
 <Footer />
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            var email = user.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+            if (!string.IsNullOrEmpty(email))
+            {
+                var currentUser = await UserService.GetUserByEmailAsync(email);
+                
+                // Redirect to profile if not completed and not already on profile page
+                if (currentUser != null && !currentUser.ProfileCompleted)
+                {
+                    var currentUri = new Uri(Navigation.Uri);
+                    if (!currentUri.AbsolutePath.Contains("/profile") && 
+                        !currentUri.AbsolutePath.Contains("/api/auth/logout"))
+                    {
+                        Navigation.NavigateTo("/profile", forceLoad: true);
+                    }
+                }
+            }
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            // Re-check profile status on every navigation
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                var email = user.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+                if (!string.IsNullOrEmpty(email))
+                {
+                    var currentUser = await UserService.GetUserByEmailAsync(email);
+                    
+                    if (currentUser != null && !currentUser.ProfileCompleted)
+                    {
+                        var currentUri = new Uri(Navigation.Uri);
+                        if (!currentUri.AbsolutePath.Contains("/profile") && 
+                            !currentUri.AbsolutePath.Contains("/api/auth/logout"))
+                        {
+                            Navigation.NavigateTo("/profile", forceLoad: true);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

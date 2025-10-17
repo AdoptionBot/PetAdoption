@@ -3,6 +3,7 @@ using PetAdoption.Web.Components;
 using PetAdoption.Services.Data.Extensions;
 using PetAdoption.Services.Data;
 using PetAdoption.Services.Interfaces;
+using PetAdoption.Services;
 
 namespace PetAdoption.Web
 {
@@ -21,6 +22,9 @@ namespace PetAdoption.Web
 
             // Add cascading authentication state
             builder.Services.AddCascadingAuthenticationState();
+
+            // Register ProfileStateService as a scoped service
+            builder.Services.AddScoped<ProfileStateService>();
 
             // Retrieve authentication secrets BEFORE registering services
             var authSecrets = await KeyVaultSecretService.RetrieveAuthenticationSecretsAsync(builder.Configuration);

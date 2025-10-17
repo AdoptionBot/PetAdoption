@@ -1,36 +1,45 @@
 @using Microsoft.AspNetCore.Components.Authorization
+@using PetAdoption.Services.Interfaces
+@using PetAdoption.Services
+@implements IDisposable
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IUserService UserService
+@inject NavigationManager Navigation
+@inject ProfileStateService ProfileState
 
 <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
     <div class="container">
-        <a class="navbar-brand" href="/"><span class="flaticon-pawprint-1 mr-2"></span>Pet Adoption</a>
+        <a class="navbar-brand" href="/" @onclick="HandleNavigation" @onclick:preventDefault="@(!isProfileComplete)">
+            <span class="flaticon-pawprint-1 mr-2"></span>Pet Adoption
+        </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="fa fa-bars"></span> Menu
         </button>
         <div class="collapse navbar-collapse" id="ftco-nav">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">Home</NavLink>
+                    <a class="nav-link @GetDisabledClass()" href="/" @onclick='() => HandleNavigationClick("/")' @onclick:preventDefault="true">Home</a>
                 </li>
                 <li class="nav-item">
-                    <NavLink class="nav-link" href="/about">About</NavLink>
+                    <a class="nav-link @GetDisabledClass()" href="/about" @onclick='() => HandleNavigationClick("/about")' @onclick:preventDefault="true">About</a>
                 </li>
                 <li class="nav-item">
-                    <NavLink class="nav-link" href="/vet">Veterinarian</NavLink>
+                    <a class="nav-link @GetDisabledClass()" href="/vet" @onclick='() => HandleNavigationClick("/vet")' @onclick:preventDefault="true">Veterinarian</a>
                 </li>
                 <li class="nav-item">
-                    <NavLink class="nav-link" href="/services">Services</NavLink>
+                    <a class="nav-link @GetDisabledClass()" href="/services" @onclick='() => HandleNavigationClick("/services")' @onclick:preventDefault="true">Services</a>
                 </li>
                 <li class="nav-item">
-                    <NavLink class="nav-link" href="/gallery">Gallery</NavLink>
+                    <a class="nav-link @GetDisabledClass()" href="/gallery" @onclick='() => HandleNavigationClick("/gallery")' @onclick:preventDefault="true">Gallery</a>
                 </li>
                 <li class="nav-item">
-                    <NavLink class="nav-link" href="/pricing">Pricing</NavLink>
+                    <a class="nav-link @GetDisabledClass()" href="/pricing" @onclick='() => HandleNavigationClick("/pricing")' @onclick:preventDefault="true">Pricing</a>
                 </li>
                 <li class="nav-item">
-                    <NavLink class="nav-link" href="/blog">Blog</NavLink>
+                    <a class="nav-link @GetDisabledClass()" href="/blog" @onclick='() => HandleNavigationClick("/blog")' @onclick:preventDefault="true">Blog</a>
                 </li>
                 <li class="nav-item">
-                    <NavLink class="nav-link" href="/contact">Contact</NavLink>
+                    <a class="nav-link @GetDisabledClass()" href="/contact" @onclick='() => HandleNavigationClick("/contact")' @onclick:preventDefault="true">Contact</a>
                 </li>
                 
                 <AuthorizeView>
@@ -43,9 +52,9 @@
                         <AuthorizeView Policy="AdminOnly" Context="adminContext">
                             <Authorized>
                                 <li class="nav-item">
-                                    <NavLink class="nav-link" href="/admin/users">
+                                    <a class="nav-link @GetDisabledClass()" href="/admin/users" @onclick='() => HandleNavigationClick("/admin/users")' @onclick:preventDefault="true">
                                         <span class="fa fa-users mr-1"></span><span class="nav-text">Admin</span>
-                                    </NavLink>
+                                    </a>
                                 </li>
                             </Authorized>
                         </AuthorizeView>
@@ -67,3 +76,69 @@
         </div>
     </div>
 </nav>
+
+@code {
+    private bool isProfileComplete = true;
+    private string? userEmail;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            userEmail = user.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+            if (!string.IsNullOrEmpty(userEmail))
+            {
+                var currentUser = await UserService.GetUserByEmailAsync(userEmail);
+                if (currentUser != null)
+                {
+                    isProfileComplete = currentUser.ProfileCompleted;
+                }
+            }
+        }
+
+        // Subscribe to profile completion event
+        ProfileState.OnProfileCompleted += HandleProfileCompleted;
+    }
+
+    private void HandleProfileCompleted()
+    {
+        isProfileComplete = true;
+        StateHasChanged(); // Force re-render
+    }
+
+    private void HandleNavigationClick(string path)
+    {
+        if (isProfileComplete)
+        {
+            Navigation.NavigateTo(path);
+        }
+        else
+        {
+            // User must complete profile first - stay on current page or redirect to profile
+            var currentPath = new Uri(Navigation.Uri).AbsolutePath;
+            if (!currentPath.Contains("/profile"))
+            {
+                Navigation.NavigateTo("/profile");
+            }
+        }
+    }
+
+    private void HandleNavigation(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+        HandleNavigationClick("/");
+    }
+
+    private string GetDisabledClass()
+    {
+        return !isProfileComplete ? "disabled text-muted" : "";
+    }
+
+    public void Dispose()
+    {
+        // Unsubscribe from event to prevent memory leaks
+        ProfileState.OnProfileCompleted -= HandleProfileCompleted;
+    }
+}
