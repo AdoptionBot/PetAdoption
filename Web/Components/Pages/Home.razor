@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using Microsoft.AspNetCore.Components.Authorization
 @inject IJSRuntime JS
 
 <PageTitle>Home - Madeira Pet Adoption</PageTitle>
@@ -27,14 +28,55 @@
     </div>
 </div>
 
-<!-- Hero Section -->
+<!-- Hero Section with Login Integration -->
 <div class="hero-wrap js-fullheight" style="background-image: url('images/bg_1.jpg');" data-stellar-background-ratio="0.5">
     <div class="overlay"></div>
     <div class="container">
         <div class="row no-gutters slider-text js-fullheight align-items-center justify-content-center" data-scrollax-parent="true">
             <div class="col-md-11 ftco-animate text-center">
                 <h1 class="mb-4">Find Your Perfect Companion</h1>
-                <p><a href="#" class="btn btn-primary mr-md-4 py-3 px-4">Learn more <span class="ion-ios-arrow-forward"></span></a></p>
+                <p class="mb-5">Join our community to adopt, foster, or support pets in need</p>
+                
+                <AuthorizeView>
+                    <Authorized>
+                        <div class="hero-cta-buttons">
+                            <a href="/profile" class="btn btn-primary mr-md-3 py-3 px-5">
+                                <span class="fa fa-user mr-2"></span>My Profile
+                            </a>
+                            <a href="/gallery" class="btn btn-white py-3 px-5">
+                                Browse Pets <span class="ion-ios-arrow-forward"></span>
+                            </a>
+                        </div>
+                        <p class="mt-4 text-white">
+                            <small>Welcome back, @context.User.Identity?.Name! Ready to make a difference?</small>
+                        </p>
+                    </Authorized>
+                    <NotAuthorized>
+                        <div class="hero-cta-buttons">
+                            <a href="/login" class="btn btn-primary mr-md-3 py-3 px-5">
+                                <span class="fa fa-sign-in mr-2"></span>Sign In to Get Started
+                            </a>
+                            <a href="/about" class="btn btn-white py-3 px-5">
+                                Learn More <span class="ion-ios-arrow-forward"></span>
+                            </a>
+                        </div>
+                        
+                        <div class="login-providers mt-5 pt-4">
+                            <p class="text-white mb-3">Quick Sign In:</p>
+                            <div class="d-flex justify-content-center gap-3">
+                                <a href="/signin-google" class="btn btn-sm btn-outline-light px-4 py-2" title="Sign in with Google">
+                                    <span class="fa fa-google fa-lg"></span>
+                                </a>
+                                <a href="/signin-microsoft" class="btn btn-sm btn-outline-light px-4 py-2" title="Sign in with Microsoft">
+                                    <span class="fa fa-windows fa-lg"></span>
+                                </a>
+                                @* <a href="/signin-apple" class="btn btn-sm btn-outline-light px-4 py-2" title="Sign in with Apple">
+                                    <span class="fa fa-apple fa-lg"></span>
+                                </a> *@
+                            </div>
+                        </div>
+                    </NotAuthorized>
+                </AuthorizeView>
             </div>
         </div>
     </div>

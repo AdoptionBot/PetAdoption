@@ -1,3 +1,5 @@
+@using Microsoft.AspNetCore.Components.Authorization
+
 <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
     <div class="container">
         <a class="navbar-brand" href="/"><span class="flaticon-pawprint-1 mr-2"></span>Pet Adoption</a>
@@ -6,44 +8,62 @@
         </button>
         <div class="collapse navbar-collapse" id="ftco-nav">
             <ul class="navbar-nav ml-auto">
-                <li class="nav-item @GetActiveClass("/")">
+                <li class="nav-item">
                     <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">Home</NavLink>
                 </li>
-                <li class="nav-item @GetActiveClass("/about")">
+                <li class="nav-item">
                     <NavLink class="nav-link" href="/about">About</NavLink>
                 </li>
-                <li class="nav-item @GetActiveClass("/vet")">
+                <li class="nav-item">
                     <NavLink class="nav-link" href="/vet">Veterinarian</NavLink>
                 </li>
-                <li class="nav-item @GetActiveClass("/services")">
+                <li class="nav-item">
                     <NavLink class="nav-link" href="/services">Services</NavLink>
                 </li>
-                <li class="nav-item @GetActiveClass("/gallery")">
+                <li class="nav-item">
                     <NavLink class="nav-link" href="/gallery">Gallery</NavLink>
                 </li>
-                <li class="nav-item @GetActiveClass("/pricing")">
+                <li class="nav-item">
                     <NavLink class="nav-link" href="/pricing">Pricing</NavLink>
                 </li>
-                <li class="nav-item @GetActiveClass("/blog")">
+                <li class="nav-item">
                     <NavLink class="nav-link" href="/blog">Blog</NavLink>
                 </li>
-                <li class="nav-item @GetActiveClass("/contact")">
+                <li class="nav-item">
                     <NavLink class="nav-link" href="/contact">Contact</NavLink>
                 </li>
+                
+                <AuthorizeView>
+                    <Authorized>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" href="/profile">
+                                <span class="fa fa-user mr-1"></span><span class="nav-text">Profile</span>
+                            </NavLink>
+                        </li>
+                        <AuthorizeView Policy="AdminOnly" Context="adminContext">
+                            <Authorized>
+                                <li class="nav-item">
+                                    <NavLink class="nav-link" href="/admin/users">
+                                        <span class="fa fa-users mr-1"></span><span class="nav-text">Admin</span>
+                                    </NavLink>
+                                </li>
+                            </Authorized>
+                        </AuthorizeView>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/api/auth/logout">
+                                <span class="fa fa-sign-out mr-1"></span><span class="nav-text">Logout</span>
+                            </a>
+                        </li>
+                    </Authorized>
+                    <NotAuthorized>
+                        <li class="nav-item">
+                            <NavLink class="nav-link btn btn-primary text-white px-3 py-2 ml-2" href="/login">
+                                <span class="fa fa-sign-in mr-1"></span><span class="nav-text">Login</span>
+                            </NavLink>
+                        </li>
+                    </NotAuthorized>
+                </AuthorizeView>
             </ul>
         </div>
     </div>
 </nav>
-
-@code {
-    [Inject]
-    private NavigationManager? NavigationManager { get; set; }
-
-    private string GetActiveClass(string href)
-    {
-        if (NavigationManager == null) return string.Empty;
-        
-        var currentPath = new Uri(NavigationManager.Uri).AbsolutePath;
-        return currentPath == href ? "active" : string.Empty;
-    }
-}

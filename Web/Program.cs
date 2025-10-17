@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using PetAdoption.Web.Components;
 using PetAdoption.Services.Data.Extensions;
 using PetAdoption.Services.Data;
@@ -49,37 +47,37 @@ namespace PetAdoption.Web
                 options.ClientId = authSecrets.GoogleClientId;
                 options.ClientSecret = authSecrets.GoogleClientSecret;
                 options.SaveTokens = true;
-                options.CallbackPath = "/signin-google-callback";
+                options.CallbackPath = "/signin-google";
             })
             .AddMicrosoftAccount(options =>
             {
                 options.ClientId = authSecrets.MicrosoftClientId;
                 options.ClientSecret = authSecrets.MicrosoftClientSecret;
                 options.SaveTokens = true;
-                options.CallbackPath = "/signin-microsoft-callback";
-            })
-            .AddApple(options =>
-            {
-                options.ClientId = authSecrets.AppleClientId;
-                options.TeamId = authSecrets.AppleTeamId;
-                options.KeyId = authSecrets.AppleKeyId;
-                
-                // Use private key from Key Vault
-                if (!string.IsNullOrEmpty(authSecrets.ApplePrivateKey))
-                {
-                    // Handle escaped newlines and create temporary file
-                    var formattedKey = authSecrets.ApplePrivateKey.Replace("\\n", "\n");
-                    var tempKeyFile = Path.Combine(Path.GetTempPath(), $"apple_key_{Guid.NewGuid()}.p8");
-                    File.WriteAllText(tempKeyFile, formattedKey);
-                    
-                    options.UsePrivateKey(keyId => 
-                        new Microsoft.Extensions.FileProviders.PhysicalFileProvider(Path.GetTempPath())
-                            .GetFileInfo(Path.GetFileName(tempKeyFile)));
-                }
-                
-                options.SaveTokens = true;
-                options.CallbackPath = "/signin-apple-callback";
+                options.CallbackPath = "/signin-microsoft";
             });
+            //.AddApple(options =>
+            //{
+            //    options.ClientId = authSecrets.AppleClientId;
+            //    options.TeamId = authSecrets.AppleTeamId;
+            //    options.KeyId = authSecrets.AppleKeyId;
+                
+            //    // Use private key from Key Vault
+            //    if (!string.IsNullOrEmpty(authSecrets.ApplePrivateKey))
+            //    {
+            //        // Handle escaped newlines and create temporary file
+            //        var formattedKey = authSecrets.ApplePrivateKey.Replace("\\n", "\n");
+            //        var tempKeyFile = Path.Combine(Path.GetTempPath(), $"apple_key_{Guid.NewGuid()}.p8");
+            //        File.WriteAllText(tempKeyFile, formattedKey);
+                    
+            //        options.UsePrivateKey(keyId => 
+            //            new Microsoft.Extensions.FileProviders.PhysicalFileProvider(Path.GetTempPath())
+            //                .GetFileInfo(Path.GetFileName(tempKeyFile)));
+            //    }
+                
+            //    options.SaveTokens = true;
+            //    options.CallbackPath = "/signin-apple-callback";
+            //});
 
             // Add authorization
             builder.Services.AddAuthorization(options =>

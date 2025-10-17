@@ -9,9 +9,9 @@ namespace PetAdoption.Services.Data.Models
         public string GoogleClientSecret { get; set; } = string.Empty;
         public string MicrosoftClientId { get; set; } = string.Empty;
         public string MicrosoftClientSecret { get; set; } = string.Empty;
-        public string AppleClientId { get; set; } = string.Empty;
-        public string AppleTeamId { get; set; } = string.Empty;
-        public string AppleKeyId { get; set; } = string.Empty;
-        public string ApplePrivateKey { get; set; } = string.Empty;
+        //public string AppleClientId { get; set; } = string.Empty;
+        //public string AppleTeamId { get; set; } = string.Empty;
+        //public string AppleKeyId { get; set; } = string.Empty;
+        //public string ApplePrivateKey { get; set; } = string.Empty;
     }
 }

@@ -1,0 +1,61 @@
+/* Ensure nav link items stay on one line */
+.navbar-nav .nav-link {
+    white-space: nowrap !important;
+}
+
+.navbar-nav .nav-link .nav-text {
+    display: inline;
+}
+
+.navbar-nav .nav-link .fa {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Fix login button alignment */
+.navbar-nav .nav-item .nav-link.btn {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+    margin-top: 1.8rem !important;
+    line-height: 1.5 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+}
+
+/* Style the active NavLink - Blazor adds 'active' class automatically */
+.navbar-nav .nav-item .nav-link.active {
+    color: #00bd56 !important;
+}
+
+.navbar-nav .nav-item .nav-link.active:before {
+    visibility: visible !important;
+    background-color: #00bd56 !important;
+    -webkit-transform: scaleX(1) !important;
+    -ms-transform: scaleX(1) !important;
+    transform: scaleX(1) !important;
+}
+
+/* Ensure parent li also gets active class styling if needed */
+.navbar-nav .nav-item:has(.nav-link.active) {
+    /* Optional: add any parent styling here */
+}
+
+/* For larger screens, align with other nav items */
+@media (min-width: 992px) {
+    .navbar-nav .nav-item .nav-link.btn {
+        margin-top: 1.8rem !important;
+    }
+}
+
+/* For mobile responsiveness */
+@media (max-width: 991.98px) {
+    .navbar-nav .nav-link {
+        white-space: normal !important;
+    }
+    
+    .navbar-nav .nav-item .nav-link.btn {
+        margin-top: 0 !important;
+        padding-top: 0.9rem !important;
+        padding-bottom: 0.9rem !important;
+    }
+}
