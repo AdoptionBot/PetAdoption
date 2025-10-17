@@ -26,6 +26,9 @@ namespace PetAdoption.Web
             // Register ProfileStateService as a scoped service
             builder.Services.AddScoped<ProfileStateService>();
 
+            // Add shelter service
+            builder.Services.AddScoped<IShelterService, ShelterService>();
+
             // Retrieve authentication secrets BEFORE registering services
             var authSecrets = await KeyVaultSecretService.RetrieveAuthenticationSecretsAsync(builder.Configuration);
 
