@@ -61,8 +61,8 @@ namespace PetAdoption.Web.Controllers
                     Address = "",
                     Country = "",
                     Role = UserRole.User,
-                    AccountDisabled = false,
-                    ProfileCompleted = false
+                    IsAccountDisabled = false,
+                    IsProfileCompleted = false
                 };
                 
                 try
@@ -75,7 +75,7 @@ namespace PetAdoption.Web.Controllers
                     _logger.LogError(ex, $"Failed to create user: {email}");
                 }
             }
-            else if (user.AccountDisabled)
+            else if (user.IsAccountDisabled)
             {
                 await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
                 return Redirect("/access-denied");
@@ -101,13 +101,15 @@ namespace PetAdoption.Web.Controllers
                     ExpiresUtc = DateTimeOffset.UtcNow.AddDays(30)
                 });
 
-            // Redirect to profile page if profile is not complete
-            if (!user.ProfileCompleted)
+            // Redirect based on profile completion status
+            if (!user.IsProfileCompleted)
             {
+                // Profile incomplete: redirect to profile page
                 return Redirect("/profile");
             }
 
-            return Redirect(returnUrl);
+            // Profile complete: redirect to home page
+            return Redirect("/");
         }
 
         [HttpGet("logout")]

@@ -1,8 +1,4 @@
 @page "/login"
-@using Microsoft.AspNetCore.Authentication
-@using Microsoft.AspNetCore.Authentication.Google
-@using Microsoft.AspNetCore.Authentication.MicrosoftAccount
-@inject NavigationManager Navigation
 
 <PageTitle>Login - Madeira Pet Adoption</PageTitle>
 
@@ -14,13 +10,15 @@
                     <h2 class="text-center mb-4">Welcome Back!</h2>
                     <p class="text-center text-muted mb-4">Sign in to manage your pet adoption journey</p>
                     
-                    <div class="d-grid gap-3">
-                        <a href="/signin-google" class="btn btn-outline-danger btn-lg">
+                    <div class="d-flex flex-column align-items-center gap-3">
+                        <a href="/signin-google" class="btn btn-outline-danger btn-lg w-100" style="max-width: 350px;">
                             <i class="fa fa-google me-2"></i>
                             Continue with Google
                         </a>
                         
-                        <a href="/signin-microsoft" class="btn btn-outline-primary btn-lg">
+                        <div style="height: 1rem;"></div>
+                        
+                        <a href="/signin-microsoft" class="btn btn-outline-primary btn-lg w-100" style="max-width: 350px;">
                             <i class="fa fa-windows me-2"></i>
                             Continue with Microsoft
                         </a>

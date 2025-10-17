@@ -49,6 +49,20 @@
                                 <span class="fa fa-user mr-1"></span><span class="nav-text">Profile</span>
                             </NavLink>
                         </li>
+                        <AuthorizeView Roles="Shelter" Context="shelterContext">
+                            <Authorized>
+                                <li class="nav-item">
+                                    <NavLink class="nav-link" href="/shelter">
+                                        <span class="fa fa-home mr-1"></span><span class="nav-text">Shelter</span>
+                                    </NavLink>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link @GetDisabledClass()" href="/addpet" @onclick='() => HandleNavigationClick("/addpet")' @onclick:preventDefault="true">
+                                        <span class="fa fa-plus-circle mr-1"></span><span class="nav-text">Add Pet</span>
+                                    </a>
+                                </li>
+                            </Authorized>
+                        </AuthorizeView>
                         <AuthorizeView Policy="AdminOnly" Context="adminContext">
                             <Authorized>
                                 <li class="nav-item">
@@ -94,7 +108,7 @@
                 var currentUser = await UserService.GetUserByEmailAsync(userEmail);
                 if (currentUser != null)
                 {
-                    isProfileComplete = currentUser.ProfileCompleted;
+                    isProfileComplete = currentUser.IsProfileCompleted;
                 }
             }
         }

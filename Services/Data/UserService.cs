@@ -80,7 +80,7 @@ namespace PetAdoption.Services.Data
         public async Task<bool> IsProfileCompleteAsync(string email)
         {
             var user = await GetUserByEmailAsync(email);
-            return user?.ProfileCompleted ?? false;
+            return user?.IsProfileCompleted ?? false;
         }
     }
 }

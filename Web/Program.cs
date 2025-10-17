@@ -29,6 +29,9 @@ namespace PetAdoption.Web
             // Add shelter service
             builder.Services.AddScoped<IShelterService, ShelterService>();
 
+            // Add pet service
+            builder.Services.AddScoped<IPetService, PetService>();
+
             // Retrieve authentication secrets BEFORE registering services
             var authSecrets = await KeyVaultSecretService.RetrieveAuthenticationSecretsAsync(builder.Configuration);
 
