@@ -67,6 +67,26 @@ namespace PetAdoption.Data.TableStorage
         [StringLength(50, MinimumLength = 3, ErrorMessage = "Shelter location must be between 3 and 50 characters.")]
         public string ShelterLocation { get; set; } = string.Empty;
 
+        [Url(ErrorMessage = "Image 1 URL must be a valid URL.")]
+        [StringLength(256, ErrorMessage = "Image URL cannot exceed 256 characters.")]
+        public string? Image1Url { get; set; }
+
+        [Url(ErrorMessage = "Image 2 URL must be a valid URL.")]
+        [StringLength(256, ErrorMessage = "Image URL cannot exceed 256 characters.")]
+        public string? Image2Url { get; set; }
+
+        [Url(ErrorMessage = "Image 3 URL must be a valid URL.")]
+        [StringLength(256, ErrorMessage = "Image URL cannot exceed 256 characters.")]
+        public string? Image3Url { get; set; }
+
+        [Url(ErrorMessage = "Image 4 URL must be a valid URL.")]
+        [StringLength(256, ErrorMessage = "Image URL cannot exceed 256 characters.")]
+        public string? Image4Url { get; set; }
+
+        [Url(ErrorMessage = "Video 1 URL must be a valid URL.")]
+        [StringLength(256, ErrorMessage = "Video URL cannot exceed 256 characters.")]
+        public string? Video1Url { get; set; }
+
         // Parameterless constructor for deserialization
         public Pet() { }
 

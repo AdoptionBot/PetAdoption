@@ -1,0 +1,187 @@
+@page "/pets"
+@using PetAdoption.Services.Interfaces
+@using PetAdoption.Data.TableStorage
+@inject IPetService PetService
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>Pets - Madeira Pet Adoption</PageTitle>
+
+<section class="hero-wrap hero-wrap-2" style="background-image: url('images/bg_2.jpg');" data-stellar-background-ratio="0.5">
+    <div class="overlay"></div>
+    <div class="container">
+        <div class="row no-gutters slider-text align-items-end">
+            <div class="col-md-9 ftco-animate pb-5">
+                <p class="breadcrumbs mb-2"><span class="mr-2"><a href="/">Home <i class="ion-ios-arrow-forward"></i></a></span> <span>Pets <i class="ion-ios-arrow-forward"></i></span></p>
+                <h1 class="mb-0 bread">Available Pets</h1>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="ftco-section">
+    <div class="container">
+        @if (isLoading)
+        {
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <p class="mt-3">Loading pets...</p>
+                </div>
+            </div>
+        }
+        else if (allPets == null || !allPets.Any())
+        {
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <h3>No pets available for adoption at the moment</h3>
+                    <p>Please check back later for new arrivals!</p>
+                </div>
+            </div>
+        }
+        else
+        {
+            <!-- Pagination Navigation - Top -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <nav aria-label="Pet pagination">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                <a class="page-link" href="#" @onclick="() => GoToPage(currentPage - 1)" @onclick:preventDefault="true">Back</a>
+                            </li>
+                            @for (int i = 1; i <= totalPages; i++)
+                            {
+                                int pageNumber = i;
+                                <li class="page-item @(currentPage == pageNumber ? "active" : "")">
+                                    <a class="page-link" href="#" @onclick="() => GoToPage(pageNumber)" @onclick:preventDefault="true">@pageNumber</a>
+                                </li>
+                            }
+                            <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                <a class="page-link" href="#" @onclick="() => GoToPage(currentPage + 1)" @onclick:preventDefault="true">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Pets Grid -->
+            <div class="row">
+                @foreach (var pet in currentPagePets)
+                {
+                    <div class="col-md-4 ftco-animate">
+                        <div class="work mb-4 img d-flex align-items-end" style="background-image: url(@GetPetImage(pet));">
+                            <a href="@GetPetImage(pet)" class="icon image-popup d-flex justify-content-center align-items-center">
+                                <span class="fa fa-expand"></span>
+                            </a>
+                            <div class="desc w-100 px-4">
+                                <div class="text w-100 mb-3">
+                                    <span>@(pet.Species ?? "Pet")</span>
+                                    <h2><a href="#">@pet.PartitionKey</a></h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Pagination Navigation - Bottom -->
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <nav aria-label="Pet pagination">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                <a class="page-link" href="#" @onclick="() => GoToPage(currentPage - 1)" @onclick:preventDefault="true">Back</a>
+                            </li>
+                            @for (int i = 1; i <= totalPages; i++)
+                            {
+                                int pageNumber = i;
+                                <li class="page-item @(currentPage == pageNumber ? "active" : "")">
+                                    <a class="page-link" href="#" @onclick="() => GoToPage(pageNumber)" @onclick:preventDefault="true">@pageNumber</a>
+                                </li>
+                            }
+                            <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                <a class="page-link" href="#" @onclick="() => GoToPage(currentPage + 1)" @onclick:preventDefault="true">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Results Info -->
+            <div class="row mt-3">
+                <div class="col-md-12 text-center">
+                    <p class="text-muted">
+                        Showing @((currentPage - 1) * pageSize + 1) to @Math.Min(currentPage * pageSize, allPets.Count()) of @allPets.Count() pets
+                    </p>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+@code {
+    private List<Pet> allPets = new();
+    private List<Pet> currentPagePets = new();
+    private bool isLoading = true;
+    
+    private int currentPage = 1;
+    private const int pageSize = 25;
+    private int totalPages = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPetsAsync();
+    }
+
+    private async Task LoadPetsAsync()
+    {
+        try
+        {
+            isLoading = true;
+            var pets = await PetService.GetAllPetsAsync();
+            allPets = pets.ToList();
+            
+            totalPages = (int)Math.Ceiling((double)allPets.Count / pageSize);
+            
+            UpdateCurrentPagePets();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading pets: {ex.Message}");
+            allPets = new List<Pet>();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void UpdateCurrentPagePets()
+    {
+        currentPagePets = allPets
+            .Skip((currentPage - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+    }
+
+    private void GoToPage(int pageNumber)
+    {
+        if (pageNumber < 1 || pageNumber > totalPages)
+            return;
+
+        currentPage = pageNumber;
+        UpdateCurrentPagePets();
+    }
+
+    private string GetPetImage(Pet pet)
+    {
+        // Return the first image URL if available, otherwise return a placeholder
+        if (!string.IsNullOrEmpty(pet.Image1Url))
+            return pet.Image1Url;
+
+        // Default placeholder image
+        return "images/placeholder-pet.jpg";
+    }
+}

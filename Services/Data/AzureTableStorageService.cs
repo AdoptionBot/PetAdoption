@@ -9,24 +9,17 @@ namespace PetAdoption.Services.Data
     /// </summary>
     public class AzureTableStorageService : IAzureTableStorageService
     {
-        private readonly string _connectionString;
+        private readonly KeyVaultSecretService? _keyVaultService;
+        private string? _connectionString;
         private readonly Dictionary<string, TableClient> _tableClients;
+        private readonly SemaphoreSlim _initLock = new(1, 1);
 
         /// <summary>
         /// Constructor that uses KeyVaultSecretService to retrieve connection string
         /// </summary>
         public AzureTableStorageService(KeyVaultSecretService keyVaultService)
         {
-            if (keyVaultService == null)
-            {
-                throw new ArgumentNullException(nameof(keyVaultService));
-            }
-
-            // Retrieve the connection string from Key Vault using the service
-            _connectionString = keyVaultService.GetTableStorageConnectionStringAsync()
-                .GetAwaiter()
-                .GetResult();
-
+            _keyVaultService = keyVaultService ?? throw new ArgumentNullException(nameof(keyVaultService));
             _tableClients = new Dictionary<string, TableClient>();
         }
 
@@ -40,6 +33,27 @@ namespace PetAdoption.Services.Data
         }
 
         /// <summary>
+        /// Ensures the connection string is initialized
+        /// </summary>
+        private async Task EnsureConnectionStringAsync()
+        {
+            if (_connectionString != null) return;
+
+            await _initLock.WaitAsync();
+            try
+            {
+                if (_connectionString == null && _keyVaultService != null)
+                {
+                    _connectionString = await _keyVaultService.GetStorageConnectionStringAsync();
+                }
+            }
+            finally
+            {
+                _initLock.Release();
+            }
+        }
+
+        /// <summary>
         /// Gets or creates a TableClient for the specified table name
         /// </summary>
         private async Task<TableClient> GetTableClientAsync(string tableName)
@@ -48,6 +62,8 @@ namespace PetAdoption.Services.Data
             {
                 throw new ArgumentException("Table name cannot be null or empty.", nameof(tableName));
             }
+
+            await EnsureConnectionStringAsync();
 
             if (!_tableClients.TryGetValue(tableName, out var tableClient))
             {
@@ -74,7 +90,7 @@ namespace PetAdoption.Services.Data
         }
 
         /// <summary>
-        /// Adds an entity to the specified table
+        /// Adds a new entity to the specified table
         /// </summary>
         public async Task AddEntityAsync<T>(string tableName, T entity) where T : class, ITableEntity
         {
@@ -83,7 +99,7 @@ namespace PetAdoption.Services.Data
         }
 
         /// <summary>
-        /// Updates an entity in the specified table
+        /// Updates an existing entity in the specified table
         /// </summary>
         public async Task UpdateEntityAsync<T>(string tableName, T entity, ETag etag) where T : class, ITableEntity
         {
@@ -101,11 +117,12 @@ namespace PetAdoption.Services.Data
         }
 
         /// <summary>
-        /// Gets an entity by partition key and row key
+        /// Retrieves a single entity from the specified table
         /// </summary>
         public async Task<T?> GetEntityAsync<T>(string tableName, string partitionKey, string rowKey) where T : class, ITableEntity
         {
             var tableClient = await GetTableClientAsync(tableName);
+
             try
             {
                 var response = await tableClient.GetEntityAsync<T>(partitionKey, rowKey);
@@ -113,52 +130,41 @@ namespace PetAdoption.Services.Data
             }
             catch (RequestFailedException ex) when (ex.Status == 404)
             {
-                // Entity not found
                 return null;
             }
         }
 
         /// <summary>
-        /// Queries entities from the specified table using a filter expression
+        /// Queries entities from the specified table with optional filtering
         /// </summary>
         public async Task<IEnumerable<T>> QueryEntitiesAsync<T>(string tableName, string? filter = null) where T : class, ITableEntity, new()
         {
             var tableClient = await GetTableClientAsync(tableName);
+            var entities = new List<T>();
 
-            var results = new List<T>();
-
-            AsyncPageable<T> queryResults;
-            if (string.IsNullOrEmpty(filter))
+            await foreach (var entity in tableClient.QueryAsync<T>(filter))
             {
-                queryResults = tableClient.QueryAsync<T>();
-            }
-            else
-            {
-                queryResults = tableClient.QueryAsync<T>(filter: filter);
+                entities.Add(entity);
             }
 
-            await foreach (var entity in queryResults)
-            {
-                results.Add(entity);
-            }
-
-            return results;
+            return entities;
         }
 
         /// <summary>
-        /// Queries entities from a table by partition key
+        /// Queries entities by partition key
         /// </summary>
         public async Task<IEnumerable<T>> QueryByPartitionKeyAsync<T>(string tableName, string partitionKey) where T : class, ITableEntity, new()
         {
-            string filter = $"PartitionKey eq '{partitionKey}'";
+            var filter = $"PartitionKey eq '{partitionKey}'";
             return await QueryEntitiesAsync<T>(tableName, filter);
         }
 
         /// <summary>
-        /// Gets a list of all tables in the storage account
+        /// Gets all table names in the storage account
         /// </summary>
         public async Task<IEnumerable<string>> GetTablesAsync()
         {
+            await EnsureConnectionStringAsync();
             var serviceClient = new TableServiceClient(_connectionString);
             var tables = new List<string>();
 
@@ -171,19 +177,21 @@ namespace PetAdoption.Services.Data
         }
 
         /// <summary>
-        /// Creates a new table if it doesn't exist
+        /// Creates a new table
         /// </summary>
         public async Task CreateTableAsync(string tableName)
         {
+            await EnsureConnectionStringAsync();
             var serviceClient = new TableServiceClient(_connectionString);
             await serviceClient.CreateTableIfNotExistsAsync(tableName);
         }
 
         /// <summary>
-        /// Deletes a table if it exists
+        /// Deletes a table
         /// </summary>
         public async Task DeleteTableAsync(string tableName)
         {
+            await EnsureConnectionStringAsync();
             var serviceClient = new TableServiceClient(_connectionString);
             await serviceClient.DeleteTableAsync(tableName);
         }

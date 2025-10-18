@@ -109,19 +109,41 @@ namespace PetAdoption.Services.Data
         }
 
         /// <summary>
-        /// Retrieves the Table Storage connection string from Key Vault
+        /// Retrieves the Azure Storage connection string from Key Vault
+        /// This connection string is used for both Table Storage and Blob Storage
         /// </summary>
         /// <returns>The connection string</returns>
-        public async Task<string> GetTableStorageConnectionStringAsync()
+        public async Task<string> GetStorageConnectionStringAsync()
         {
-            var secretName = _configuration["KeyVault:TableStorageConnectionStringSecret"];
+            var secretName = _configuration["KeyVault:AzureStorageConnectionStringSecret"];
             if (string.IsNullOrEmpty(secretName))
             {
                 throw new InvalidOperationException(
-                    "KeyVault:TableStorageConnectionStringSecret is not configured in appsettings.json");
+                    "KeyVault:AzureStorageConnectionStringSecret is not configured in appsettings.json");
             }
 
             return await GetSecretByNameAsync(secretName);
+        }
+
+        /// <summary>
+        /// Retrieves the Table Storage connection string from Key Vault
+        /// </summary>
+        /// <returns>The connection string</returns>
+        [Obsolete("Use GetStorageConnectionStringAsync() instead. Table and Blob Storage share the same connection string.")]
+        public async Task<string> GetTableStorageConnectionStringAsync()
+        {
+            return await GetStorageConnectionStringAsync();
+        }
+
+        /// <summary>
+        /// Retrieves the Blob Storage connection string from Key Vault
+        /// Uses the same connection string as Table Storage
+        /// </summary>
+        /// <returns>The connection string</returns>
+        [Obsolete("Use GetStorageConnectionStringAsync() instead. Table and Blob Storage share the same connection string.")]
+        public async Task<string> GetBlobStorageConnectionStringAsync()
+        {
+            return await GetStorageConnectionStringAsync();
         }
 
         /// <summary>
