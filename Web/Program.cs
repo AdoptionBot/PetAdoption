@@ -20,24 +20,17 @@ namespace PetAdoption.Web
             // Add controllers for auth endpoints
             builder.Services.AddControllers();
 
-            // Add cascading authentication state
             builder.Services.AddCascadingAuthenticationState();
-
-            // Register ProfileStateService as a scoped service
             builder.Services.AddScoped<ProfileStateService>();
-
-            // Add shelter service
             builder.Services.AddScoped<IShelterService, ShelterService>();
-
-            // Add pet service
             builder.Services.AddScoped<IPetService, PetService>();
 
             // Retrieve authentication secrets BEFORE registering services
             var authSecrets = await KeyVaultSecretService.RetrieveAuthenticationSecretsAsync(builder.Configuration);
 
-            // Add Azure Table Storage with Key Vault integration
-            // This registers: KeyVaultSecretService, IAzureTableStorageService, ITableInitializationService, IUserService
-            builder.Services.AddAzureTableStorageWithKeyVault(builder.Configuration);
+            // Add all Azure services (Table Storage, Blob Storage, Key Vault integration)
+            // This registers: KeyVaultSecretService, IAzureTableStorageService, IUserService, IAzureBlobStorageService
+            builder.Services.AddAllAzureServices(builder.Configuration);
 
             // Configure authentication with retrieved secrets
             builder.Services.AddAuthentication(options =>
@@ -97,30 +90,6 @@ namespace PetAdoption.Web
             });
 
             var app = builder.Build();
-
-            // Initialize tables at startup
-            using (var scope = app.Services.CreateScope())
-            {
-                var tableInitService = scope.ServiceProvider.GetRequiredService<ITableInitializationService>();
-                var appLogger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-
-                try
-                {
-                    appLogger.LogInformation("Initializing Azure Table Storage tables...");
-                    
-                    bool forceRecreate = app.Environment.IsDevelopment() && 
-                                       builder.Configuration.GetValue<bool>("ForceRecreateTablesOnStartup", false);
-                    
-                    await tableInitService.InitializeTablesAsync(forceRecreate);
-                    
-                    appLogger.LogInformation("Table initialization completed successfully");
-                }
-                catch (Exception ex)
-                {
-                    appLogger.LogError(ex, "Failed to initialize tables");
-                    throw;
-                }
-            }
 
             if (!app.Environment.IsDevelopment())
             {
