@@ -57,6 +57,11 @@
                                     </NavLink>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="nav-link @GetDisabledClass()" href="/mypets" @onclick='() => HandleNavigationClick("/mypets")' @onclick:preventDefault="true">
+                                        <span class="fa fa-list mr-1"></span><span class="nav-text">My Pets</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link @GetDisabledClass()" href="/addpet" @onclick='() => HandleNavigationClick("/addpet")' @onclick:preventDefault="true">
                                         <span class="fa fa-plus-circle mr-1"></span><span class="nav-text">Add Pet</span>
                                     </a>

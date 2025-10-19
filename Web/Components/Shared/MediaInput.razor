@@ -102,6 +102,7 @@
     [Parameter] public string Label { get; set; } = "";
     [Parameter] public string? CurrentUrl { get; set; }
     [Parameter] public EventCallback<string?> CurrentUrlChanged { get; set; }
+    [Parameter] public EventCallback<string?> OnMediaUploaded { get; set; }
     [Parameter] public bool IsVideo { get; set; }
 
     private bool IsUploadMode { get; set; } = true;
@@ -204,6 +205,7 @@
             Logger.LogInformation("Upload successful. URL: {Url}", url);
             
             await CurrentUrlChanged.InvokeAsync(url);
+            await OnMediaUploaded.InvokeAsync(url);
             selectedFile = null;
         }
         catch (OperationCanceledException)
