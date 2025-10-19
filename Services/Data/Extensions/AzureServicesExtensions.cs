@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PetAdoption.Services.Interfaces;
+using Microsoft.Extensions.Logging;
+using PetAdoption.Services.Data;
 
 namespace PetAdoption.Services.Data.Extensions
 {
@@ -13,9 +15,6 @@ namespace PetAdoption.Services.Data.Extensions
         /// <summary>
         /// Adds Azure Table Storage service with a direct connection string (for testing)
         /// </summary>
-        /// <param name="services">The service collection</param>
-        /// <param name="connectionString">The Azure Storage connection string</param>
-        /// <returns>The service collection for chaining</returns>
         public static IServiceCollection AddAzureTableStorageService(
             this IServiceCollection services,
             string connectionString)
@@ -27,14 +26,49 @@ namespace PetAdoption.Services.Data.Extensions
         }
 
         /// <summary>
-        /// Adds Azure Storage services (Table and Blob) with Key Vault integration for production use
-        /// Both services use the same storage account connection string
+        /// Adds Azure Blob Storage service with a direct connection string (for testing)
         /// </summary>
-        /// <param name="services">The service collection</param>
-        /// <param name="configuration">The application configuration</param>
-        /// <returns>The service collection for chaining</returns>
-        /// <exception cref="InvalidOperationException">Thrown when Key Vault configuration is missing</exception>
-        public static IServiceCollection AddAzureStorageWithKeyVault(
+        public static IServiceCollection AddAzureBlobStorageService(
+            this IServiceCollection services,
+            string connectionString,
+            string containerName)
+        {
+            services.AddSingleton<IAzureBlobStorageService>(sp =>
+            {
+                var logger = sp.GetRequiredService<ILogger<AzureBlobStorageService>>();
+                logger.LogInformation("Registering AzureBlobStorageService with connection string");
+                
+                try
+                {
+                    return new AzureBlobStorageService(connectionString, containerName, logger);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogCritical(ex, "FATAL: Failed to create AzureBlobStorageService during DI registration");
+                    throw;
+                }
+            });
+
+            return services;
+        }
+
+        /// <summary>
+        /// Adds all business logic services (User, Shelter, Pet)
+        /// </summary>
+        public static IServiceCollection AddBusinessServices(this IServiceCollection services)
+        {
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IShelterService, ShelterService>();
+            services.AddScoped<IPetService, PetService>();
+            
+            return services;
+        }
+
+        /// <summary>
+        /// Adds all Azure services with Key Vault integration
+        /// This method initializes services in the correct order to avoid deadlocks
+        /// </summary>
+        public static async Task<IServiceCollection> AddAllAzureServicesAsync(
             this IServiceCollection services,
             IConfiguration configuration)
         {
@@ -54,79 +88,25 @@ namespace PetAdoption.Services.Data.Extensions
                     "KeyVault:AzureStorageConnectionStringSecret is not configured in appsettings.json");
             }
 
-            // Register Key Vault Secret Service first (shared dependency)
+            // Step 1: Create a temporary KeyVaultSecretService to retrieve connection string
+            // This happens ONCE at startup, before any DI resolution
+            var tempKeyVaultService = KeyVaultSecretService.CreateInstance(configuration);
+            var storageConnectionString = await tempKeyVaultService.GetStorageConnectionStringAsync();
+            var containerName = configuration["Azure:BlobStorage:ContainerName"] ?? "pet-media";
+
+            // Step 2: Register KeyVaultSecretService in DI for runtime use
             services.AddSingleton<KeyVaultSecretService>();
 
-            // Register Azure Table Storage Service with Key Vault integration
-            services.AddSingleton<IAzureTableStorageService, AzureTableStorageService>();
+            // Step 3: Register Azure Table Storage with the connection string
+            services.AddAzureTableStorageService(storageConnectionString);
 
-            // Register Azure Blob Storage Service with Key Vault integration
-            // Uses the same storage account connection string as Table Storage
-            services.AddSingleton<IAzureBlobStorageService, AzureBlobStorageService>();
+            // Step 4: Register Azure Blob Storage with the connection string
+            services.AddAzureBlobStorageService(storageConnectionString, containerName);
 
-            // Register User Service for authentication and user management
-            services.AddScoped<IUserService, UserService>();
-
-            return services;
-        }
-
-        /// <summary>
-        /// Adds Azure Blob Storage service with a direct connection string (for testing)
-        /// </summary>
-        /// <param name="services">The service collection</param>
-        /// <param name="connectionString">The Azure Storage connection string</param>
-        /// <param name="containerName">The container name (defaults to "pet-media")</param>
-        /// <returns>The service collection for chaining</returns>
-        public static IServiceCollection AddAzureBlobStorageService(
-            this IServiceCollection services,
-            string connectionString,
-            string containerName = "pet-media")
-        {
-            services.AddSingleton<IAzureBlobStorageService>(sp =>
-                new AzureBlobStorageService(connectionString, containerName));
+            // Step 5: Register business services
+            services.AddBusinessServices();
 
             return services;
         }
-
-        /// <summary>
-        /// Adds all Azure services (Table Storage, Blob Storage, Key Vault integration)
-        /// This is a convenience method that registers all services needed for the application
-        /// Both Table Storage and Blob Storage use the same storage account connection string
-        /// </summary>
-        /// <param name="services">The service collection</param>
-        /// <param name="configuration">The application configuration</param>
-        /// <returns>The service collection for chaining</returns>
-        public static IServiceCollection AddAllAzureServices(
-            this IServiceCollection services,
-            IConfiguration configuration)
-        {
-            return services.AddAzureStorageWithKeyVault(configuration);
-        }
-
-        #region Obsolete Methods (for backward compatibility)
-
-        /// <summary>
-        /// Adds Azure Table Storage service with Key Vault integration for production use
-        /// </summary>
-        [Obsolete("Use AddAzureStorageWithKeyVault() instead, which registers both Table and Blob Storage.")]
-        public static IServiceCollection AddAzureTableStorageWithKeyVault(
-            this IServiceCollection services,
-            IConfiguration configuration)
-        {
-            return services.AddAzureStorageWithKeyVault(configuration);
-        }
-
-        /// <summary>
-        /// Adds Azure Blob Storage service with Key Vault integration for production use
-        /// </summary>
-        [Obsolete("Use AddAzureStorageWithKeyVault() instead, which registers both Table and Blob Storage.")]
-        public static IServiceCollection AddAzureBlobStorageWithKeyVault(
-            this IServiceCollection services,
-            IConfiguration configuration)
-        {
-            return services.AddAzureStorageWithKeyVault(configuration);
-        }
-
-        #endregion
     }
 }
