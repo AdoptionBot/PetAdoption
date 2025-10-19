@@ -1,4 +1,4 @@
-@page "/addpet"
+@page "/editpet/{PetName}/{BirthDate}"
 @using Microsoft.AspNetCore.Authorization
 @using PetAdoption.Services.Interfaces
 @using PetAdoption.Data.TableStorage
@@ -10,31 +10,25 @@
 @inject IUserService UserService
 @inject IShelterService ShelterService
 @inject IPetService PetService
-@inject IAzureBlobStorageService BlobStorageService
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager Navigation
 @inject IJSRuntime JSRuntime
-@inject ILogger<AddPet> Logger
+@inject ILogger<EditPet> Logger
 @rendermode InteractiveServer
-@implements IAsyncDisposable
 
-<PageTitle>Add Pet - Madeira Pet Adoption</PageTitle>
+<PageTitle>Edit Pet - Madeira Pet Adoption</PageTitle>
 
 <div class="container mt-5 mb-5">
     <div class="row">
         <div class="col-md-10 mx-auto">
             <div class="card shadow">
-                <div class="card-header bg-success text-white">
-                    <h3 class="mb-0">Add New Pet</h3>
+                <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">Edit Pet</h3>
+                    <a href="/mypets" class="btn btn-secondary">
+                        <i class="fa fa-arrow-left"></i> Back to My Pets
+                    </a>
                 </div>
                 <div class="card-body p-4">
-                    @if (!isPetSaved)
-                    {
-                        <div class="alert alert-info">
-                            <strong>Complete Pet Information</strong>
-                            <p class="mb-0">Please complete all required fields and save the pet information before you can navigate to other pages.</p>
-                        </div>
-                    }
-
                     @if (isLoading)
                     {
                         <div class="text-center">
@@ -59,21 +53,24 @@
                                 <div class="alert alert-danger">@errorMessage</div>
                             }
 
+                            <!-- Note about name and birth date -->
+                            <div class="alert alert-info">
+                                <strong>Note:</strong> Pet name and birth date cannot be changed as they are used as unique identifiers.
+                            </div>
+
                             <!-- Pet Basic Information -->
                             <div class="mb-4">
                                 <h5 class="border-bottom pb-2">Basic Information</h5>
                                 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Pet Name <span class="text-danger">*</span></label>
-                                        <InputText @bind-Value="currentPet.PartitionKey" class="form-control" placeholder="Enter pet name" />
-                                        <ValidationMessage For="@(() => currentPet.PartitionKey)" />
+                                        <label class="form-label">Pet Name</label>
+                                        <input type="text" class="form-control" value="@currentPet.PartitionKey" disabled />
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Birth Date <span class="text-danger">*</span></label>
-                                        <InputDate @bind-Value="petBirthDate" @bind-Value:after="OnBirthDateChanged" class="form-control" />
-                                        <ValidationMessage For="@(() => currentPet.RowKey)" />
+                                        <label class="form-label">Birth Date</label>
+                                        <input type="text" class="form-control" value="@DateTime.Parse(currentPet.RowKey).ToShortDateString()" disabled />
                                     </div>
                                 </div>
 
@@ -101,7 +98,6 @@
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Gender <span class="text-danger">*</span></label>
                                         <InputSelect @bind-Value="currentPet.Gender" class="form-select">
-                                            <option value="">-- Select Gender --</option>
                                             @foreach (Gender gender in Enum.GetValues(typeof(Gender)))
                                             {
                                                 <option value="@gender">@gender</option>
@@ -113,7 +109,6 @@
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Size <span class="text-danger">*</span></label>
                                         <InputSelect @bind-Value="currentPet.Size" class="form-select">
-                                            <option value="">-- Select Size --</option>
                                             @foreach (Size size in Enum.GetValues(typeof(Size)))
                                             {
                                                 <option value="@size">@size</option>
@@ -139,7 +134,6 @@
                                 <div class="mb-3">
                                     <label class="form-label">Adoption Status <span class="text-danger">*</span></label>
                                     <InputSelect @bind-Value="currentPet.AdoptionStatus" class="form-select">
-                                        <option value="">-- Select Status --</option>
                                         @foreach (AdoptionStatus status in Enum.GetValues(typeof(AdoptionStatus)))
                                         {
                                             <option value="@status">@status</option>
@@ -161,6 +155,7 @@
                                                 <h6 class="text-muted">Common Vaccinations</h6>
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" id="vaccRabies"
+                                                           checked="@currentPet.Vaccinations.HasFlag(Vaccinations.Rabies)"
                                                            @onchange="@(e => ToggleVaccination(Vaccinations.Rabies, (bool)e.Value!))" />
                                                     <label class="form-check-label" for="vaccRabies">Rabies</label>
                                                 </div>
@@ -169,21 +164,25 @@
                                                 <h6 class="text-muted">Cat Vaccinations</h6>
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" id="vaccTrivalent"
+                                                           checked="@currentPet.Vaccinations.HasFlag(Vaccinations.Trivalent)"
                                                            @onchange="@(e => ToggleVaccination(Vaccinations.Trivalent, (bool)e.Value!))" />
                                                     <label class="form-check-label" for="vaccTrivalent">Trivalent</label>
                                                 </div>
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" id="vaccFelv"
+                                                           checked="@currentPet.Vaccinations.HasFlag(Vaccinations.Felv)"
                                                            @onchange="@(e => ToggleVaccination(Vaccinations.Felv, (bool)e.Value!))" />
                                                     <label class="form-check-label" for="vaccFelv">FeLV</label>
                                                 </div>
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" id="vaccFIP"
+                                                           checked="@currentPet.Vaccinations.HasFlag(Vaccinations.FIP)"
                                                            @onchange="@(e => ToggleVaccination(Vaccinations.FIP, (bool)e.Value!))" />
                                                     <label class="form-check-label" for="vaccFIP">FIP</label>
                                                 </div>
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" id="vaccFIV"
+                                                           checked="@currentPet.Vaccinations.HasFlag(Vaccinations.FIV)"
                                                            @onchange="@(e => ToggleVaccination(Vaccinations.FIV, (bool)e.Value!))" />
                                                     <label class="form-check-label" for="vaccFIV">FIV</label>
                                                 </div>
@@ -196,16 +195,19 @@
                                                     <div class="col-md-4">
                                                         <div class="form-check">
                                                             <input class="form-check-input" type="checkbox" id="vaccParvovirus"
+                                                                   checked="@currentPet.Vaccinations.HasFlag(Vaccinations.Parvovirus)"
                                                                    @onchange="@(e => ToggleVaccination(Vaccinations.Parvovirus, (bool)e.Value!))" />
                                                             <label class="form-check-label" for="vaccParvovirus">Parvovirus</label>
                                                         </div>
                                                         <div class="form-check">
                                                             <input class="form-check-input" type="checkbox" id="vaccDistemper"
+                                                                   checked="@currentPet.Vaccinations.HasFlag(Vaccinations.Distemper)"
                                                                    @onchange="@(e => ToggleVaccination(Vaccinations.Distemper, (bool)e.Value!))" />
                                                             <label class="form-check-label" for="vaccDistemper">Distemper</label>
                                                         </div>
                                                         <div class="form-check">
                                                             <input class="form-check-input" type="checkbox" id="vaccHepatitis"
+                                                                   checked="@currentPet.Vaccinations.HasFlag(Vaccinations.Hepatitis)"
                                                                    @onchange="@(e => ToggleVaccination(Vaccinations.Hepatitis, (bool)e.Value!))" />
                                                             <label class="form-check-label" for="vaccHepatitis">Hepatitis</label>
                                                         </div>
@@ -213,16 +215,19 @@
                                                     <div class="col-md-4">
                                                         <div class="form-check">
                                                             <input class="form-check-input" type="checkbox" id="vaccLeptospirosis"
+                                                                   checked="@currentPet.Vaccinations.HasFlag(Vaccinations.Leptospirosis)"
                                                                    @onchange="@(e => ToggleVaccination(Vaccinations.Leptospirosis, (bool)e.Value!))" />
                                                             <label class="form-check-label" for="vaccLeptospirosis">Leptospirosis</label>
                                                         </div>
                                                         <div class="form-check">
                                                             <input class="form-check-input" type="checkbox" id="vaccParainfluenza"
+                                                                   checked="@currentPet.Vaccinations.HasFlag(Vaccinations.Parainfluenza)"
                                                                    @onchange="@(e => ToggleVaccination(Vaccinations.Parainfluenza, (bool)e.Value!))" />
                                                             <label class="form-check-label" for="vaccParainfluenza">Parainfluenza</label>
                                                         </div>
                                                         <div class="form-check">
                                                             <input class="form-check-input" type="checkbox" id="vaccBordetella"
+                                                                   checked="@currentPet.Vaccinations.HasFlag(Vaccinations.Bordetella)"
                                                                    @onchange="@(e => ToggleVaccination(Vaccinations.Bordetella, (bool)e.Value!))" />
                                                             <label class="form-check-label" for="vaccBordetella">Bordetella</label>
                                                         </div>
@@ -230,11 +235,13 @@
                                                     <div class="col-md-4">
                                                         <div class="form-check">
                                                             <input class="form-check-input" type="checkbox" id="vaccLymeDisease"
+                                                                   checked="@currentPet.Vaccinations.HasFlag(Vaccinations.LymeDisease)"
                                                                    @onchange="@(e => ToggleVaccination(Vaccinations.LymeDisease, (bool)e.Value!))" />
                                                             <label class="form-check-label" for="vaccLymeDisease">Lyme Disease</label>
                                                         </div>
                                                         <div class="form-check">
                                                             <input class="form-check-input" type="checkbox" id="vaccCoronavirus"
+                                                                   checked="@currentPet.Vaccinations.HasFlag(Vaccinations.Coronavirus)"
                                                                    @onchange="@(e => ToggleVaccination(Vaccinations.Coronavirus, (bool)e.Value!))" />
                                                             <label class="form-check-label" for="vaccCoronavirus">Coronavirus</label>
                                                         </div>
@@ -286,42 +293,33 @@
                             <!-- Images and Video Section -->
                             <div class="mb-4">
                                 <h5 class="border-bottom pb-2">Images & Video</h5>
-                                <p class="text-muted small">Upload files or provide URLs for pet images and videos (optional)</p>
+                                <p class="text-muted small">Update images or videos for this pet (optional)</p>
 
-                                <!-- Render media inputs with keys to prevent re-render cascades -->
-                                <MediaInput @key="@($"img1_{currentPet.PartitionKey}")" Label="Image 1" @bind-CurrentUrl="currentPet.Image1Url" OnMediaUploaded="TrackUploadedMedia" />
-                                <MediaInput @key="@($"img2_{currentPet.PartitionKey}")" Label="Image 2" @bind-CurrentUrl="currentPet.Image2Url" OnMediaUploaded="TrackUploadedMedia" />
-                                <MediaInput @key="@($"img3_{currentPet.PartitionKey}")" Label="Image 3" @bind-CurrentUrl="currentPet.Image3Url" OnMediaUploaded="TrackUploadedMedia" />
-                                <MediaInput @key="@($"img4_{currentPet.PartitionKey}")" Label="Image 4" @bind-CurrentUrl="currentPet.Image4Url" OnMediaUploaded="TrackUploadedMedia" />
-                                <MediaInput @key="@($"vid1_{currentPet.PartitionKey}")" Label="Video 1" @bind-CurrentUrl="currentPet.Video1Url" IsVideo="true" OnMediaUploaded="TrackUploadedMedia" />
-                            </div>
-
-                            <!-- Shelter Information (Read-only) -->
-                            <div class="mb-4">
-                                <h5 class="border-bottom pb-2">Shelter Information</h5>
-                                <div class="alert alert-light">
-                                    <p class="mb-1"><strong>Shelter Name:</strong> @currentShelter.PartitionKey</p>
-                                    <p class="mb-0"><strong>Shelter Location:</strong> @currentShelter.RowKey</p>
-                                </div>
+                                <MediaInput @key="@($"img1_{currentPet.PartitionKey}")" Label="Image 1" @bind-CurrentUrl="currentPet.Image1Url" />
+                                <MediaInput @key="@($"img2_{currentPet.PartitionKey}")" Label="Image 2" @bind-CurrentUrl="currentPet.Image2Url" />
+                                <MediaInput @key="@($"img3_{currentPet.PartitionKey}")" Label="Image 3" @bind-CurrentUrl="currentPet.Image3Url" />
+                                <MediaInput @key="@($"img4_{currentPet.PartitionKey}")" Label="Image 4" @bind-CurrentUrl="currentPet.Image4Url" />
+                                <MediaInput @key="@($"vid1_{currentPet.PartitionKey}")" Label="Video 1" @bind-CurrentUrl="currentPet.Video1Url" IsVideo="true" />
                             </div>
 
                             <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-success btn-lg" disabled="@isSaving">
+                                <button type="submit" class="btn btn-primary btn-lg" disabled="@isSaving">
                                     @if (isSaving)
                                     {
                                         <span class="spinner-border spinner-border-sm me-2"></span>
                                     }
-                                    Add Pet
+                                    Save Changes
                                 </button>
+                                <a href="/mypets" class="btn btn-secondary btn-lg">Cancel</a>
                             </div>
                         </EditForm>
                     }
                     else
                     {
                         <div class="alert alert-danger">
-                            <strong>Unable to load shelter information.</strong>
-                            <p class="mb-0">You must be registered as a shelter to add pets. Please complete your profile first.</p>
-                            <a href="/profile" class="btn btn-primary mt-2">Go to Profile</a>
+                            <strong>Pet not found or unauthorized access.</strong>
+                            <p class="mb-0">The pet you're trying to edit doesn't exist or you don't have permission to edit it.</p>
+                            <a href="/mypets" class="btn btn-primary mt-2">Go to My Pets</a>
                         </div>
                     }
                 </div>
@@ -331,16 +329,16 @@
 </div>
 
 @code {
+    [Parameter] public string PetName { get; set; } = "";
+    [Parameter] public string BirthDate { get; set; } = "";
+
     private Pet? currentPet;
     private Shelter? currentShelter;
     private User? currentUser;
-    private DateTime petBirthDate = DateTime.Today;
     private bool isLoading = true;
     private bool isSaving = false;
-    private bool isPetSaved = false;
     private string? successMessage;
     private string? errorMessage;
-    private List<string> uploadedMediaUrls = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -355,21 +353,29 @@
                 if (!string.IsNullOrEmpty(email))
                 {
                     currentUser = await UserService.GetUserByEmailAsync(email);
-                    if (currentUser != null && !string.IsNullOrEmpty(currentUser.ShelterName) && !string.IsNullOrEmpty(currentUser.ShelterLocation))
+                    if (currentUser != null && 
+                        !string.IsNullOrEmpty(currentUser.ShelterName) && 
+                        !string.IsNullOrEmpty(currentUser.ShelterLocation))
                     {
-                        currentShelter = await ShelterService.GetShelterAsync(currentUser.ShelterName, currentUser.ShelterLocation);
+                        currentShelter = await ShelterService.GetShelterAsync(
+                            currentUser.ShelterName, 
+                            currentUser.ShelterLocation);
                         
                         if (currentShelter != null)
                         {
-                            // Initialize a new pet with shelter information
-                            currentPet = new Pet
+                            // Load the pet
+                            currentPet = await PetService.GetPetAsync(PetName, BirthDate);
+                            
+                            // Verify this pet belongs to the current shelter
+                            if (currentPet != null && 
+                                (currentPet.ShelterName != currentShelter.PartitionKey || 
+                                 currentPet.ShelterLocation != currentShelter.RowKey))
                             {
-                                ShelterName = currentShelter.PartitionKey,
-                                ShelterLocation = currentShelter.RowKey,
-                                AdoptionStatus = AdoptionStatus.NotAdopted,
-                                Vaccinations = Vaccinations.none,
-                                RowKey = petBirthDate.ToString("yyyy-MM-dd") // Initialize RowKey with default date
-                            };
+                                Logger.LogWarning("Unauthorized access attempt to pet {PetName} by shelter {ShelterName}", 
+                                    PetName, currentShelter.PartitionKey);
+                                currentPet = null;
+                                errorMessage = "You don't have permission to edit this pet.";
+                            }
                         }
                     }
                 }
@@ -377,74 +383,13 @@
         }
         catch (Exception ex)
         {
-            errorMessage = "Failed to load shelter information: " + ex.Message;
+            Logger.LogError(ex, "Error loading pet for editing");
+            errorMessage = "Failed to load pet: " + ex.Message;
         }
         finally
         {
             isLoading = false;
         }
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender && !isPetSaved)
-        {
-            // Register navigation guard using JavaScript
-            await JSRuntime.InvokeVoidAsync("eval", @"
-                window.addEventListener('beforeunload', function(e) {
-                    if (!window.petSaved) {
-                        e.preventDefault();
-                        e.returnValue = '';
-                    }
-                });
-            ");
-        }
-    }
-
-    private void OnBirthDateChanged()
-    {
-        if (currentPet != null)
-        {
-            // Update RowKey whenever birth date changes so validation works
-            currentPet.RowKey = petBirthDate.ToString("yyyy-MM-dd");
-            Logger.LogInformation("Birth date changed to: {BirthDate}, RowKey set to: {RowKey}", petBirthDate, currentPet.RowKey);
-        }
-    }
-
-    private void TrackUploadedMedia(string? url)
-    {
-        if (!string.IsNullOrEmpty(url) && !uploadedMediaUrls.Contains(url))
-        {
-            uploadedMediaUrls.Add(url);
-            Logger.LogInformation("Tracked uploaded media: {Url}", url);
-        }
-    }
-
-    private bool ValidateMediaUrls()
-    {
-        var urlsToValidate = new[]
-        {
-            currentPet?.Image1Url,
-            currentPet?.Image2Url,
-            currentPet?.Image3Url,
-            currentPet?.Image4Url,
-            currentPet?.Video1Url
-        };
-
-        foreach (var url in urlsToValidate)
-        {
-            if (!string.IsNullOrEmpty(url))
-            {
-                if (!Uri.TryCreate(url, UriKind.Absolute, out var uriResult) 
-                    || (uriResult.Scheme != Uri.UriSchemeHttp && uriResult.Scheme != Uri.UriSchemeHttps))
-                {
-                    errorMessage = $"Invalid URL: {url}. Please enter a valid URL starting with http:// or https://";
-                    return false;
-                }
-            }
-        }
-
-        return true;
     }
 
     private void ToggleVaccination(Vaccinations vaccination, bool isChecked)
@@ -471,17 +416,7 @@
 
         try
         {
-            // Scroll to top first to show any messages
             await JSRuntime.InvokeVoidAsync("scrollToTopInstant");
-
-            // Ensure RowKey is set (should already be set by OnBirthDateChanged, but double-check)
-            currentPet.RowKey = petBirthDate.ToString("yyyy-MM-dd");
-
-            // Validate media URLs
-            if (!ValidateMediaUrls())
-            {
-                return;
-            }
 
             // Validate that required fields are set
             var validationContext = new ValidationContext(currentPet);
@@ -495,59 +430,20 @@
                 return;
             }
 
-            // Add pet to storage
-            await PetService.AddPetAsync(currentPet);
+            // Update pet in storage
+            await PetService.UpdatePetAsync(currentPet);
             
-            isPetSaved = true;
-            successMessage = $"Pet '{currentPet.PartitionKey}' has been added successfully! You can now navigate to other pages or add another pet.";
-            
-            // Allow navigation after pet is saved
-            await JSRuntime.InvokeVoidAsync("eval", "window.petSaved = true;");
-
-            // Clear the uploaded media list since the pet was saved successfully
-            uploadedMediaUrls.Clear();
-
-            // Reset form for another pet
-            currentPet = new Pet
-            {
-                ShelterName = currentShelter.PartitionKey,
-                ShelterLocation = currentShelter.RowKey,
-                AdoptionStatus = AdoptionStatus.NotAdopted,
-                Vaccinations = Vaccinations.none,
-                RowKey = DateTime.Today.ToString("yyyy-MM-dd") // Set default RowKey
-            };
-            petBirthDate = DateTime.Today;
+            successMessage = $"Pet '{currentPet.PartitionKey}' has been updated successfully!";
+            Logger.LogInformation("Updated pet: {PetName}", currentPet.PartitionKey);
         }
         catch (Exception ex)
         {
-            errorMessage = "Failed to add pet: " + ex.Message;
-            isPetSaved = false;
+            Logger.LogError(ex, "Error updating pet: {PetName}", currentPet.PartitionKey);
+            errorMessage = "Failed to update pet: " + ex.Message;
         }
         finally
         {
             isSaving = false;
-        }
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        // Clean up uploaded media if the pet was not saved
-        if (!isPetSaved && uploadedMediaUrls.Any())
-        {
-            Logger.LogInformation("Cleaning up {Count} uploaded media files that were not saved", uploadedMediaUrls.Count);
-            
-            foreach (var url in uploadedMediaUrls)
-            {
-                try
-                {
-                    await BlobStorageService.DeleteImageAsync(url);
-                    Logger.LogInformation("Deleted unsaved media: {Url}", url);
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "Failed to delete unsaved media: {Url}", url);
-                }
-            }
         }
     }
 }

@@ -1,0 +1,680 @@
+@page "/mypets"
+@using Microsoft.AspNetCore.Authorization
+@using PetAdoption.Services.Interfaces
+@using PetAdoption.Data.TableStorage
+@using PetAdoption.Data.TableStorage.Enums
+@attribute [Authorize(Roles = "Shelter")]
+@inject IUserService UserService
+@inject IShelterService ShelterService
+@inject IPetService PetService
+@inject IAzureBlobStorageService BlobStorageService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+@inject ILogger<MyPets> Logger
+@rendermode InteractiveServer
+
+<PageTitle>My Pets - Madeira Pet Adoption</PageTitle>
+
+<div class="container mt-5 mb-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">My Pets</h3>
+            <a href="/addpet" class="btn btn-light">
+                <i class="fa fa-plus"></i> Add New Pet
+            </a>
+        </div>
+        <div class="card-body">
+            @if (isLoading)
+            {
+                <div class="text-center py-5">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3">Loading your pets...</p>
+                </div>
+            }
+            else if (currentShelter == null)
+            {
+                <div class="alert alert-warning">
+                    <strong>No Shelter Found</strong>
+                    <p class="mb-0">You must be registered as a shelter to manage pets. Please complete your shelter profile first.</p>
+                    <a href="/shelter" class="btn btn-primary mt-2">Go to Shelter Profile</a>
+                </div>
+            }
+            else
+            {
+                @if (!string.IsNullOrEmpty(successMessage))
+                {
+                    <div class="alert alert-success alert-dismissible fade show">
+                        @successMessage
+                        <button type="button" class="btn-close" @onclick="() => successMessage = null"></button>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="alert alert-danger alert-dismissible fade show">
+                        @errorMessage
+                        <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+                    </div>
+                }
+
+                <!-- Shelter Info -->
+                <div class="alert alert-info mb-4">
+                    <strong>Managing pets for:</strong> @currentShelter.PartitionKey - @currentShelter.RowKey
+                </div>
+
+                @if (!allPets.Any())
+                {
+                    <div class="text-center py-5">
+                        <i class="fa fa-paw fa-3x text-muted mb-3"></i>
+                        <h4>No Pets Yet</h4>
+                        <p class="text-muted">You haven't added any pets yet. Click the "Add New Pet" button to get started.</p>
+                        <a href="/addpet" class="btn btn-primary mt-2">
+                            <i class="fa fa-plus"></i> Add Your First Pet
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <!-- Search and Filter -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" placeholder="Search by pet name..." 
+                                   @bind="searchQuery" @bind:event="oninput" @bind:after="ApplyFilters" />
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" @bind="filterStatus" @bind:after="ApplyFilters">
+                                <option value="">All Status</option>
+                                @foreach (AdoptionStatus status in Enum.GetValues(typeof(AdoptionStatus)))
+                                {
+                                    <option value="@status">@status</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" @bind="filterSpecies" @bind:after="ApplyFilters">
+                                <option value="">All Species</option>
+                                @foreach (var species in GetUniqueSpecies())
+                                {
+                                    <option value="@species">@species</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Results Info -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <strong>@filteredPets.Count</strong> pet(s) found
+                            @if (filteredPets.Count != allPets.Count)
+                            {
+                                <span class="text-muted">(filtered from @allPets.Count total)</span>
+                            }
+                        </div>
+                        <div class="text-muted">
+                            Showing @((currentPage - 1) * pageSize + 1) to @Math.Min(currentPage * pageSize, filteredPets.Count) of @filteredPets.Count
+                        </div>
+                    </div>
+
+                    <!-- Pets Table -->
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 80px;">Image</th>
+                                    <th>Name</th>
+                                    <th>Species/Breed</th>
+                                    <th>Birth Date</th>
+                                    <th>Gender</th>
+                                    <th>Size</th>
+                                    <th>Status</th>
+                                    <th style="width: 200px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var pet in currentPagePets)
+                                {
+                                    <tr>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(pet.Image1Url))
+                                            {
+                                                <img src="@pet.Image1Url" alt="@pet.PartitionKey" 
+                                                     class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;" />
+                                            }
+                                            else
+                                            {
+                                                <div class="bg-secondary text-white d-flex align-items-center justify-content-center" 
+                                                     style="width: 60px; height: 60px; border-radius: 4px;">
+                                                    <i class="fa fa-paw"></i>
+                                                </div>
+                                            }
+                                        </td>
+                                        <td>
+                                            <strong>@pet.PartitionKey</strong>
+                                        </td>
+                                        <td>
+                                            @pet.Species@(string.IsNullOrEmpty(pet.Breed) ? "" : $" - {pet.Breed}")
+                                        </td>
+                                        <td>@DateTime.Parse(pet.RowKey).ToShortDateString()</td>
+                                        <td>@pet.Gender</td>
+                                        <td>
+                                            <span class="badge bg-@GetSizeBadgeColor(pet.Size)">@pet.Size</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-@GetStatusBadgeColor(pet.AdoptionStatus)">
+                                                @pet.AdoptionStatus
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <button class="btn btn-outline-info" @onclick="() => ViewPet(pet)" 
+                                                        title="View Details">
+                                                    <i class="fa fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-outline-primary" @onclick="() => EditPet(pet)" 
+                                                        title="Edit">
+                                                    <i class="fa fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger" @onclick="() => ShowDeleteConfirmation(pet)" 
+                                                        title="Delete">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    @if (totalPages > 1)
+                    {
+                        <nav aria-label="Pet pagination" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                    <button class="page-link" @onclick="() => GoToPage(currentPage - 1)" disabled="@(currentPage == 1)">
+                                        <i class="fa fa-chevron-left"></i> Previous
+                                    </button>
+                                </li>
+                                
+                                @for (int i = GetStartPage(); i <= GetEndPage(); i++)
+                                {
+                                    int pageNumber = i;
+                                    <li class="page-item @(currentPage == pageNumber ? "active" : "")">
+                                        <button class="page-link" @onclick="() => GoToPage(pageNumber)">
+                                            @pageNumber
+                                        </button>
+                                    </li>
+                                }
+                                
+                                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                    <button class="page-link" @onclick="() => GoToPage(currentPage + 1)" disabled="@(currentPage == totalPages)">
+                                        Next <i class="fa fa-chevron-right"></i>
+                                    </button>
+                                </li>
+                            </ul>
+                        </nav>
+                    }
+                }
+            }
+        </div>
+    </div>
+</div>
+
+<!-- View Pet Modal -->
+@if (selectedPet != null && showViewModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fa fa-paw"></i> @selectedPet.PartitionKey
+                    </h5>
+                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <!-- Images Column -->
+                        <div class="col-md-6">
+                            <h6 class="border-bottom pb-2">Images & Video</h6>
+                            <div class="row g-2 mb-3">
+                                @if (!string.IsNullOrEmpty(selectedPet.Image1Url))
+                                {
+                                    <div class="col-6">
+                                        <img src="@selectedPet.Image1Url" class="img-fluid rounded" alt="Image 1" />
+                                    </div>
+                                }
+                                @if (!string.IsNullOrEmpty(selectedPet.Image2Url))
+                                {
+                                    <div class="col-6">
+                                        <img src="@selectedPet.Image2Url" class="img-fluid rounded" alt="Image 2" />
+                                    </div>
+                                }
+                                @if (!string.IsNullOrEmpty(selectedPet.Image3Url))
+                                {
+                                    <div class="col-6">
+                                        <img src="@selectedPet.Image3Url" class="img-fluid rounded" alt="Image 3" />
+                                    </div>
+                                }
+                                @if (!string.IsNullOrEmpty(selectedPet.Image4Url))
+                                {
+                                    <div class="col-6">
+                                        <img src="@selectedPet.Image4Url" class="img-fluid rounded" alt="Image 4" />
+                                    </div>
+                                }
+                            </div>
+                            @if (!string.IsNullOrEmpty(selectedPet.Video1Url))
+                            {
+                                <div class="mb-3">
+                                    <video src="@selectedPet.Video1Url" class="w-100 rounded" controls></video>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Details Column -->
+                        <div class="col-md-6">
+                            <h6 class="border-bottom pb-2">Basic Information</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <th style="width: 40%;">Name:</th>
+                                    <td>@selectedPet.PartitionKey</td>
+                                </tr>
+                                <tr>
+                                    <th>Birth Date:</th>
+                                    <td>@DateTime.Parse(selectedPet.RowKey).ToLongDateString()</td>
+                                </tr>
+                                <tr>
+                                    <th>Species:</th>
+                                    <td>@(selectedPet.Species ?? "Not specified")</td>
+                                </tr>
+                                <tr>
+                                    <th>Breed:</th>
+                                    <td>@(selectedPet.Breed ?? "Not specified")</td>
+                                </tr>
+                                <tr>
+                                    <th>Colour:</th>
+                                    <td>@(selectedPet.Colour ?? "Not specified")</td>
+                                </tr>
+                                <tr>
+                                    <th>Gender:</th>
+                                    <td>@selectedPet.Gender</td>
+                                </tr>
+                                <tr>
+                                    <th>Size:</th>
+                                    <td><span class="badge bg-@GetSizeBadgeColor(selectedPet.Size)">@selectedPet.Size</span></td>
+                                </tr>
+                                <tr>
+                                    <th>Adoption Status:</th>
+                                    <td><span class="badge bg-@GetStatusBadgeColor(selectedPet.AdoptionStatus)">@selectedPet.AdoptionStatus</span></td>
+                                </tr>
+                            </table>
+
+                            <h6 class="border-bottom pb-2 mt-4">About</h6>
+                            <p>@selectedPet.About</p>
+
+                            <h6 class="border-bottom pb-2 mt-4">Medical Information</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <th style="width: 40%;">Vaccinations:</th>
+                                    <td>@GetVaccinationsDisplay(selectedPet.Vaccinations)</td>
+                                </tr>
+                                <tr>
+                                    <th>Dewormed:</th>
+                                    <td>@(selectedPet.Dewormed ? "Yes" : "No")</td>
+                                </tr>
+                                <tr>
+                                    <th>Microchipped:</th>
+                                    <td>@(selectedPet.Chipped ? "Yes" : "No")</td>
+                                </tr>
+                                @if (!string.IsNullOrEmpty(selectedPet.MedicalTreatments))
+                                {
+                                    <tr>
+                                        <th>Medical Treatments:</th>
+                                        <td>@selectedPet.MedicalTreatments</td>
+                                    </tr>
+                                }
+                                @if (!string.IsNullOrEmpty(selectedPet.KnownMedicalIssues))
+                                {
+                                    <tr>
+                                        <th>Known Medical Issues:</th>
+                                        <td class="text-danger">@selectedPet.KnownMedicalIssues</td>
+                                    </tr>
+                                }
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseModal">Close</button>
+                    <button type="button" class="btn btn-primary" @onclick="() => EditPet(selectedPet)">
+                        <i class="fa fa-edit"></i> Edit Pet
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Delete Confirmation Modal -->
+@if (petToDelete != null && showDeleteModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">
+                        <i class="fa fa-exclamation-triangle"></i> Confirm Deletion
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="CloseDeleteModal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete <strong>@petToDelete.PartitionKey</strong>?</p>
+                    <p class="text-danger mb-0">
+                        <i class="fa fa-warning"></i> This action cannot be undone. All associated images and videos will be permanently deleted from storage.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseDeleteModal" disabled="@isDeleting">
+                        Cancel
+                    </button>
+                    <button type="button" class="btn btn-danger" @onclick="ConfirmDelete" disabled="@isDeleting">
+                        @if (isDeleting)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                        }
+                        Delete Pet
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private User? currentUser;
+    private Shelter? currentShelter;
+    private List<Pet> allPets = new();
+    private List<Pet> filteredPets = new();
+    private List<Pet> currentPagePets = new();
+    
+    private bool isLoading = true;
+    private bool isDeleting = false;
+    private string? successMessage;
+    private string? errorMessage;
+    
+    private int currentPage = 1;
+    private const int pageSize = 25;
+    private int totalPages = 1;
+    
+    private string searchQuery = "";
+    private string filterStatus = "";
+    private string filterSpecies = "";
+    
+    private Pet? selectedPet;
+    private Pet? petToDelete;
+    private bool showViewModal = false;
+    private bool showDeleteModal = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        isLoading = true;
+        
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                var email = user.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+                if (!string.IsNullOrEmpty(email))
+                {
+                    currentUser = await UserService.GetUserByEmailAsync(email);
+                    
+                    if (currentUser != null && 
+                        !string.IsNullOrEmpty(currentUser.ShelterName) && 
+                        !string.IsNullOrEmpty(currentUser.ShelterLocation))
+                    {
+                        currentShelter = await ShelterService.GetShelterAsync(
+                            currentUser.ShelterName, 
+                            currentUser.ShelterLocation);
+                        
+                        if (currentShelter != null)
+                        {
+                            await LoadPetsAsync();
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error loading data");
+            errorMessage = "Failed to load data: " + ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadPetsAsync()
+    {
+        try
+        {
+            var pets = await PetService.GetPetsByShelterAsync(
+                currentShelter!.PartitionKey, 
+                currentShelter.RowKey);
+            
+            allPets = pets.OrderByDescending(p => p.Timestamp).ToList();
+            ApplyFilters();
+            
+            Logger.LogInformation("Loaded {Count} pets for shelter {ShelterName}", allPets.Count, currentShelter.PartitionKey);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error loading pets");
+            errorMessage = "Failed to load pets: " + ex.Message;
+            allPets = new List<Pet>();
+        }
+    }
+
+    private void ApplyFilters()
+    {
+        filteredPets = allPets.Where(p =>
+        {
+            bool matchesSearch = string.IsNullOrEmpty(searchQuery) ||
+                p.PartitionKey.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+                (p.Species?.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (p.Breed?.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ?? false);
+
+            bool matchesStatus = string.IsNullOrEmpty(filterStatus) ||
+                p.AdoptionStatus.ToString() == filterStatus;
+
+            bool matchesSpecies = string.IsNullOrEmpty(filterSpecies) ||
+                p.Species == filterSpecies;
+
+            return matchesSearch && matchesStatus && matchesSpecies;
+        }).ToList();
+
+        totalPages = (int)Math.Ceiling((double)filteredPets.Count / pageSize);
+        currentPage = Math.Min(currentPage, Math.Max(1, totalPages));
+        
+        UpdateCurrentPagePets();
+    }
+
+    private void UpdateCurrentPagePets()
+    {
+        currentPagePets = filteredPets
+            .Skip((currentPage - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+    }
+
+    private void GoToPage(int pageNumber)
+    {
+        if (pageNumber < 1 || pageNumber > totalPages)
+            return;
+
+        currentPage = pageNumber;
+        UpdateCurrentPagePets();
+    }
+
+    private int GetStartPage()
+    {
+        return Math.Max(1, currentPage - 2);
+    }
+
+    private int GetEndPage()
+    {
+        return Math.Min(totalPages, currentPage + 2);
+    }
+
+    private List<string> GetUniqueSpecies()
+    {
+        return allPets
+            .Where(p => !string.IsNullOrEmpty(p.Species))
+            .Select(p => p.Species!)
+            .Distinct()
+            .OrderBy(s => s)
+            .ToList();
+    }
+
+    private void ViewPet(Pet pet)
+    {
+        selectedPet = pet;
+        showViewModal = true;
+    }
+
+    private void EditPet(Pet pet)
+    {
+        Navigation.NavigateTo($"/editpet/{Uri.EscapeDataString(pet.PartitionKey)}/{Uri.EscapeDataString(pet.RowKey)}");
+    }
+
+    private void ShowDeleteConfirmation(Pet pet)
+    {
+        petToDelete = pet;
+        showDeleteModal = true;
+    }
+
+    private async Task ConfirmDelete()
+    {
+        if (petToDelete == null) return;
+
+        isDeleting = true;
+        errorMessage = null;
+        successMessage = null;
+
+        try
+        {
+            // Delete associated media from blob storage
+            var mediaUrls = new[]
+            {
+                petToDelete.Image1Url,
+                petToDelete.Image2Url,
+                petToDelete.Image3Url,
+                petToDelete.Image4Url,
+                petToDelete.Video1Url
+            };
+
+            foreach (var url in mediaUrls.Where(u => !string.IsNullOrEmpty(u)))
+            {
+                try
+                {
+                    await BlobStorageService.DeleteImageAsync(url!);
+                    Logger.LogInformation("Deleted media: {Url}", url);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogWarning(ex, "Failed to delete media: {Url}", url);
+                    // Continue with deletion even if media deletion fails
+                }
+            }
+
+            // Delete pet from database
+            await PetService.DeletePetAsync(petToDelete.PartitionKey, petToDelete.RowKey);
+            
+            successMessage = $"Pet '{petToDelete.PartitionKey}' has been deleted successfully.";
+            Logger.LogInformation("Deleted pet: {PetName}", petToDelete.PartitionKey);
+            
+            CloseDeleteModal();
+            await LoadPetsAsync();
+            await JSRuntime.InvokeVoidAsync("scrollToTopInstant");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error deleting pet: {PetName}", petToDelete.PartitionKey);
+            errorMessage = "Failed to delete pet: " + ex.Message;
+            await JSRuntime.InvokeVoidAsync("scrollToTopInstant");
+        }
+        finally
+        {
+            isDeleting = false;
+        }
+    }
+
+    private void CloseModal()
+    {
+        selectedPet = null;
+        showViewModal = false;
+    }
+
+    private void CloseDeleteModal()
+    {
+        petToDelete = null;
+        showDeleteModal = false;
+    }
+
+    private string GetStatusBadgeColor(AdoptionStatus status)
+    {
+        return status switch
+        {
+            AdoptionStatus.NotAdopted => "secondary",
+            AdoptionStatus.Submitted => "info",
+            AdoptionStatus.AcceptedByShelter => "primary",
+            AdoptionStatus.AcceptedByUser => "success",
+            AdoptionStatus.RejectedByShelter => "warning",
+            AdoptionStatus.RejectedByUser => "warning",
+            AdoptionStatus.Adopted => "success",
+            _ => "secondary"
+        };
+    }
+
+    private string GetSizeBadgeColor(Size size)
+    {
+        return size switch
+        {
+            Size.Small => "info",
+            Size.Medium => "primary",
+            Size.Large => "warning",
+            _ => "secondary"
+        };
+    }
+
+    private string GetVaccinationsDisplay(Vaccinations vaccinations)
+    {
+        if (vaccinations == Vaccinations.none)
+            return "None";
+
+        var vaccinationList = new List<string>();
+        
+        foreach (Vaccinations vac in Enum.GetValues(typeof(Vaccinations)))
+        {
+            if (vac != Vaccinations.none && vaccinations.HasFlag(vac))
+            {
+                vaccinationList.Add(vac.ToString());
+            }
+        }
+
+        return vaccinationList.Any() ? string.Join(", ", vaccinationList) : "None";
+    }
+}

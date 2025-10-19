@@ -224,8 +224,8 @@
             // Notify other components that profile is completed
             ProfileState.NotifyProfileCompleted();
             
-            // Scroll to top of page
-            await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0);
+            // Scroll to top of page using shared function
+            await JSRuntime.InvokeVoidAsync("scrollToTopInstant");
         }
         catch (Exception ex)
         {
@@ -233,7 +233,7 @@
             currentUser.IsProfileCompleted = false;
             
             // Scroll to top to show error message
-            await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0);
+            await JSRuntime.InvokeVoidAsync("scrollToTopInstant");
         }
         finally
         {

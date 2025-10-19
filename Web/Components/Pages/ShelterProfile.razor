@@ -203,15 +203,15 @@
 
             successMessage = "Shelter information saved successfully!";
             
-            // Scroll to top of page
-            await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0);
+            // Scroll to top of page using shared function
+            await JSRuntime.InvokeVoidAsync("scrollToTopInstant");
         }
         catch (Exception ex)
         {
             errorMessage = "Failed to save shelter information: " + ex.Message;
             
             // Scroll to top to show error message
-            await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0);
+            await JSRuntime.InvokeVoidAsync("scrollToTopInstant");
         }
         finally
         {
