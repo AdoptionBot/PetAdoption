@@ -5,11 +5,11 @@
 @using PetAdoption.Data.TableStorage.Enums
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Components.Forms
+@using PetAdoption.Web.Components.Shared
 @attribute [Authorize(Roles = "Shelter")]
 @inject IUserService UserService
 @inject IShelterService ShelterService
 @inject IPetService PetService
-@inject IAzureBlobStorageService BlobStorageService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IJSRuntime JSRuntime
 @rendermode InteractiveServer
@@ -285,20 +285,12 @@
                                 <h5 class="border-bottom pb-2">Images & Video</h5>
                                 <p class="text-muted small">Upload files or provide URLs for pet images and videos (optional)</p>
 
-                                <!-- Image 1 -->
-                                @RenderMediaInput("Image 1", 1, currentPet.Image1Url, image1UrlInput, isUploadingImage1)
-
-                                <!-- Image 2 -->
-                                @RenderMediaInput("Image 2", 2, currentPet.Image2Url, image2UrlInput, isUploadingImage2)
-
-                                <!-- Image 3 -->
-                                @RenderMediaInput("Image 3", 3, currentPet.Image3Url, image3UrlInput, isUploadingImage3)
-
-                                <!-- Image 4 -->
-                                @RenderMediaInput("Image 4", 4, currentPet.Image4Url, image4UrlInput, isUploadingImage4)
-
-                                <!-- Video 1 -->
-                                @RenderMediaInput("Video 1", 5, currentPet.Video1Url, video1UrlInput, isUploadingVideo, true)
+                                <!-- Render media inputs with keys to prevent re-render cascades -->
+                                <MediaInput @key="@($"img1_{currentPet.PartitionKey}")" Label="Image 1" @bind-CurrentUrl="currentPet.Image1Url" />
+                                <MediaInput @key="@($"img2_{currentPet.PartitionKey}")" Label="Image 2" @bind-CurrentUrl="currentPet.Image2Url" />
+                                <MediaInput @key="@($"img3_{currentPet.PartitionKey}")" Label="Image 3" @bind-CurrentUrl="currentPet.Image3Url" />
+                                <MediaInput @key="@($"img4_{currentPet.PartitionKey}")" Label="Image 4" @bind-CurrentUrl="currentPet.Image4Url" />
+                                <MediaInput @key="@($"vid1_{currentPet.PartitionKey}")" Label="Video 1" @bind-CurrentUrl="currentPet.Video1Url" IsVideo="true" />
                             </div>
 
                             <!-- Shelter Information (Read-only) -->
@@ -345,20 +337,6 @@
     private bool isPetSaved = false;
     private string? successMessage;
     private string? errorMessage;
-
-    // URL input fields
-    private string? image1UrlInput;
-    private string? image2UrlInput;
-    private string? image3UrlInput;
-    private string? image4UrlInput;
-    private string? video1UrlInput;
-
-    // Upload progress flags
-    private bool isUploadingImage1 = false;
-    private bool isUploadingImage2 = false;
-    private bool isUploadingImage3 = false;
-    private bool isUploadingImage4 = false;
-    private bool isUploadingVideo = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -418,306 +396,31 @@
         }
     }
 
-    private RenderFragment RenderMediaInput(string label, int index, string? currentUrl, string? urlInput, bool isUploading, bool isVideo = false) => builder =>
+    private bool ValidateMediaUrls()
     {
-        var mediaType = isVideo ? "video" : "image";
-        var acceptTypes = isVideo ? "video/*" : "image/*";
-        var maxSize = isVideo ? 50 * 1024 * 1024 : 5 * 1024 * 1024; // 50MB for video, 5MB for images
-        var maxSizeText = isVideo ? "50MB" : "5MB";
-        
-        builder.OpenElement(0, "div");
-        builder.AddAttribute(1, "class", "mb-3");
-
-        builder.OpenElement(2, "label");
-        builder.AddAttribute(3, "class", "form-label");
-        builder.AddContent(4, $"{label} (Optional)");
-        builder.CloseElement();
-
-        builder.OpenElement(5, "div");
-        builder.AddAttribute(6, "class", "card p-3");
-
-        // Radio button group for choosing input method
-        builder.OpenElement(7, "div");
-        builder.AddAttribute(8, "class", "mb-3");
-
-        var radioGroupName = $"mediaInput{index}";
-        var uploadRadioId = $"upload{index}";
-        var urlRadioId = $"url{index}";
-
-        builder.OpenElement(9, "div");
-        builder.AddAttribute(10, "class", "form-check form-check-inline");
-        
-        builder.OpenElement(11, "input");
-        builder.AddAttribute(12, "class", "form-check-input");
-        builder.AddAttribute(13, "type", "radio");
-        builder.AddAttribute(14, "name", radioGroupName);
-        builder.AddAttribute(15, "id", uploadRadioId);
-        builder.AddAttribute(16, "checked", true);
-        builder.CloseElement();
-
-        builder.OpenElement(17, "label");
-        builder.AddAttribute(18, "class", "form-check-label");
-        builder.AddAttribute(19, "for", uploadRadioId);
-        builder.AddContent(20, "Upload File");
-        builder.CloseElement();
-
-        builder.CloseElement(); // form-check
-
-        builder.OpenElement(21, "div");
-        builder.AddAttribute(22, "class", "form-check form-check-inline");
-        
-        builder.OpenElement(23, "input");
-        builder.AddAttribute(24, "class", "form-check-input");
-        builder.AddAttribute(25, "type", "radio");
-        builder.AddAttribute(26, "name", radioGroupName);
-        builder.AddAttribute(27, "id", urlRadioId);
-        builder.CloseElement();
-
-        builder.OpenElement(28, "label");
-        builder.AddAttribute(29, "class", "form-check-label");
-        builder.AddAttribute(30, "for", urlRadioId);
-        builder.AddContent(31, "Enter URL");
-        builder.CloseElement();
-
-        builder.CloseElement(); // form-check
-
-        builder.CloseElement(); // mb-3
-
-        // File upload section
-        builder.OpenElement(32, "div");
-        builder.AddAttribute(33, "class", "mb-2");
-        
-        builder.OpenElement(34, "InputFile");
-        builder.AddAttribute(35, "class", "form-control");
-        builder.AddAttribute(36, "accept", acceptTypes);
-        builder.AddAttribute(37, "OnChange", EventCallback.Factory.Create<InputFileChangeEventArgs>(this, async e => await HandleFileSelected(e, index, isVideo)));
-        builder.AddAttribute(38, "disabled", isUploading);
-        builder.CloseElement();
-
-        builder.OpenElement(39, "small");
-        builder.AddAttribute(40, "class", "text-muted");
-        builder.AddContent(41, $"Max file size: {maxSizeText}");
-        builder.CloseElement();
-
-        builder.CloseElement(); // mb-2
-
-        // URL input section
-        builder.OpenElement(42, "div");
-        builder.AddAttribute(43, "class", "mb-2");
-        
-        builder.OpenElement(44, "input");
-        builder.AddAttribute(45, "type", "text");
-        builder.AddAttribute(46, "class", "form-control");
-        builder.AddAttribute(47, "placeholder", $"Enter {mediaType} URL");
-        builder.AddAttribute(48, "value", urlInput ?? "");
-        builder.AddAttribute(49, "oninput", EventCallback.Factory.Create<ChangeEventArgs>(this, e => HandleUrlInput(e, index)));
-        builder.CloseElement();
-
-        builder.CloseElement(); // mb-2
-
-        // Show current URL or upload status
-        if (isUploading)
+        var urlsToValidate = new[]
         {
-            builder.OpenElement(50, "div");
-            builder.AddAttribute(51, "class", "text-primary");
-            builder.OpenElement(52, "span");
-            builder.AddAttribute(53, "class", "spinner-border spinner-border-sm me-2");
-            builder.CloseElement();
-            builder.AddContent(54, "Uploading...");
-            builder.CloseElement();
-        }
-        else if (!string.IsNullOrEmpty(currentUrl))
-        {
-            builder.OpenElement(55, "div");
-            builder.AddAttribute(56, "class", "text-success");
-            builder.OpenElement(57, "i");
-            builder.AddAttribute(58, "class", "bi bi-check-circle me-2");
-            builder.CloseElement();
-            builder.AddContent(59, $"{(isVideo ? "Video" : "Image")} URL set");
-            builder.OpenElement(60, "button");
-            builder.AddAttribute(61, "type", "button");
-            builder.AddAttribute(62, "class", "btn btn-sm btn-link text-danger");
-            builder.AddAttribute(63, "onclick", EventCallback.Factory.Create(this, () => ClearMedia(index)));
-            builder.AddContent(64, "Clear");
-            builder.CloseElement();
-            builder.CloseElement();
+            currentPet?.Image1Url,
+            currentPet?.Image2Url,
+            currentPet?.Image3Url,
+            currentPet?.Image4Url,
+            currentPet?.Video1Url
+        };
 
-            // Show preview
-            if (isVideo)
+        foreach (var url in urlsToValidate)
+        {
+            if (!string.IsNullOrEmpty(url))
             {
-                builder.OpenElement(65, "div");
-                builder.AddAttribute(66, "class", "mt-2");
-                builder.OpenElement(67, "video");
-                builder.AddAttribute(68, "src", currentUrl);
-                builder.AddAttribute(69, "class", "img-thumbnail");
-                builder.AddAttribute(70, "style", "max-width: 200px; max-height: 150px;");
-                builder.AddAttribute(71, "controls", true);
-                builder.CloseElement();
-                builder.CloseElement();
-            }
-            else
-            {
-                builder.OpenElement(72, "div");
-                builder.AddAttribute(73, "class", "mt-2");
-                builder.OpenElement(74, "img");
-                builder.AddAttribute(75, "src", currentUrl);
-                builder.AddAttribute(76, "class", "img-thumbnail");
-                builder.AddAttribute(77, "style", "max-width: 200px; max-height: 150px;");
-                builder.AddAttribute(78, "alt", $"{label} preview");
-                builder.CloseElement();
-                builder.CloseElement();
+                if (!Uri.TryCreate(url, UriKind.Absolute, out var uriResult) 
+                    || (uriResult.Scheme != Uri.UriSchemeHttp && uriResult.Scheme != Uri.UriSchemeHttps))
+                {
+                    errorMessage = $"Invalid URL: {url}. Please enter a valid URL starting with http:// or https://";
+                    return false;
+                }
             }
         }
 
-        builder.CloseElement(); // card
-        builder.CloseElement(); // mb-3
-    };
-
-    private async Task HandleFileSelected(InputFileChangeEventArgs e, int index, bool isVideo)
-    {
-        if (currentPet == null) return;
-
-        var file = e.File;
-        if (file == null) return;
-
-        var maxSize = isVideo ? 50 * 1024 * 1024 : 5 * 1024 * 1024; // 50MB for video, 5MB for images
-
-        if (file.Size > maxSize)
-        {
-            errorMessage = $"File size exceeds maximum allowed size of {(isVideo ? "50MB" : "5MB")}";
-            return;
-        }
-
-        try
-        {
-            SetUploadingState(index, true);
-            errorMessage = null;
-
-            using var stream = file.OpenReadStream(maxSize);
-            var url = await BlobStorageService.UploadImageAsync(stream, file.Name, file.ContentType);
-
-            SetMediaUrl(index, url);
-            successMessage = $"{(isVideo ? "Video" : "Image")} uploaded successfully!";
-        }
-        catch (Exception ex)
-        {
-            errorMessage = $"Failed to upload file: {ex.Message}";
-        }
-        finally
-        {
-            SetUploadingState(index, false);
-        }
-    }
-
-    private void HandleUrlInput(ChangeEventArgs e, int index)
-    {
-        if (currentPet == null) return;
-
-        var url = e.Value?.ToString();
-        
-        switch (index)
-        {
-            case 1:
-                image1UrlInput = url;
-                currentPet.Image1Url = url;
-                break;
-            case 2:
-                image2UrlInput = url;
-                currentPet.Image2Url = url;
-                break;
-            case 3:
-                image3UrlInput = url;
-                currentPet.Image3Url = url;
-                break;
-            case 4:
-                image4UrlInput = url;
-                currentPet.Image4Url = url;
-                break;
-            case 5:
-                video1UrlInput = url;
-                currentPet.Video1Url = url;
-                break;
-        }
-    }
-
-    private void SetMediaUrl(int index, string url)
-    {
-        if (currentPet == null) return;
-
-        switch (index)
-        {
-            case 1:
-                currentPet.Image1Url = url;
-                image1UrlInput = url;
-                break;
-            case 2:
-                currentPet.Image2Url = url;
-                image2UrlInput = url;
-                break;
-            case 3:
-                currentPet.Image3Url = url;
-                image3UrlInput = url;
-                break;
-            case 4:
-                currentPet.Image4Url = url;
-                image4UrlInput = url;
-                break;
-            case 5:
-                currentPet.Video1Url = url;
-                video1UrlInput = url;
-                break;
-        }
-    }
-
-    private void SetUploadingState(int index, bool isUploading)
-    {
-        switch (index)
-        {
-            case 1:
-                isUploadingImage1 = isUploading;
-                break;
-            case 2:
-                isUploadingImage2 = isUploading;
-                break;
-            case 3:
-                isUploadingImage3 = isUploading;
-                break;
-            case 4:
-                isUploadingImage4 = isUploading;
-                break;
-            case 5:
-                isUploadingVideo = isUploading;
-                break;
-        }
-    }
-
-    private void ClearMedia(int index)
-    {
-        if (currentPet == null) return;
-
-        switch (index)
-        {
-            case 1:
-                currentPet.Image1Url = null;
-                image1UrlInput = null;
-                break;
-            case 2:
-                currentPet.Image2Url = null;
-                image2UrlInput = null;
-                break;
-            case 3:
-                currentPet.Image3Url = null;
-                image3UrlInput = null;
-                break;
-            case 4:
-                currentPet.Image4Url = null;
-                image4UrlInput = null;
-                break;
-            case 5:
-                currentPet.Video1Url = null;
-                video1UrlInput = null;
-                break;
-        }
+        return true;
     }
 
     private void ToggleVaccination(Vaccinations vaccination, bool isChecked)
@@ -744,6 +447,12 @@
 
         try
         {
+            // Validate media URLs
+            if (!ValidateMediaUrls())
+            {
+                return;
+            }
+
             // Set the RowKey from the birth date
             currentPet.RowKey = petBirthDate.ToString("yyyy-MM-dd");
 
@@ -777,13 +486,6 @@
                 Vaccinations = Vaccinations.none
             };
             petBirthDate = DateTime.Today;
-            
-            // Reset media inputs
-            image1UrlInput = null;
-            image2UrlInput = null;
-            image3UrlInput = null;
-            image4UrlInput = null;
-            video1UrlInput = null;
         }
         catch (Exception ex)
         {
