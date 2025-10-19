@@ -8,115 +8,166 @@ namespace PetAdoption.Services.Data
 {
     /// <summary>
     /// Implementation of Azure Blob Storage service for pet images and videos
-    /// Uses the same Azure Storage account as Table Storage
+    /// Uses a shared BlobServiceClient via factory for optimal performance
     /// </summary>
     public class AzureBlobStorageService : IAzureBlobStorageService
     {
         private readonly BlobServiceClient _blobServiceClient;
         private readonly string _containerName;
-        private readonly ILogger<AzureBlobStorageService>? _logger;
+        private readonly ILogger<AzureBlobStorageService> _logger;
 
         /// <summary>
-        /// Constructor with connection string
+        /// Constructor using client factory (recommended)
         /// </summary>
-        public AzureBlobStorageService(string connectionString, string containerName, ILogger<AzureBlobStorageService>? logger = null)
+        public AzureBlobStorageService(
+            AzureBlobStorageClientFactory clientFactory,
+            string containerName,
+            ILogger<AzureBlobStorageService> logger)
         {
+            ArgumentNullException.ThrowIfNull(clientFactory);
+            ArgumentNullException.ThrowIfNull(logger);
+            
+            if (string.IsNullOrWhiteSpace(containerName))
+            {
+                throw new ArgumentException("Container name cannot be null or empty", nameof(containerName));
+            }
+
+            _blobServiceClient = clientFactory.GetClient();
+            _containerName = containerName;
             _logger = logger;
             
-            if (string.IsNullOrEmpty(connectionString))
-            {
-                var error = "Connection string cannot be null or empty";
-                _logger?.LogError(error);
-                throw new ArgumentNullException(nameof(connectionString), error);
-            }
-
-            if (string.IsNullOrEmpty(containerName))
-            {
-                var error = "Container name cannot be null or empty";
-                _logger?.LogError(error);
-                throw new ArgumentNullException(nameof(containerName), error);
-            }
-
-            try
-            {
-                _logger?.LogInformation("Creating BlobServiceClient with connection string (length: {Length})", connectionString.Length);
-                _blobServiceClient = new BlobServiceClient(connectionString);
-                _containerName = containerName;
-                _logger?.LogInformation("BlobServiceClient created successfully for container: {Container}", containerName);
-            }
-            catch (Exception ex)
-            {
-                _logger?.LogError(ex, "Failed to create BlobServiceClient. Connection string length: {Length}, Container: {Container}", 
-                    connectionString?.Length ?? 0, containerName);
-                throw new InvalidOperationException($"Failed to initialize Azure Blob Storage service: {ex.Message}", ex);
-            }
+            _logger.LogDebug("AzureBlobStorageService initialized for container: {Container}", containerName);
         }
 
+        /// <inheritdoc/>
         public async Task<string> UploadImageAsync(Stream imageStream, string fileName, string contentType)
         {
+            ArgumentNullException.ThrowIfNull(imageStream);
+            
+            if (string.IsNullOrWhiteSpace(fileName))
+            {
+                throw new ArgumentException("File name cannot be null or empty", nameof(fileName));
+            }
+
+            if (string.IsNullOrWhiteSpace(contentType))
+            {
+                throw new ArgumentException("Content type cannot be null or empty", nameof(contentType));
+            }
+
             try
             {
                 var containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
                 
-                // Ensure container exists
+                // Ensure container exists with public blob access
                 await containerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
 
                 // Generate unique filename to prevent overwrites
-                var uniqueFileName = $"{Guid.NewGuid()}_{fileName}";
+                var sanitizedFileName = SanitizeFileName(fileName);
+                var uniqueFileName = $"{Guid.NewGuid():N}_{sanitizedFileName}";
                 var blobClient = containerClient.GetBlobClient(uniqueFileName);
 
                 // Set content type for proper browser handling
                 var blobHttpHeaders = new BlobHttpHeaders
                 {
-                    ContentType = contentType
+                    ContentType = contentType,
+                    CacheControl = "public, max-age=31536000" // Cache for 1 year
                 };
 
-                _logger?.LogInformation("Uploading blob: {FileName} (ContentType: {ContentType})", uniqueFileName, contentType);
+                var streamLength = imageStream.CanSeek ? imageStream.Length : -1;
+                _logger.LogInformation(
+                    "Uploading blob: {FileName} (ContentType: {ContentType}, Size: {Size} bytes)",
+                    uniqueFileName,
+                    contentType,
+                    streamLength);
 
-                // Upload the image
+                var startTime = DateTimeOffset.UtcNow;
+
+                // Upload with optimized transfer options
                 await blobClient.UploadAsync(imageStream, new BlobUploadOptions
                 {
-                    HttpHeaders = blobHttpHeaders
+                    HttpHeaders = blobHttpHeaders,
+                    TransferOptions = new Azure.Storage.StorageTransferOptions
+                    {
+                        InitialTransferSize = 4 * 1024 * 1024,  // 4MB initial
+                        MaximumTransferSize = 4 * 1024 * 1024,  // 4MB blocks
+                        MaximumConcurrency = 4                   // Parallel uploads
+                    }
                 });
 
-                _logger?.LogInformation("Successfully uploaded blob: {FileName}", uniqueFileName);
+                var duration = DateTimeOffset.UtcNow - startTime;
+                _logger.LogInformation(
+                    "Successfully uploaded blob: {FileName} in {Duration}ms",
+                    uniqueFileName,
+                    duration.TotalMilliseconds);
 
-                // Return the public URL
                 return blobClient.Uri.ToString();
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, "Failed to upload image: {FileName}", fileName);
+                _logger.LogError(ex, "Failed to upload image: {FileName}", fileName);
                 throw;
             }
         }
 
+        /// <inheritdoc/>
         public async Task DeleteImageAsync(string imageUrl)
         {
+            if (string.IsNullOrWhiteSpace(imageUrl))
+            {
+                throw new ArgumentException("Image URL cannot be null or empty", nameof(imageUrl));
+            }
+
             try
             {
-                var uri = new Uri(imageUrl);
-                var blobName = uri.Segments.Last();
+                if (!Uri.TryCreate(imageUrl, UriKind.Absolute, out var uri))
+                {
+                    throw new ArgumentException("Invalid URL format", nameof(imageUrl));
+                }
+
+                var blobName = uri.Segments[^1];
                 
                 var containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
                 var blobClient = containerClient.GetBlobClient(blobName);
 
-                await blobClient.DeleteIfExistsAsync();
-                _logger?.LogInformation("Deleted blob: {BlobName}", blobName);
+                var deleted = await blobClient.DeleteIfExistsAsync();
+                
+                if (deleted.Value)
+                {
+                    _logger.LogInformation("Deleted blob: {BlobName}", blobName);
+                }
+                else
+                {
+                    _logger.LogWarning("Blob not found for deletion: {BlobName}", blobName);
+                }
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, "Failed to delete image: {ImageUrl}", imageUrl);
+                _logger.LogError(ex, "Failed to delete image: {ImageUrl}", imageUrl);
                 throw;
             }
         }
 
+        /// <inheritdoc/>
         public async Task<string> GetSasUrlAsync(string imageUrl, int expiryMinutes = 60)
         {
+            if (string.IsNullOrWhiteSpace(imageUrl))
+            {
+                throw new ArgumentException("Image URL cannot be null or empty", nameof(imageUrl));
+            }
+
+            if (expiryMinutes <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(expiryMinutes), "Expiry minutes must be greater than 0");
+            }
+
             try
             {
-                var uri = new Uri(imageUrl);
-                var blobName = uri.Segments.Last();
+                if (!Uri.TryCreate(imageUrl, UriKind.Absolute, out var uri))
+                {
+                    throw new ArgumentException("Invalid URL format", nameof(imageUrl));
+                }
+
+                var blobName = uri.Segments[^1];
                 
                 var containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
                 var blobClient = containerClient.GetBlobClient(blobName);
@@ -124,8 +175,8 @@ namespace PetAdoption.Services.Data
                 // Check if the blob client can generate SAS tokens
                 if (!blobClient.CanGenerateSasUri)
                 {
-                    _logger?.LogWarning("Cannot generate SAS URL for: {ImageUrl}", imageUrl);
-                    return imageUrl; // Return original URL if SAS generation not available
+                    _logger.LogWarning("Cannot generate SAS URL for: {ImageUrl}. Returning original URL.", imageUrl);
+                    return imageUrl;
                 }
 
                 var sasBuilder = new BlobSasBuilder
@@ -133,19 +184,38 @@ namespace PetAdoption.Services.Data
                     BlobContainerName = _containerName,
                     BlobName = blobName,
                     Resource = "b",
+                    StartsOn = DateTimeOffset.UtcNow.AddMinutes(-5), // Allow 5 min clock skew
                     ExpiresOn = DateTimeOffset.UtcNow.AddMinutes(expiryMinutes)
                 };
 
                 sasBuilder.SetPermissions(BlobSasPermissions.Read);
 
                 var sasUri = blobClient.GenerateSasUri(sasBuilder);
+                _logger.LogDebug("Generated SAS URL for {BlobName}, expires in {Minutes} minutes", blobName, expiryMinutes);
+                
                 return sasUri.ToString();
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, "Failed to generate SAS URL for: {ImageUrl}", imageUrl);
+                _logger.LogError(ex, "Failed to generate SAS URL for: {ImageUrl}", imageUrl);
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Sanitizes a filename by removing invalid characters and path information
+        /// </summary>
+        private static string SanitizeFileName(string fileName)
+        {
+            // Remove path information
+            fileName = Path.GetFileName(fileName);
+            
+            // Remove invalid characters
+            var invalidChars = Path.GetInvalidFileNameChars();
+            var sanitized = string.Join("_", fileName.Split(invalidChars, StringSplitOptions.RemoveEmptyEntries));
+            
+            // Limit length to avoid issues
+            return sanitized.Length > 100 ? sanitized[..100] : sanitized;
         }
     }
 }

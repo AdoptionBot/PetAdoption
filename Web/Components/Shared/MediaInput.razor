@@ -1,0 +1,288 @@
+@using Microsoft.AspNetCore.Components.Forms
+@using PetAdoption.Services.Interfaces
+@inject ILogger<MediaInput> Logger
+@inject IAzureBlobStorageService BlobStorageService
+@implements IAsyncDisposable
+
+<div class="mb-3">
+    <label class="form-label">@Label (Optional)</label>
+    
+    <div class="card p-3">
+        <!-- Radio button group for choosing input method -->
+        <div class="mb-3">
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="@InputName" id="@($"{InputName}_upload")"
+                       checked="@IsUploadMode" @onchange="@(() => SetInputMode(true))" />
+                <label class="form-check-label" for="@($"{InputName}_upload")">Upload File</label>
+            </div>
+
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="@InputName" id="@($"{InputName}_url")"
+                       checked="@(!IsUploadMode)" @onchange="@(() => SetInputMode(false))" />
+                <label class="form-check-label" for="@($"{InputName}_url")">Enter URL</label>
+            </div>
+        </div>
+
+        @if (IsUploadMode)
+        {
+            <div class="mb-2">
+                <InputFile OnChange="HandleFileSelected" 
+                          class="form-control" 
+                          accept="@AcceptTypes" 
+                          disabled="@IsUploading"
+                          id="@InputId" />
+                <small class="text-muted d-block mt-2">
+                    Max file size: @MaxSizeText (@(IsVideo ? "videos" : "images") only)
+                </small>
+                
+                @if (selectedFile != null && !IsUploading)
+                {
+                    <div class="alert alert-info mt-2 mb-0 d-flex justify-content-between align-items-center">
+                        <span>
+                            <i class="bi bi-file-earmark"></i>
+                            @selectedFile.Name (@FormatFileSize(selectedFile.Size))
+                        </span>
+                        <button type="button" class="btn btn-sm btn-primary" @onclick="HandleUploadClick" disabled="@IsUploading">
+                            Upload Now
+                        </button>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="mb-2">
+                <input type="url" class="form-control" 
+                       placeholder="@($"Enter {MediaType} URL (e.g., https://example.com/{MediaType}.jpg)")"
+                       value="@UrlInput" @oninput="HandleUrlInput" />
+                <small class="text-muted">Enter a valid URL starting with http:// or https://</small>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <div class="alert alert-danger mt-3 mb-0">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                @ErrorMessage
+            </div>
+        }
+
+        @if (IsUploading)
+        {
+            <div class="alert alert-info d-flex align-items-center mt-3 mb-0">
+                <div class="spinner-border spinner-border-sm me-2"></div>
+                <div>Uploading @MediaType to Azure Blob Storage...</div>
+            </div>
+        }
+        else if (!string.IsNullOrEmpty(CurrentUrl))
+        {
+            <div class="alert alert-success d-flex align-items-center justify-content-between mt-3 mb-0">
+                <div>
+                    <i class="bi bi-check-circle me-2"></i>
+                    @MediaType uploaded successfully
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-danger" @onclick="ClearMedia">Clear</button>
+            </div>
+
+            <div class="mt-2">
+                @if (IsVideo)
+                {
+                    <video src="@CurrentUrl" class="img-thumbnail" style="max-width: 200px; max-height: 150px;" controls></video>
+                }
+                else
+                {
+                    <img src="@CurrentUrl" class="img-thumbnail" style="max-width: 200px; max-height: 150px;" alt="@Label preview" />
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Label { get; set; } = "";
+    [Parameter] public string? CurrentUrl { get; set; }
+    [Parameter] public EventCallback<string?> CurrentUrlChanged { get; set; }
+    [Parameter] public bool IsVideo { get; set; }
+
+    private bool IsUploadMode { get; set; } = true;
+    private bool IsUploading { get; set; }
+    private string? UrlInput { get; set; }
+    private string? ErrorMessage { get; set; }
+    private IBrowserFile? selectedFile;
+    private CancellationTokenSource? _uploadCancellation;
+    private readonly SemaphoreSlim _uploadLock = new(1, 1);
+
+    private string InputId => $"fileInput_{SanitizeForId(Label)}";
+    private string InputName => $"mediaInput_{SanitizeForId(Label)}";
+    private string MediaType => IsVideo ? "video" : "image";
+    private string AcceptTypes => IsVideo ? "video/mp4,video/webm,video/ogg" : "image/jpeg,image/jpg,image/png,image/gif,image/webp";
+    private string MaxSizeText => IsVideo ? "50MB" : "5MB";
+    private long MaxFileSize => IsVideo ? 52428800 : 5242880;
+
+    protected override void OnParametersSet()
+    {
+        UrlInput = CurrentUrl;
+    }
+
+    private void SetInputMode(bool isUpload)
+    {
+        IsUploadMode = isUpload;
+        ErrorMessage = null;
+        selectedFile = null;
+        
+        if (!isUpload)
+        {
+            UrlInput = CurrentUrl;
+        }
+    }
+
+    private void HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            selectedFile = e.File;
+            ErrorMessage = null;
+
+            if (selectedFile.Size > MaxFileSize)
+            {
+                ErrorMessage = $"File size ({FormatFileSize(selectedFile.Size)}) exceeds maximum allowed size of {MaxSizeText}";
+                selectedFile = null;
+                return;
+            }
+
+            var allowedTypes = AcceptTypes.Split(',', StringSplitOptions.TrimEntries);
+            if (!allowedTypes.Any(type => selectedFile.ContentType.Equals(type, StringComparison.OrdinalIgnoreCase)))
+            {
+                ErrorMessage = $"Invalid file type. Allowed types: {string.Join(", ", allowedTypes)}";
+                selectedFile = null;
+                return;
+            }
+
+            Logger.LogInformation("File selected: {FileName} ({Size} bytes, {ContentType})", 
+                selectedFile.Name, selectedFile.Size, selectedFile.ContentType);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error handling file selection for {Label}", Label);
+            ErrorMessage = "Error selecting file. Please try again.";
+            selectedFile = null;
+        }
+    }
+
+    private async Task HandleUploadClick()
+    {
+        if (selectedFile == null)
+        {
+            ErrorMessage = "No file selected";
+            return;
+        }
+
+        if (!await _uploadLock.WaitAsync(0))
+        {
+            ErrorMessage = "An upload is already in progress";
+            return;
+        }
+
+        try
+        {
+            _uploadCancellation?.Cancel();
+            _uploadCancellation = new CancellationTokenSource();
+
+            IsUploading = true;
+            ErrorMessage = null;
+            await InvokeAsync(StateHasChanged);
+
+            Logger.LogInformation("Starting upload for {FileName}", selectedFile.Name);
+            
+            await using var stream = selectedFile.OpenReadStream(MaxFileSize);
+            
+            var url = await BlobStorageService.UploadImageAsync(
+                stream,
+                selectedFile.Name,
+                selectedFile.ContentType);
+
+            Logger.LogInformation("Upload successful. URL: {Url}", url);
+            
+            await CurrentUrlChanged.InvokeAsync(url);
+            selectedFile = null;
+        }
+        catch (OperationCanceledException)
+        {
+            Logger.LogWarning("Upload cancelled for {FileName}", selectedFile?.Name);
+            ErrorMessage = "Upload cancelled";
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to upload file: {FileName}", selectedFile?.Name);
+            ErrorMessage = $"Upload failed: {ex.Message}";
+        }
+        finally
+        {
+            IsUploading = false;
+            _uploadCancellation?.Dispose();
+            _uploadCancellation = null;
+            _uploadLock.Release();
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task HandleUrlInput(ChangeEventArgs e)
+    {
+        UrlInput = e.Value?.ToString();
+        ErrorMessage = null;
+        
+        if (!string.IsNullOrWhiteSpace(UrlInput))
+        {
+            if (!Uri.TryCreate(UrlInput, UriKind.Absolute, out var uriResult) 
+                || (uriResult.Scheme != Uri.UriSchemeHttp && uriResult.Scheme != Uri.UriSchemeHttps))
+            {
+                ErrorMessage = "Please enter a valid URL starting with http:// or https://";
+                await CurrentUrlChanged.InvokeAsync(null);
+                return;
+            }
+        }
+        
+        await CurrentUrlChanged.InvokeAsync(UrlInput);
+    }
+
+    private async Task ClearMedia()
+    {
+        await CurrentUrlChanged.InvokeAsync(null);
+        UrlInput = null;
+        ErrorMessage = null;
+        selectedFile = null;
+    }
+
+    private static string FormatFileSize(long bytes)
+    {
+        string[] sizes = ["B", "KB", "MB", "GB"];
+        double len = bytes;
+        int order = 0;
+        
+        while (len >= 1024 && order < sizes.Length - 1)
+        {
+            order++;
+            len /= 1024;
+        }
+        
+        return $"{len:0.##} {sizes[order]}";
+    }
+
+    private static string SanitizeForId(string input)
+    {
+        return input
+            .Replace(" ", "")
+            .Replace("&", "And")
+            .Replace("1", "One")
+            .Replace("2", "Two")
+            .Replace("3", "Three")
+            .Replace("4", "Four");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _uploadCancellation?.Cancel();
+        _uploadCancellation?.Dispose();
+        _uploadLock.Dispose();
+    }
+}

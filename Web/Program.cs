@@ -12,25 +12,24 @@ namespace PetAdoption.Web
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container
+            // Add Razor Components with Interactive Server
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
 
-            // Add controllers
+            // Add controllers for authentication endpoints
             builder.Services.AddControllers();
             
-            // Add authentication state
+            // Add authentication state and profile service
             builder.Services.AddCascadingAuthenticationState();
             builder.Services.AddScoped<ProfileStateService>();
 
-            // Retrieve authentication secrets (creates temporary KeyVaultSecretService)
+            // Retrieve authentication secrets from Key Vault
             var authSecrets = await KeyVaultSecretService.RetrieveAuthenticationSecretsAsync(builder.Configuration);
 
-            // Register ALL Azure services in one clean flow
-            // This includes: KeyVault, TableStorage, BlobStorage, and business services
+            // Register all Azure services (KeyVault, TableStorage, BlobStorage, Business Services)
             await builder.Services.AddAllAzureServicesAsync(builder.Configuration);
 
-            // Configure authentication with retrieved secrets
+            // Configure authentication
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -42,6 +41,8 @@ namespace PetAdoption.Web
                 options.AccessDeniedPath = "/access-denied";
                 options.ExpireTimeSpan = TimeSpan.FromDays(30);
                 options.SlidingExpiration = true;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                options.Cookie.SameSite = SameSiteMode.Lax;
             })
             .AddGoogle(options =>
             {
@@ -58,23 +59,27 @@ namespace PetAdoption.Web
                 options.CallbackPath = "/signin-microsoft";
             });
 
-            // Add authorization
+            // Configure authorization policies
             builder.Services.AddAuthorization(options =>
             {
                 options.AddPolicy("AdminOnly", policy =>
                     policy.RequireRole("Admin"));
+                
+                options.AddPolicy("ShelterOnly", policy =>
+                    policy.RequireRole("Shelter"));
             });
 
-            // Configure SignalR for Blazor Server to handle large file uploads
+            // Configure SignalR with sensible defaults for Blazor Server
             builder.Services.AddSignalR(options =>
             {
-                options.MaximumReceiveMessageSize = 52428800; // 50MB
-                options.ClientTimeoutInterval = TimeSpan.FromMinutes(5);
-                options.HandshakeTimeout = TimeSpan.FromMinutes(5);
+                options.MaximumReceiveMessageSize = 10 * 1024 * 1024; // 10MB (reasonable for most scenarios)
+                options.ClientTimeoutInterval = TimeSpan.FromSeconds(60);
+                options.KeepAliveInterval = TimeSpan.FromSeconds(15);
             });
 
             var app = builder.Build();
 
+            // Configure middleware pipeline
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Error");
@@ -87,16 +92,13 @@ namespace PetAdoption.Web
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
-            // Add authentication and authorization middleware
+            app.UseRouting();
+            
             app.UseAuthentication();
             app.UseAuthorization();
-
             app.UseAntiforgery();
 
-            // Map controllers for auth endpoints
             app.MapControllers();
-
             app.MapRazorComponents<App>()
                 .AddInteractiveServerRenderMode();
 
