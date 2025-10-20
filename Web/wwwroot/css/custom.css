@@ -64,33 +64,166 @@
     }
 }
 
-/* Override for pet tiles to show full images */
-/*.work.pet-tile {
-    height: 400px !important;
-    min-height: 400px !important;
-}
+/* ===================================
+   GLOBAL BADGE STYLES (SHARED)
+   =================================== */
 
-.work.pet-tile.img {
-    height: 400px !important;
-}*/
-
-/* Ensure background image renders properly */
-/*.work.pet-tile[style*="background-image"] {
-    background-size: cover !important;
-    background-position: center !important;
-    background-repeat: no-repeat !important;
-}*/
-
-/* Pet Size Badge - Force White Text */
+/* Default badge styles for shared components */
 .badge.bg-info,
 .badge.bg-primary,
-.badge.bg-warning,
 .badge.bg-secondary {
     color: #fff !important;
 }
 
-/* Ensure warning badge (Large size) has good contrast */
 .badge.bg-warning {
     color: #000 !important;
     font-weight: 600 !important;
+}
+
+/* ===================================
+   CLOSE BUTTON ICON STYLES
+   =================================== */
+
+/* Override Bootstrap's default close button to show an X icon */
+.btn-close {
+    background: transparent;
+    opacity: 1;
+}
+
+.btn-close i.fa-times {
+    font-size: 1.2rem;
+    font-weight: normal;
+}
+
+.alert .btn-close {
+    padding: 0.5rem;
+}
+
+.alert .btn-close i.fa-times {
+    font-size: 1rem;
+}
+
+/* ===================================
+   PETS PAGE SPECIFIC STYLES
+   =================================== */
+
+/* Pet Size Badges - Force White Text */
+.pets-page-wrapper .badge.bg-info,
+.pets-page-wrapper .badge.bg-primary,
+.pets-page-wrapper .badge.bg-warning,
+.pets-page-wrapper .badge.bg-secondary {
+    color: #fff !important;
+    font-weight: 600 !important;
+}
+
+/* Override warning badge (Large size) to have white text */
+.pets-page-wrapper .badge.bg-warning {
+    color: #fff !important;
+    background-color: #ffc107 !important;
+}
+
+/* Pet Card Styling */
+.pets-page-wrapper .card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid #dee2e6;
+}
+
+.pets-page-wrapper .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Pet Image Styling */
+.pets-page-wrapper .card-img-top {
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Modal Badge Styles */
+.pets-page-wrapper .modal-body .badge.bg-info,
+.pets-page-wrapper .modal-body .badge.bg-primary,
+.pets-page-wrapper .modal-body .badge.bg-warning,
+.pets-page-wrapper .modal-body .badge.bg-secondary {
+    color: #fff !important;
+    font-weight: 600 !important;
+}
+
+/* ===================================
+   USER MANAGEMENT PAGE SPECIFIC STYLES
+   =================================== */
+
+/* Badge styles - white text for all badges in User Management */
+.user-management-page .badge.bg-danger,
+.user-management-page .badge.bg-success,
+.user-management-page .badge.bg-info,
+.user-management-page .badge.bg-primary,
+.user-management-page .badge.bg-secondary {
+    color: #fff !important;
+    font-weight: 600 !important;
+}
+
+/* Override warning badge to also have white text */
+.user-management-page .badge.bg-warning {
+    color: #fff !important;
+    background-color: #ffc107 !important;
+    font-weight: 600 !important;
+}
+
+/* Action Button Styles - View (Blue) */
+.user-management-page .btn-outline-primary.action-view {
+    border-color: #000 !important;
+    color: #007bff !important;
+}
+
+.user-management-page .btn-outline-primary.action-view:hover {
+    background-color: #007bff !important;
+    border-color: #000 !important;
+    color: #fff !important;
+}
+
+/* Action Button Styles - Edit (Green) */
+.user-management-page .btn-outline-success.action-edit {
+    border-color: #000 !important;
+    color: #00bd56 !important;
+}
+
+.user-management-page .btn-outline-success.action-edit:hover {
+    background-color: #00bd56 !important;
+    border-color: #000 !important;
+    color: #fff !important;
+}
+
+/* Action Button Styles - Toggle Disable (Yellow) */
+.user-management-page .btn-outline-warning.action-toggle {
+    border-color: #000 !important;
+    color: #ffc107 !important;
+}
+
+.user-management-page .btn-outline-warning.action-toggle:hover {
+    background-color: #ffc107 !important;
+    border-color: #000 !important;
+    color: #000 !important;
+}
+
+/* Action Button Styles - Toggle Enable (Green) */
+.user-management-page .btn-outline-success.action-toggle {
+    border-color: #000 !important;
+    color: #28a745 !important;
+}
+
+.user-management-page .btn-outline-success.action-toggle:hover {
+    background-color: #28a745 !important;
+    border-color: #000 !important;
+    color: #fff !important;
+}
+
+/* Action Button Styles - Delete (Red) */
+.user-management-page .btn-outline-danger.action-delete {
+    border-color: #000 !important;
+    color: #dc3545 !important;
+}
+
+.user-management-page .btn-outline-danger.action-delete:hover {
+    background-color: #dc3545 !important;
+    border-color: #000 !important;
+    color: #fff !important;
 }

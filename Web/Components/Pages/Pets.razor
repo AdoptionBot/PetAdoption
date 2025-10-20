@@ -3,6 +3,7 @@
 @using PetAdoption.Data.TableStorage
 @using PetAdoption.Data.TableStorage.Enums
 @using Microsoft.AspNetCore.Components
+@using PetAdoption.Web.Components.Shared
 @inject IPetService PetService
 @inject NavigationManager Navigation
 @inject IJSRuntime JSRuntime
@@ -11,293 +12,298 @@
 
 <PageTitle>Pets - Madeira Pet Adoption</PageTitle>
 
-<section class="hero-wrap hero-wrap-2" style="background-image: url('images/bg_2.jpg');" data-stellar-background-ratio="0.5">
-    <div class="overlay"></div>
-    <div class="container">
-        <div class="row no-gutters slider-text align-items-end">
-            <div class="col-md-9 ftco-animate pb-5">
-                <p class="breadcrumbs mb-2"><span class="mr-2"><a href="/">Home <i class="ion-ios-arrow-forward"></i></a></span> <span>Pets <i class="ion-ios-arrow-forward"></i></span></p>
-                <h1 class="mb-0 bread">Available Pets</h1>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="ftco-section">
-    <div class="container">
-        @if (isLoading)
-        {
-            <div class="row">
-                <div class="col-md-12 text-center">
-                    <div class="spinner-border" role="status">
-                        <span class="sr-only">Loading...</span>
-                    </div>
-                    <p class="mt-3">Loading pets...</p>
+<div class="pets-page-wrapper">
+    <section class="hero-wrap hero-wrap-2" style="background-image: url('images/bg_2.jpg');" data-stellar-background-ratio="0.5">
+        <div class="overlay"></div>
+        <div class="container">
+            <div class="row no-gutters slider-text align-items-end">
+                <div class="col-md-9 ftco-animate pb-5">
+                    <p class="breadcrumbs mb-2"><span class="mr-2"><a href="/">Home <i class="ion-ios-arrow-forward"></i></a></span> <span>Pets <i class="ion-ios-arrow-forward"></i></span></p>
+                    <h1 class="mb-0 bread">Available Pets</h1>
                 </div>
             </div>
-        }
-        else if (!string.IsNullOrEmpty(errorMessage))
-        {
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="alert alert-danger">
-                        <h4>Error Loading Pets</h4>
-                        <p>@errorMessage</p>
-                        <button class="btn btn-primary" @onclick="RetryLoading">
-                            <i class="fa fa-refresh"></i> Retry
+        </div>
+    </section>
+
+    <section class="ftco-section">
+        <div class="container">
+            @if (isLoading)
+            {
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                        <p class="mt-3">Loading pets...</p>
+                    </div>
+                </div>
+            }
+            else if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="alert alert-danger">
+                            <h4>Error Loading Pets</h4>
+                            <p>@errorMessage</p>
+                            <button class="btn btn-primary" @onclick="RetryLoading">
+                                <i class="fa fa-refresh"></i> Retry
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+            else if (!currentPagePets.Any())
+            {
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <h3>No pets available for adoption at the moment</h3>
+                        <p>Please check back later for new arrivals!</p>
+                        @if (totalPetsBeforeFilter > 0)
+                        {
+                            <div class="alert alert-info mt-3">
+                                <p><strong>Note:</strong> @totalPetsBeforeFilter pet(s) exist in the database, but none have <code>AdoptionStatus = NotAdopted</code>.</p>
+                            </div>
+                        }
+                        <button class="btn btn-secondary mt-2" @onclick="RetryLoading">
+                            <i class="fa fa-refresh"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <!-- Pagination Navigation - Top -->
+                @if (totalPages > 1)
+                {
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <nav aria-label="Pet pagination">
+                                <ul class="pagination justify-content-center">
+                                    <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                        <a class="page-link" href="#" @onclick="() => GoToPage(currentPage - 1)" @onclick:preventDefault="true">Back</a>
+                                    </li>
+                                    @for (int i = 1; i <= totalPages; i++)
+                                    {
+                                        int pageNumber = i;
+                                        <li class="page-item @(currentPage == pageNumber ? "active" : "")">
+                                            <a class="page-link" href="#" @onclick="() => GoToPage(pageNumber)" @onclick:preventDefault="true">@pageNumber</a>
+                                        </li>
+                                    }
+                                    <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                        <a class="page-link" href="#" @onclick="() => GoToPage(currentPage + 1)" @onclick:preventDefault="true">Next</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                }
+
+                <!-- Pets Grid -->
+                <div class="row">
+                    @foreach (var pet in currentPagePets)
+                    {
+                        var imageUrl = GetPetImage(pet);
+
+                        <div class="col-md-4 mb-4">
+                            <div class="card" style="cursor: pointer;" @onclick="() => ViewPet(pet)">
+                                <img src="@imageUrl"
+                                     class="card-img-top"
+                                     alt="@pet.PartitionKey"
+                                     style="height: 300px; object-fit: cover;"
+                                     onerror="this.src='/images/placeholder-pet.jpg';" />
+                                <div class="card-body">
+                                    <h5 class="card-title">@pet.PartitionKey</h5>
+                                    <p class="card-text">
+                                        <strong>Species:</strong> @(pet.Species ?? "Unknown")<br />
+                                        <strong>Age:</strong> @GetPetAge(pet.RowKey)<br />
+                                        <strong>Gender:</strong> @pet.Gender
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Pagination Navigation - Bottom -->
+                @if (totalPages > 1)
+                {
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <nav aria-label="Pet pagination">
+                                <ul class="pagination justify-content-center">
+                                    <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                        <a class="page-link" href="#" @onclick="() => GoToPage(currentPage - 1)" @onclick:preventDefault="true">Back</a>
+                                    </li>
+                                    @for (int i = 1; i <= totalPages; i++)
+                                    {
+                                        int pageNumber = i;
+                                        <li class="page-item @(currentPage == pageNumber ? "active" : "")">
+                                            <a class="page-link" href="#" @onclick="() => GoToPage(pageNumber)" @onclick:preventDefault="true">@pageNumber</a>
+                                        </li>
+                                    }
+                                    <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                        <a class="page-link" href="#" @onclick="() => GoToPage(currentPage + 1)" @onclick:preventDefault="true">Next</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                }
+
+                <!-- Results Info -->
+                <div class="row mt-3">
+                    <div class="col-md-12 text-center">
+                        <p class="text-muted">
+                            Showing @((currentPage - 1) * pageSize + 1) to @Math.Min(currentPage * pageSize, allPets.Count) of @allPets.Count pets available for adoption
+                        </p>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+
+    <!-- Pet Detail Modal -->
+    @if (selectedPet != null && showDetailModal)
+    {
+        <ModalHelper OnClose="CloseModal" ModalId="pet-detail-modal" />
+        <div id="pet-detail-modal" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fa fa-paw"></i> @selectedPet.PartitionKey
+                        </h5>
+                        <button type="button" class="btn-close" @onclick="CloseModal" aria-label="Close">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <!-- Images Column -->
+                            <div class="col-md-6">
+                                <h6 class="border-bottom pb-2">Images & Video</h6>
+                                <div class="row g-2 mb-3">
+                                    @if (!string.IsNullOrEmpty(selectedPet.Image1Url))
+                                    {
+                                        <div class="col-6">
+                                            <img src="@selectedPet.Image1Url" class="img-fluid rounded" alt="Image 1" />
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(selectedPet.Image2Url))
+                                    {
+                                        <div class="col-6">
+                                            <img src="@selectedPet.Image2Url" class="img-fluid rounded" alt="Image 2" />
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(selectedPet.Image3Url))
+                                    {
+                                        <div class="col-6">
+                                            <img src="@selectedPet.Image3Url" class="img-fluid rounded" alt="Image 3" />
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(selectedPet.Image4Url))
+                                    {
+                                        <div class="col-6">
+                                            <img src="@selectedPet.Image4Url" class="img-fluid rounded" alt="Image 4" />
+                                        </div>
+                                    }
+                                </div>
+                                @if (!string.IsNullOrEmpty(selectedPet.Video1Url))
+                                {
+                                    <div class="mb-3">
+                                        <video src="@selectedPet.Video1Url" class="w-100 rounded" controls></video>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Details Column -->
+                            <div class="col-md-6">
+                                <h6 class="border-bottom pb-2">Basic Information</h6>
+                                <table class="table table-sm">
+                                    <tr>
+                                        <th style="width: 40%;">Name:</th>
+                                        <td>@selectedPet.PartitionKey</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Birth Date:</th>
+                                        <td>@DateTime.Parse(selectedPet.RowKey).ToLongDateString()</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Age:</th>
+                                        <td>@GetPetAge(selectedPet.RowKey)</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Species:</th>
+                                        <td>@(selectedPet.Species ?? "Not specified")</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Breed:</th>
+                                        <td>@(selectedPet.Breed ?? "Not specified")</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Colour:</th>
+                                        <td>@(selectedPet.Colour ?? "Not specified")</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Gender:</th>
+                                        <td>@selectedPet.Gender</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Size:</th>
+                                        <td><span class="badge bg-@GetSizeBadgeColor(selectedPet.Size)">@selectedPet.Size</span></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Shelter:</th>
+                                        <td>@selectedPet.ShelterName, @selectedPet.ShelterLocation</td>
+                                    </tr>
+                                </table>
+
+                                <h6 class="border-bottom pb-2 mt-4">About</h6>
+                                <p>@selectedPet.About</p>
+
+                                <h6 class="border-bottom pb-2 mt-4">Medical Information</h6>
+                                <table class="table table-sm">
+                                    <tr>
+                                        <th style="width: 40%;">Vaccinations:</th>
+                                        <td>@GetVaccinationsDisplay(selectedPet.Vaccinations)</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Dewormed:</th>
+                                        <td>@(selectedPet.Dewormed ? "Yes" : "No")</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Microchipped:</th>
+                                        <td>@(selectedPet.Chipped ? "Yes" : "No")</td>
+                                    </tr>
+                                    @if (!string.IsNullOrEmpty(selectedPet.MedicalTreatments))
+                                    {
+                                        <tr>
+                                            <th>Medical Treatments:</th>
+                                            <td>@selectedPet.MedicalTreatments</td>
+                                        </tr>
+                                    }
+                                    @if (!string.IsNullOrEmpty(selectedPet.KnownMedicalIssues))
+                                    {
+                                        <tr>
+                                            <th>Known Medical Issues:</th>
+                                            <td class="text-danger">@selectedPet.KnownMedicalIssues</td>
+                                        </tr>
+                                    }
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CloseModal">Close</button>
+                        <button type="button" class="btn btn-success">
+                            <i class="fa fa-heart"></i> Request Adoption
                         </button>
                     </div>
                 </div>
             </div>
-        }
-        else if (!currentPagePets.Any())
-        {
-            <div class="row">
-                <div class="col-md-12 text-center">
-                    <h3>No pets available for adoption at the moment</h3>
-                    <p>Please check back later for new arrivals!</p>
-                    @if (totalPetsBeforeFilter > 0)
-                    {
-                        <div class="alert alert-info mt-3">
-                            <p><strong>Note:</strong> @totalPetsBeforeFilter pet(s) exist in the database, but none have <code>AdoptionStatus = NotAdopted</code>.</p>
-                        </div>
-                    }
-                    <button class="btn btn-secondary mt-2" @onclick="RetryLoading">
-                        <i class="fa fa-refresh"></i> Refresh
-                    </button>
-                </div>
-            </div>
-        }
-        else
-        {
-            <!-- Pagination Navigation - Top -->
-            @if (totalPages > 1)
-            {
-                <div class="row mb-4">
-                    <div class="col-md-12">
-                        <nav aria-label="Pet pagination">
-                            <ul class="pagination justify-content-center">
-                                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
-                                    <a class="page-link" href="#" @onclick="() => GoToPage(currentPage - 1)" @onclick:preventDefault="true">Back</a>
-                                </li>
-                                @for (int i = 1; i <= totalPages; i++)
-                                {
-                                    int pageNumber = i;
-                                    <li class="page-item @(currentPage == pageNumber ? "active" : "")">
-                                        <a class="page-link" href="#" @onclick="() => GoToPage(pageNumber)" @onclick:preventDefault="true">@pageNumber</a>
-                                    </li>
-                                }
-                                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
-                                    <a class="page-link" href="#" @onclick="() => GoToPage(currentPage + 1)" @onclick:preventDefault="true">Next</a>
-                                </li>
-                            </ul>
-                        </nav>
-                    </div>
-                </div>
-            }
-
-            <!-- Pets Grid -->
-            <div class="row">
-                @foreach (var pet in currentPagePets)
-                {
-                    var imageUrl = GetPetImage(pet);
-
-                    <div class="col-md-4 mb-4">
-                        <div class="card" style="cursor: pointer;" @onclick="() => ViewPet(pet)">
-                            <img src="@imageUrl"
-                                 class="card-img-top"
-                                 alt="@pet.PartitionKey"
-                                 style="height: 300px; object-fit: cover;"
-                                 onerror="this.src='/images/placeholder-pet.jpg';" />
-                            <div class="card-body">
-                                <h5 class="card-title">@pet.PartitionKey</h5>
-                                <p class="card-text">
-                                    <strong>Species:</strong> @(pet.Species ?? "Unknown")<br />
-                                    <strong>Age:</strong> @GetPetAge(pet.RowKey)<br />
-                                    <strong>Gender:</strong> @pet.Gender
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                }
-            </div>
-
-            <!-- Pagination Navigation - Bottom -->
-            @if (totalPages > 1)
-            {
-                <div class="row mt-4">
-                    <div class="col-md-12">
-                        <nav aria-label="Pet pagination">
-                            <ul class="pagination justify-content-center">
-                                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
-                                    <a class="page-link" href="#" @onclick="() => GoToPage(currentPage - 1)" @onclick:preventDefault="true">Back</a>
-                                </li>
-                                @for (int i = 1; i <= totalPages; i++)
-                                {
-                                    int pageNumber = i;
-                                    <li class="page-item @(currentPage == pageNumber ? "active" : "")">
-                                        <a class="page-link" href="#" @onclick="() => GoToPage(pageNumber)" @onclick:preventDefault="true">@pageNumber</a>
-                                    </li>
-                                }
-                                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
-                                    <a class="page-link" href="#" @onclick="() => GoToPage(currentPage + 1)" @onclick:preventDefault="true">Next</a>
-                                </li>
-                            </ul>
-                        </nav>
-                    </div>
-                </div>
-            }
-
-            <!-- Results Info -->
-            <div class="row mt-3">
-                <div class="col-md-12 text-center">
-                    <p class="text-muted">
-                        Showing @((currentPage - 1) * pageSize + 1) to @Math.Min(currentPage * pageSize, allPets.Count) of @allPets.Count pets available for adoption
-                    </p>
-                </div>
-            </div>
-        }
-    </div>
-</section>
-
-<!-- Pet Detail Modal -->
-@if (selectedPet != null && showDetailModal)
-{
-    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-        <div class="modal-dialog modal-xl modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fa fa-paw"></i> @selectedPet.PartitionKey
-                    </h5>
-                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <!-- Images Column -->
-                        <div class="col-md-6">
-                            <h6 class="border-bottom pb-2">Images & Video</h6>
-                            <div class="row g-2 mb-3">
-                                @if (!string.IsNullOrEmpty(selectedPet.Image1Url))
-                                {
-                                    <div class="col-6">
-                                        <img src="@selectedPet.Image1Url" class="img-fluid rounded" alt="Image 1" />
-                                    </div>
-                                }
-                                @if (!string.IsNullOrEmpty(selectedPet.Image2Url))
-                                {
-                                    <div class="col-6">
-                                        <img src="@selectedPet.Image2Url" class="img-fluid rounded" alt="Image 2" />
-                                    </div>
-                                }
-                                @if (!string.IsNullOrEmpty(selectedPet.Image3Url))
-                                {
-                                    <div class="col-6">
-                                        <img src="@selectedPet.Image3Url" class="img-fluid rounded" alt="Image 3" />
-                                    </div>
-                                }
-                                @if (!string.IsNullOrEmpty(selectedPet.Image4Url))
-                                {
-                                    <div class="col-6">
-                                        <img src="@selectedPet.Image4Url" class="img-fluid rounded" alt="Image 4" />
-                                    </div>
-                                }
-                            </div>
-                            @if (!string.IsNullOrEmpty(selectedPet.Video1Url))
-                            {
-                                <div class="mb-3">
-                                    <video src="@selectedPet.Video1Url" class="w-100 rounded" controls></video>
-                                </div>
-                            }
-                        </div>
-
-                        <!-- Details Column -->
-                        <div class="col-md-6">
-                            <h6 class="border-bottom pb-2">Basic Information</h6>
-                            <table class="table table-sm">
-                                <tr>
-                                    <th style="width: 40%;">Name:</th>
-                                    <td>@selectedPet.PartitionKey</td>
-                                </tr>
-                                <tr>
-                                    <th>Birth Date:</th>
-                                    <td>@DateTime.Parse(selectedPet.RowKey).ToLongDateString()</td>
-                                </tr>
-                                <tr>
-                                    <th>Age:</th>
-                                    <td>@GetPetAge(selectedPet.RowKey)</td>
-                                </tr>
-                                <tr>
-                                    <th>Species:</th>
-                                    <td>@(selectedPet.Species ?? "Not specified")</td>
-                                </tr>
-                                <tr>
-                                    <th>Breed:</th>
-                                    <td>@(selectedPet.Breed ?? "Not specified")</td>
-                                </tr>
-                                <tr>
-                                    <th>Colour:</th>
-                                    <td>@(selectedPet.Colour ?? "Not specified")</td>
-                                </tr>
-                                <tr>
-                                    <th>Gender:</th>
-                                    <td>@selectedPet.Gender</td>
-                                </tr>
-                                <tr>
-                                    <th>Size:</th>
-                                    <td><span class="badge bg-@GetSizeBadgeColor(selectedPet.Size)">@selectedPet.Size</span></td>
-                                </tr>
-                                <tr>
-                                    <th>Shelter:</th>
-                                    <td>@selectedPet.ShelterName, @selectedPet.ShelterLocation</td>
-                                </tr>
-                            </table>
-
-                            <h6 class="border-bottom pb-2 mt-4">About</h6>
-                            <p>@selectedPet.About</p>
-
-                            <h6 class="border-bottom pb-2 mt-4">Medical Information</h6>
-                            <table class="table table-sm">
-                                <tr>
-                                    <th style="width: 40%;">Vaccinations:</th>
-                                    <td>@GetVaccinationsDisplay(selectedPet.Vaccinations)</td>
-                                </tr>
-                                <tr>
-                                    <th>Dewormed:</th>
-                                    <td>@(selectedPet.Dewormed ? "Yes" : "No")</td>
-                                </tr>
-                                <tr>
-                                    <th>Microchipped:</th>
-                                    <td>@(selectedPet.Chipped ? "Yes" : "No")</td>
-                                </tr>
-                                @if (!string.IsNullOrEmpty(selectedPet.MedicalTreatments))
-                                {
-                                    <tr>
-                                        <th>Medical Treatments:</th>
-                                        <td>@selectedPet.MedicalTreatments</td>
-                                    </tr>
-                                }
-                                @if (!string.IsNullOrEmpty(selectedPet.KnownMedicalIssues))
-                                {
-                                    <tr>
-                                        <th>Known Medical Issues:</th>
-                                        <td class="text-danger">@selectedPet.KnownMedicalIssues</td>
-                                    </tr>
-                                }
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @onclick="CloseModal">Close</button>
-                    <button type="button" class="btn btn-success">
-                        <i class="fa fa-heart"></i> Request Adoption
-                    </button>
-                </div>
-            </div>
         </div>
-    </div>
-}
+    }
+</div>
 
 @code {
     private List<Pet> allPets = new();

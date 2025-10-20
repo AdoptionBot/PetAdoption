@@ -2,6 +2,8 @@
 @using Microsoft.AspNetCore.Authorization
 @using PetAdoption.Services.Interfaces
 @using PetAdoption.Data.TableStorage
+@using System.ComponentModel.DataAnnotations
+@using PetAdoption.Web.Components.Shared
 @attribute [Authorize(Policy = "AdminOnly")]
 @inject IUserService UserService
 @inject IShelterService ShelterService
@@ -9,109 +11,544 @@
 
 <PageTitle>Manage Users - Admin</PageTitle>
 
-<div class="container mt-5 mb-5">
-    <div class="card shadow">
-        <div class="card-header bg-danger text-white">
-            <h3 class="mb-0">User Management</h3>
-        </div>
-        <div class="card-body">
-            @if (isLoading)
-            {
-                <div class="text-center">
-                    <div class="spinner-border" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                </div>
-            }
-            else if (userWithShelters != null && userWithShelters.Any())
-            {
-                @if (!string.IsNullOrEmpty(successMessage))
+<div class="user-management-page">
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">User Management</h3>
+                <button class="btn btn-light btn-sm" @onclick="ShowCreateModal">
+                    <i class="fa fa-plus"></i> Add New User
+                </button>
+            </div>
+            <div class="card-body">
+                @if (isLoading)
                 {
-                    <div class="alert alert-success alert-dismissible fade show">
-                        @successMessage
-                        <button type="button" class="btn-close" @onclick="() => successMessage = null"></button>
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3 text-muted">Loading users...</p>
                     </div>
                 }
-
-                @if (!string.IsNullOrEmpty(errorMessage))
+                else if (userWithShelters != null && userWithShelters.Any())
                 {
-                    <div class="alert alert-danger alert-dismissible fade show">
-                        @errorMessage
-                        <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
-                    </div>
-                }
+                    @if (!string.IsNullOrEmpty(successMessage))
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fa fa-check-circle"></i> @successMessage
+                            <button type="button" class="btn-close" @onclick="() => successMessage = null" aria-label="Close">
+                                <i class="fa fa-times"></i>
+                            </button>
+                        </div>
+                    }
 
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>User Name</th>
-                                <th>User Email</th>
-                                <th>Shelter Name</th>
-                                <th>Shelter City/Town</th>
-                                <th>Shelter Email</th>
-                                <th>Role</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var item in userWithShelters)
-                            {
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fa fa-exclamation-circle"></i> @errorMessage
+                            <button type="button" class="btn-close" @onclick="() => errorMessage = null" aria-label="Close">
+                                <i class="fa fa-times"></i>
+                            </button>
+                        </div>
+                    }
+
+                    <!-- Search and Filter Section -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa fa-search"></i></span>
+                                <input type="text" class="form-control" placeholder="Search users..." 
+                                       @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterUsers" />
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" @onchange="FilterByRole">
+                                <option value="">All Roles</option>
+                                @foreach (UserRole role in Enum.GetValues(typeof(UserRole)))
+                                {
+                                    <option value="@role">@role</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" @onchange="FilterByStatus">
+                                <option value="">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="disabled">Disabled</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped">
+                            <thead class="table-light">
                                 <tr>
-                                    <td>@item.User.PartitionKey</td>
-                                    <td>@item.User.RowKey</td>
-                                    <td>@(item.Shelter?.PartitionKey ?? "")</td>
-                                    <td>@(item.Shelter?.RowKey ?? "")</td>
-                                    <td>@(item.Shelter?.Email ?? "")</td>
-                                    <td>
-                                        <select class="form-select form-select-sm" 
-                                                value="@item.User.Role"
-                                                @onchange="@(e => HandleRoleChange(item.User, e))">
-                                            @foreach (UserRole role in Enum.GetValues(typeof(UserRole)))
-                                            {
-                                                <option value="@role">@role</option>
-                                            }
-                                        </select>
-                                    </td>
-                                    <td>
-                                        @if (item.User.IsAccountDisabled)
-                                        {
-                                            <span class="badge bg-danger">Disabled</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-success">Active</span>
-                                        }
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-sm @(item.User.IsAccountDisabled ? "btn-success" : "btn-warning")"
-                                                @onclick="() => ToggleUserStatus(item.User)">
-                                            @(item.User.IsAccountDisabled ? "Enable" : "Disable")
-                                        </button>
-                                        <button class="btn btn-sm btn-danger ms-2"
-                                                @onclick="() => DeleteUser(item.User)">
-                                            Delete
-                                        </button>
-                                    </td>
+                                    <th>User Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Shelter</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th class="text-center">Actions</th>
                                 </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in filteredUsers ?? userWithShelters)
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong>@item.User.PartitionKey</strong>
+                                            @if (item.User.IsFoster)
+                                            {
+                                                <text>&nbsp;</text><span class="badge bg-info ms-1">Foster</span>
+                                            }
+                                        </td>
+                                        <td>@item.User.RowKey</td>
+                                        <td>@item.User.PhoneNumber</td>
+                                        <td>
+                                            @if (item.Shelter != null)
+                                            {
+                                                <div>
+                                                    <strong>@item.Shelter.PartitionKey</strong><br />
+                                                    <small class="text-muted">@item.Shelter.RowKey</small>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <span class="badge @GetRoleBadgeClass(item.User.Role)">
+                                                @item.User.Role
+                                            </span>
+                                        </td>
+                                        <td>
+                                            @if (item.User.IsAccountDisabled)
+                                            {
+                                                <span class="badge bg-danger">
+                                                    <i class="fa fa-ban"></i> Disabled
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-success">
+                                                    <i class="fa fa-check"></i> Active
+                                                </span>
+                                            }
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <button class="btn btn-outline-primary action-view" title="View Details"
+                                                        @onclick="() => ShowViewModal(item.User)">
+                                                    <i class="fa fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-outline-success action-edit" title="Edit"
+                                                        @onclick="() => ShowEditModal(item.User)">
+                                                    <i class="fa fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-outline-@(item.User.IsAccountDisabled ? "success" : "warning") action-toggle" 
+                                                        title="@(item.User.IsAccountDisabled ? "Enable" : "Disable")"
+                                                        @onclick="() => ToggleUserStatus(item.User)">
+                                                    <i class="fa fa-@(item.User.IsAccountDisabled ? "check" : "ban")"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger action-delete" title="Delete"
+                                                        @onclick="() => ShowDeleteConfirmation(item.User)">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
 
-                <div class="mt-3">
-                    <p class="text-muted">Total Users: @userWithShelters.Count()</p>
-                </div>
-            }
-            else
-            {
-                <div class="alert alert-info">
-                    No users found in the system.
-                </div>
-            }
+                    <div class="mt-3 d-flex justify-content-between align-items-center">
+                        <p class="text-muted mb-0">
+                            <i class="fa fa-users"></i> Total Users: <strong>@userWithShelters.Count()</strong>
+                            @if (filteredUsers != null)
+                            {
+                                <span> | Filtered: <strong>@filteredUsers.Count()</strong></span>
+                            }
+                        </p>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <div class="alert alert-info d-inline-block">
+                            <i class="fa fa-info-circle"></i> No users found in the system.
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
     </div>
+
+    <!-- Create/Edit Modal -->
+    @if (showModal)
+    {
+        <ModalHelper OnClose="CloseModal" ModalId="edit-modal" />
+        <div id="edit-modal" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">
+                            <i class="fa fa-@(isEditMode ? "edit" : "plus-circle")"></i>
+                            @(isEditMode ? "Edit User" : "Create New User")
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" @onclick="CloseModal" aria-label="Close">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <EditForm Model="editingUser" OnValidSubmit="SaveUser">
+                            <DataAnnotationsValidator />
+                            
+                            <!-- Basic Information Section -->
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="fa fa-user"></i> Basic Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">User Name <span class="text-danger">*</span></label>
+                                            <InputText @bind-Value="editingUser!.PartitionKey" class="form-control" 
+                                                       placeholder="Enter user name" disabled="@isEditMode" />
+                                            <ValidationMessage For="@(() => editingUser!.PartitionKey)" class="text-danger" />
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Email <span class="text-danger">*</span></label>
+                                            <InputText @bind-Value="editingUser!.RowKey" class="form-control" 
+                                                       type="email" placeholder="user@example.com" disabled="@isEditMode" />
+                                            <ValidationMessage For="@(() => editingUser!.RowKey)" class="text-danger" />
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                            <InputText @bind-Value="editingUser!.PhoneNumber" class="form-control" 
+                                                       placeholder="+1234567890" />
+                                            <ValidationMessage For="@(() => editingUser!.PhoneNumber)" class="text-danger" />
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Country <span class="text-danger">*</span></label>
+                                            <InputText @bind-Value="editingUser!.Country" class="form-control" 
+                                                       placeholder="Country code (e.g., US)" />
+                                            <ValidationMessage For="@(() => editingUser!.Country)" class="text-danger" />
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Address <span class="text-danger">*</span></label>
+                                        <InputTextArea @bind-Value="editingUser!.Address" class="form-control" rows="2" 
+                                                       placeholder="Street address, city, state, zip" />
+                                        <ValidationMessage For="@(() => editingUser!.Address)" class="text-danger" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Account Settings Section -->
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="fa fa-cog"></i> Account Settings</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Role <span class="text-danger">*</span></label>
+                                            <InputSelect @bind-Value="editingUser!.Role" class="form-select">
+                                                @foreach (UserRole role in Enum.GetValues(typeof(UserRole)))
+                                                {
+                                                    <option value="@role">@role</option>
+                                                }
+                                            </InputSelect>
+                                            <ValidationMessage For="@(() => editingUser!.Role)" class="text-danger" />
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Account Status</label>
+                                            <div class="form-check form-switch mt-2">
+                                                <InputCheckbox @bind-Value="editingUser!.IsAccountDisabled" 
+                                                              class="form-check-input" id="accountDisabled" />
+                                                <label class="form-check-label" for="accountDisabled">
+                                                    Account Disabled
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <div class="form-check form-switch">
+                                                <InputCheckbox @bind-Value="editingUser!.IsFoster" 
+                                                              class="form-check-input" id="isFoster" />
+                                                <label class="form-check-label" for="isFoster">
+                                                    <i class="fa fa-heart"></i> Is Foster
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <div class="form-check form-switch">
+                                                <InputCheckbox @bind-Value="editingUser!.IsProfileCompleted" 
+                                                              class="form-check-input" id="profileCompleted" />
+                                                <label class="form-check-label" for="profileCompleted">
+                                                    Profile Completed
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Shelter Association Section -->
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="fa fa-home"></i> Shelter Association</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Shelter Name</label>
+                                            <InputText @bind-Value="editingUser!.ShelterName" class="form-control" 
+                                                       placeholder="Associated shelter name" />
+                                            <small class="form-text text-muted">Optional: Link to shelter</small>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Shelter Location</label>
+                                            <InputText @bind-Value="editingUser!.ShelterLocation" class="form-control" 
+                                                       placeholder="Shelter city/town" />
+                                            <small class="form-text text-muted">Optional: Shelter location</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Social Media Section -->
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="fa fa-share-alt"></i> Social Media & Website</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">Website</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fa fa-globe"></i></span>
+                                            <InputText @bind-Value="editingUser!.Website" class="form-control" 
+                                                       placeholder="https://example.com" />
+                                        </div>
+                                        <ValidationMessage For="@(() => editingUser!.Website)" class="text-danger" />
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Facebook</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fa fa-facebook"></i></span>
+                                                <InputText @bind-Value="editingUser!.Facebook" class="form-control" 
+                                                           placeholder="https://facebook.com/..." />
+                                            </div>
+                                            <ValidationMessage For="@(() => editingUser!.Facebook)" class="text-danger" />
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Instagram</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fa fa-instagram"></i></span>
+                                                <InputText @bind-Value="editingUser!.Instagram" class="form-control" 
+                                                           placeholder="https://instagram.com/..." />
+                                            </div>
+                                            <ValidationMessage For="@(() => editingUser!.Instagram)" class="text-danger" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <ValidationSummary class="text-danger" />
+                            
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" @onclick="CloseModal">
+                                    <i class="fa fa-times"></i> Cancel
+                                </button>
+                                <button type="submit" class="btn btn-primary" disabled="@isSaving">
+                                    @if (isSaving)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2"></span>
+                                    }
+                                    <i class="fa fa-save"></i> @(isEditMode ? "Update" : "Create") User
+                                </button>
+                            </div>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- View Details Modal -->
+    @if (showViewModal && viewingUser != null)
+    {
+        <ModalHelper OnClose="CloseViewModal" ModalId="view-modal" />
+        <div id="view-modal" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">
+                            <i class="fa fa-user-circle"></i> User Details
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" @onclick="CloseViewModal" aria-label="Close">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card mb-3">
+                                    <div class="card-header bg-light">
+                                        <strong>Basic Information</strong>
+                                    </div>
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item"><strong>Name:</strong> @viewingUser.PartitionKey</li>
+                                        <li class="list-group-item"><strong>Email:</strong> @viewingUser.RowKey</li>
+                                        <li class="list-group-item"><strong>Phone:</strong> @viewingUser.PhoneNumber</li>
+                                        <li class="list-group-item"><strong>Country:</strong> @viewingUser.Country</li>
+                                        <li class="list-group-item"><strong>Address:</strong> @viewingUser.Address</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card mb-3">
+                                    <div class="card-header bg-light">
+                                        <strong>Account Information</strong>
+                                    </div>
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item">
+                                            <strong>Role:</strong> 
+                                            <span class="badge @GetRoleBadgeClass(viewingUser.Role) ms-2">@viewingUser.Role</span>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <strong>Status:</strong> 
+                                            <span class="badge @(viewingUser.IsAccountDisabled ? "bg-danger" : "bg-success") ms-2">
+                                                @(viewingUser.IsAccountDisabled ? "Disabled" : "Active")
+                                            </span>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <strong>Foster:</strong> 
+                                            <span class="badge @(viewingUser.IsFoster ? "bg-info" : "bg-secondary") ms-2">
+                                                @(viewingUser.IsFoster ? "Yes" : "No")
+                                            </span>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <strong>Profile:</strong> 
+                                            <span class="badge @(viewingUser.IsProfileCompleted ? "bg-success" : "bg-warning") ms-2">
+                                                @(viewingUser.IsProfileCompleted ? "Complete" : "Incomplete")
+                                            </span>
+                                        </li>
+                                        @if (viewingUser.Timestamp.HasValue)
+                                        {
+                                            <li class="list-group-item">
+                                                <strong>Last Updated:</strong> @viewingUser.Timestamp.Value.ToString("g")
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(viewingUser.ShelterName))
+                        {
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <strong><i class="fa fa-home"></i> Shelter Information</strong>
+                                </div>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item"><strong>Shelter Name:</strong> @viewingUser.ShelterName</li>
+                                    <li class="list-group-item"><strong>Location:</strong> @viewingUser.ShelterLocation</li>
+                                </ul>
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(viewingUser.Website) || !string.IsNullOrEmpty(viewingUser.Facebook) || !string.IsNullOrEmpty(viewingUser.Instagram))
+                        {
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <strong><i class="fa fa-share-alt"></i> Social Links</strong>
+                                </div>
+                                <ul class="list-group list-group-flush">
+                                    @if (!string.IsNullOrEmpty(viewingUser.Website))
+                                    {
+                                        <li class="list-group-item">
+                                            <strong>Website:</strong> 
+                                            <a href="@viewingUser.Website" target="_blank">@viewingUser.Website</a>
+                                        </li>
+                                    }
+                                    @if (!string.IsNullOrEmpty(viewingUser.Facebook))
+                                    {
+                                        <li class="list-group-item">
+                                            <strong>Facebook:</strong> 
+                                            <a href="@viewingUser.Facebook" target="_blank">@viewingUser.Facebook</a>
+                                        </li>
+                                    }
+                                    @if (!string.IsNullOrEmpty(viewingUser.Instagram))
+                                    {
+                                        <li class="list-group-item">
+                                            <strong>Instagram:</strong> 
+                                            <a href="@viewingUser.Instagram" target="_blank">@viewingUser.Instagram</a>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CloseViewModal">
+                            <i class="fa fa-times"></i> Close
+                        </button>
+                        <button type="button" class="btn btn-primary" @onclick="() => ShowEditModal(viewingUser)">
+                            <i class="fa fa-edit"></i> Edit User
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Delete Confirmation Modal -->
+    @if (showDeleteModal && deletingUser != null)
+    {
+        <ModalHelper OnClose="CloseDeleteModal" ModalId="delete-modal" />
+        <div id="delete-modal" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title">
+                            <i class="fa fa-exclamation-triangle"></i> Confirm Delete
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" @onclick="CloseDeleteModal" aria-label="Close">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete the following user?</p>
+                        <div class="alert alert-warning">
+                            <strong>Name:</strong> @deletingUser.PartitionKey<br />
+                            <strong>Email:</strong> @deletingUser.RowKey
+                        </div>
+                        <p class="text-danger"><strong>This action cannot be undone!</strong></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CloseDeleteModal">
+                            <i class="fa fa-times"></i> Cancel
+                        </button>
+                        <button type="button" class="btn btn-danger" @onclick="ConfirmDelete" disabled="@isDeleting">
+                            @if (isDeleting)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2"></span>
+                            }
+                            <i class="fa fa-trash"></i> Delete User
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 </div>
 
 @code {
@@ -122,9 +559,28 @@
     }
 
     private List<UserWithShelter>? userWithShelters;
+    private List<UserWithShelter>? filteredUsers;
     private bool isLoading = true;
     private string? successMessage;
     private string? errorMessage;
+    
+    // Modal states
+    private bool showModal = false;
+    private bool showViewModal = false;
+    private bool showDeleteModal = false;
+    private bool isEditMode = false;
+    private bool isSaving = false;
+    private bool isDeleting = false;
+    
+    // Edit/Create state
+    private User? editingUser;
+    private User? viewingUser;
+    private User? deletingUser;
+    
+    // Filter states
+    private string searchTerm = string.Empty;
+    private string? selectedRole;
+    private string? selectedStatus;
 
     protected override async Task OnInitializedAsync()
     {
@@ -143,7 +599,6 @@
             {
                 Shelter? shelter = null;
 
-                // Try to load shelter if user has shelter references
                 if (!string.IsNullOrEmpty(user.ShelterName) && !string.IsNullOrEmpty(user.ShelterLocation))
                 {
                     try
@@ -152,7 +607,7 @@
                     }
                     catch
                     {
-                        // Shelter not found or error loading - continue with null
+                        // Shelter not found - continue
                     }
                 }
 
@@ -162,6 +617,8 @@
                     Shelter = shelter
                 });
             }
+            
+            filteredUsers = null;
         }
         catch (Exception ex)
         {
@@ -173,22 +630,181 @@
         }
     }
 
-    private async Task HandleRoleChange(User user, ChangeEventArgs e)
+    private void FilterUsers()
     {
-        if (Enum.TryParse<UserRole>(e.Value?.ToString(), out var newRole))
+        ApplyFilters();
+    }
+
+    private void FilterByRole(ChangeEventArgs e)
+    {
+        selectedRole = e.Value?.ToString();
+        ApplyFilters();
+    }
+
+    private void FilterByStatus(ChangeEventArgs e)
+    {
+        selectedStatus = e.Value?.ToString();
+        ApplyFilters();
+    }
+
+    private void ApplyFilters()
+    {
+        if (userWithShelters == null) return;
+
+        var filtered = userWithShelters.AsEnumerable();
+
+        // Search filter
+        if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            try
+            filtered = filtered.Where(x => 
+                x.User.PartitionKey.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                x.User.RowKey.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                x.User.PhoneNumber.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                (x.Shelter?.PartitionKey?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false));
+        }
+
+        // Role filter
+        if (!string.IsNullOrEmpty(selectedRole) && Enum.TryParse<UserRole>(selectedRole, out var role))
+        {
+            filtered = filtered.Where(x => x.User.Role == role);
+        }
+
+        // Status filter
+        if (!string.IsNullOrEmpty(selectedStatus))
+        {
+            filtered = filtered.Where(x => 
+                selectedStatus == "active" ? !x.User.IsAccountDisabled : x.User.IsAccountDisabled);
+        }
+
+        filteredUsers = filtered.ToList();
+    }
+
+    private void ShowCreateModal()
+    {
+        editingUser = new User
+        {
+            PartitionKey = string.Empty,
+            RowKey = string.Empty,
+            PhoneNumber = string.Empty,
+            Address = string.Empty,
+            Country = string.Empty,
+            Role = UserRole.User,
+            IsAccountDisabled = false,
+            IsFoster = false,
+            IsProfileCompleted = false
+        };
+        isEditMode = false;
+        showModal = true;
+        ClearMessages();
+    }
+
+    private void ShowEditModal(User user)
+    {
+        // Create a copy to edit
+        editingUser = new User
+        {
+            PartitionKey = user.PartitionKey,
+            RowKey = user.RowKey,
+            PhoneNumber = user.PhoneNumber,
+            Address = user.Address,
+            Country = user.Country,
+            Website = user.Website,
+            Facebook = user.Facebook,
+            Instagram = user.Instagram,
+            IsAccountDisabled = user.IsAccountDisabled,
+            Role = user.Role,
+            ShelterName = user.ShelterName,
+            ShelterLocation = user.ShelterLocation,
+            IsFoster = user.IsFoster,
+            IsProfileCompleted = user.IsProfileCompleted,
+            ETag = user.ETag
+        };
+        isEditMode = true;
+        showModal = true;
+        showViewModal = false;
+        ClearMessages();
+    }
+
+    private void ShowViewModal(User user)
+    {
+        viewingUser = user;
+        showViewModal = true;
+        ClearMessages();
+    }
+
+    private void ShowDeleteConfirmation(User user)
+    {
+        deletingUser = user;
+        showDeleteModal = true;
+        ClearMessages();
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
+        editingUser = null;
+    }
+
+    private void CloseViewModal()
+    {
+        showViewModal = false;
+        viewingUser = null;
+    }
+
+    private void CloseDeleteModal()
+    {
+        showDeleteModal = false;
+        deletingUser = null;
+    }
+
+    private void ClearMessages()
+    {
+        successMessage = null;
+        errorMessage = null;
+    }
+
+    private async Task SaveUser()
+    {
+        if (editingUser == null) return;
+
+        isSaving = true;
+        try
+        {
+            if (isEditMode)
             {
-                await UserService.UpdateUserRoleAsync(user.PartitionKey, user.RowKey, newRole);
-                user.Role = newRole;
-                successMessage = $"Role updated successfully for {user.PartitionKey}";
-                errorMessage = null;
+                // Update existing user
+                await UserService.UpdateUserAsync(editingUser);
+                successMessage = $"User {editingUser.PartitionKey} updated successfully";
+                
+                // Update in local list
+                var existingItem = userWithShelters?.FirstOrDefault(x => 
+                    x.User.PartitionKey == editingUser.PartitionKey && 
+                    x.User.RowKey == editingUser.RowKey);
+                
+                if (existingItem != null)
+                {
+                    existingItem.User = editingUser;
+                }
             }
-            catch (Exception ex)
+            else
             {
-                errorMessage = $"Failed to update role: {ex.Message}";
-                successMessage = null;
+                // Create new user
+                await UserService.CreateUserAsync(editingUser);
+                successMessage = $"User {editingUser.PartitionKey} created successfully";
+                
+                // Reload to get the new user
+                await LoadUsers();
             }
+            
+            CloseModal();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to save user: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false;
         }
     }
 
@@ -208,28 +824,43 @@
         }
     }
 
-    private async Task DeleteUser(User user)
+    private async Task ConfirmDelete()
     {
-        if (userWithShelters == null) return;
+        if (deletingUser == null || userWithShelters == null) return;
 
+        isDeleting = true;
         try
         {
-            await UserService.DeleteUserAsync(user.PartitionKey, user.RowKey);
+            await UserService.DeleteUserAsync(deletingUser.PartitionKey, deletingUser.RowKey);
             
-            // Remove from local list
-            var itemToRemove = userWithShelters.FirstOrDefault(x => x.User == user);
+            var itemToRemove = userWithShelters.FirstOrDefault(x => x.User == deletingUser);
             if (itemToRemove != null)
             {
                 userWithShelters.Remove(itemToRemove);
             }
             
-            successMessage = $"User {user.PartitionKey} deleted successfully";
-            errorMessage = null;
+            successMessage = $"User {deletingUser.PartitionKey} deleted successfully";
+            CloseDeleteModal();
+            ApplyFilters(); // Refresh filtered list
         }
         catch (Exception ex)
         {
             errorMessage = $"Failed to delete user: {ex.Message}";
-            successMessage = null;
         }
+        finally
+        {
+            isDeleting = false;
+        }
+    }
+
+    private string GetRoleBadgeClass(UserRole role)
+    {
+        return role switch
+        {
+            UserRole.Admin => "bg-danger",
+            UserRole.Shelter => "bg-primary",
+            UserRole.Foster => "bg-info",
+            _ => "bg-secondary"
+        };
     }
 }
