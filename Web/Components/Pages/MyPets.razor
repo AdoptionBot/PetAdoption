@@ -3,6 +3,7 @@
 @using PetAdoption.Services.Interfaces
 @using PetAdoption.Data.TableStorage
 @using PetAdoption.Data.TableStorage.Enums
+@using PetAdoption.Web.Components.Shared
 @attribute [Authorize(Roles = "Shelter")]
 @inject IUserService UserService
 @inject IShelterService ShelterService
@@ -48,7 +49,9 @@
                 {
                     <div class="alert alert-success alert-dismissible fade show">
                         @successMessage
-                        <button type="button" class="btn-close" @onclick="() => successMessage = null"></button>
+                        <button type="button" class="btn-close" @onclick="() => successMessage = null" aria-label="Close">
+                            <i class="fa fa-times"></i>
+                        </button>
                     </div>
                 }
 
@@ -56,7 +59,9 @@
                 {
                     <div class="alert alert-danger alert-dismissible fade show">
                         @errorMessage
-                        <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+                        <button type="button" class="btn-close" @onclick="() => errorMessage = null" aria-label="Close">
+                            <i class="fa fa-times"></i>
+                        </button>
                     </div>
                 }
 
@@ -227,14 +232,17 @@
 <!-- View Pet Modal -->
 @if (selectedPet != null && showViewModal)
 {
-    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <ModalHelper OnClose="CloseModal" ModalId="view-pet-modal" />
+    <div id="view-pet-modal" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
         <div class="modal-dialog modal-xl modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">
                         <i class="fa fa-paw"></i> @selectedPet.PartitionKey
                     </h5>
-                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                    <button type="button" class="btn-close" @onclick="CloseModal" aria-label="Close">
+                        <i class="fa fa-times"></i>
+                    </button>
                 </div>
                 <div class="modal-body">
                     <div class="row">
@@ -362,14 +370,17 @@
 <!-- Delete Confirmation Modal -->
 @if (petToDelete != null && showDeleteModal)
 {
-    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-        <div class="modal-dialog">
+    <ModalHelper OnClose="CloseDeleteModal" ModalId="delete-pet-modal" EnableVerticalScroll="true" />
+    <div id="delete-pet-modal" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
                     <h5 class="modal-title">
                         <i class="fa fa-exclamation-triangle"></i> Confirm Deletion
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" @onclick="CloseDeleteModal"></button>
+                    <button type="button" class="btn-close btn-close-white" @onclick="CloseDeleteModal" aria-label="Close">
+                        <i class="fa fa-times"></i>
+                    </button>
                 </div>
                 <div class="modal-body">
                     <p>Are you sure you want to delete <strong>@petToDelete.PartitionKey</strong>?</p>

@@ -1,0 +1,39 @@
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+
+@code {
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    [Parameter]
+    public string ModalId { get; set; } = "modal-helper";
+
+    private DotNetObjectReference<ModalHelper>? dotNetRef;
+    private IJSObjectReference? jsModule;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            dotNetRef = DotNetObjectReference.Create(this);
+            jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./js/modal-helper.js");
+            await jsModule.InvokeVoidAsync("initializeModal", ModalId, dotNetRef);
+        }
+    }
+
+    [JSInvokable]
+    public async Task CloseModal()
+    {
+        await OnClose.InvokeAsync();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (jsModule != null)
+        {
+            await jsModule.InvokeVoidAsync("cleanupModal", ModalId);
+            await jsModule.DisposeAsync();
+        }
+        dotNetRef?.Dispose();
+    }
+}
