@@ -94,11 +94,7 @@ namespace PetAdoption.Services.Data
                     }
                 });
 
-                var duration = DateTimeOffset.UtcNow - startTime;
-                _logger.LogInformation(
-                    "Successfully uploaded blob: {FileName} in {Duration}ms",
-                    uniqueFileName,
-                    duration.TotalMilliseconds);
+                _logger.LogInformation("Successfully uploaded blob: {FileName}", uniqueFileName);
 
                 return blobClient.Uri.ToString();
             }
@@ -172,7 +168,6 @@ namespace PetAdoption.Services.Data
                 var containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
                 var blobClient = containerClient.GetBlobClient(blobName);
 
-                // Check if the blob client can generate SAS tokens
                 if (!blobClient.CanGenerateSasUri)
                 {
                     _logger.LogWarning("Cannot generate SAS URL for: {ImageUrl}. Returning original URL.", imageUrl);
@@ -191,7 +186,6 @@ namespace PetAdoption.Services.Data
                 sasBuilder.SetPermissions(BlobSasPermissions.Read);
 
                 var sasUri = blobClient.GenerateSasUri(sasBuilder);
-                _logger.LogDebug("Generated SAS URL for {BlobName}, expires in {Minutes} minutes", blobName, expiryMinutes);
                 
                 return sasUri.ToString();
             }
