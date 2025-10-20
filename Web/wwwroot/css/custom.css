@@ -22,7 +22,7 @@
     align-items: center !important;
 }
 
-/* Style the active NavLink - Blazor adds 'active' class automatically */
+/* Active NavLink Styles */
 .navbar-nav .nav-item .nav-link.active {
     color: #00bd56 !important;
 }
@@ -30,17 +30,10 @@
 .navbar-nav .nav-item .nav-link.active:before {
     visibility: visible !important;
     background-color: #00bd56 !important;
-    -webkit-transform: scaleX(1) !important;
-    -ms-transform: scaleX(1) !important;
     transform: scaleX(1) !important;
 }
 
-/* Ensure parent li also gets active class styling if needed */
-.navbar-nav .nav-item:has(.nav-link.active) {
-    /* Optional: add any parent styling here */
-}
-
-/* Disabled navigation links when profile is incomplete */
+/* Disabled Navigation Links */
 .navbar-nav .nav-link.disabled {
     opacity: 0.5;
     cursor: not-allowed !important;
@@ -69,4 +62,35 @@
         padding-top: 0.9rem !important;
         padding-bottom: 0.9rem !important;
     }
+}
+
+/* Override for pet tiles to show full images */
+/*.work.pet-tile {
+    height: 400px !important;
+    min-height: 400px !important;
+}
+
+.work.pet-tile.img {
+    height: 400px !important;
+}*/
+
+/* Ensure background image renders properly */
+/*.work.pet-tile[style*="background-image"] {
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+}*/
+
+/* Pet Size Badge - Force White Text */
+.badge.bg-info,
+.badge.bg-primary,
+.badge.bg-warning,
+.badge.bg-secondary {
+    color: #fff !important;
+}
+
+/* Ensure warning badge (Large size) has good contrast */
+.badge.bg-warning {
+    color: #000 !important;
+    font-weight: 600 !important;
 }
