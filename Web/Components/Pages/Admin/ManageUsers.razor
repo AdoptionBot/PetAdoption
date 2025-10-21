@@ -819,62 +819,30 @@
         if (editingUser == null) return;
 
         isSaving = true;
+        ClearMessages();
+        
         try
         {
             if (isEditMode)
             {
                 // Update existing user
                 await UserService.UpdateUserAsync(editingUser);
-                
-                // Reload the fresh user from database
-                var updatedUser = await UserService.GetUserByEmailAsync(editingUser.RowKey);
-                
                 successMessage = $"User {editingUser.PartitionKey} updated successfully";
-                
-                // Update in local list with fresh data
-                var existingItem = userWithShelters?.FirstOrDefault(x => 
-                    x.User.PartitionKey == editingUser.PartitionKey && 
-                    x.User.RowKey == editingUser.RowKey);
-            
-                if (existingItem != null && updatedUser != null)
-                {
-                    existingItem.User = updatedUser; // Use the fresh user from DB
-                    
-                    // Reload shelter if association changed
-                    if (!string.IsNullOrEmpty(updatedUser.ShelterName) && !string.IsNullOrEmpty(updatedUser.ShelterLocation))
-                    {
-                        try
-                        {
-                            existingItem.Shelter = await ShelterService.GetShelterAsync(updatedUser.ShelterName, updatedUser.ShelterLocation);
-                        }
-                        catch
-                        {
-                            existingItem.Shelter = null;
-                        }
-                    }
-                    else
-                    {
-                        existingItem.Shelter = null;
-                    }
-                    
-                    // Reapply filters to update the filtered list
-                    ApplyFilters();
-                    
-                    // Force UI refresh
-                    StateHasChanged();
-                }
             }
             else
             {
                 // Create new user
                 await UserService.CreateUserAsync(editingUser);
                 successMessage = $"User {editingUser.PartitionKey} created successfully";
-                
-                // Reload to get the new user
-                await LoadUsers();
             }
             
             CloseModal();
+            
+            // Reload all users to get fresh data with updated ETags and shelter associations
+            await LoadUsers();
+            
+            // Reapply any active filters to maintain the current view
+            ApplyFilters();
         }
         catch (Exception ex)
         {
@@ -888,23 +856,42 @@
 
     private async Task ToggleUserStatus(User user)
     {
+        ClearMessages();
+        
         try
         {
-            user.IsAccountDisabled = !user.IsAccountDisabled;
-            await UserService.UpdateUserAsync(user);
-            successMessage = $"User {user.PartitionKey} {(user.IsAccountDisabled ? "disabled" : "enabled")} successfully";
-            errorMessage = null;
+            // Create a copy with toggled status to avoid mutating the displayed object
+            var updatedUser = new User
+            {
+                PartitionKey = user.PartitionKey,
+                RowKey = user.RowKey,
+                PhoneNumber = user.PhoneNumber,
+                Address = user.Address,
+                Country = user.Country,
+                Website = user.Website,
+                Facebook = user.Facebook,
+                Instagram = user.Instagram,
+                IsAccountDisabled = !user.IsAccountDisabled,
+                Role = user.Role,
+                ShelterName = user.ShelterName,
+                ShelterLocation = user.ShelterLocation,
+                IsFoster = user.IsFoster,
+                IsProfileCompleted = user.IsProfileCompleted,
+                ETag = user.ETag
+            };
             
-            // Force UI refresh
-            StateHasChanged();
+            await UserService.UpdateUserAsync(updatedUser);
+            successMessage = $"User {user.PartitionKey} {(updatedUser.IsAccountDisabled ? "disabled" : "enabled")} successfully";
+            
+            // Reload all users to get fresh data
+            await LoadUsers();
+            
+            // Reapply any active filters to maintain the current view
+            ApplyFilters();
         }
         catch (Exception ex)
         {
             errorMessage = $"Failed to update user status: {ex.Message}";
-            successMessage = null;
-            
-            // Revert the change on error
-            user.IsAccountDisabled = !user.IsAccountDisabled;
         }
     }
 
