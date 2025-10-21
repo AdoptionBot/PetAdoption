@@ -4,6 +4,7 @@
 @using PetAdoption.Data.TableStorage
 @using System.ComponentModel.DataAnnotations
 @using PetAdoption.Web.Components.Shared
+@using Azure
 @attribute [Authorize(Policy = "AdminOnly")]
 @inject IUserService UserService
 @inject IShelterService ShelterService
@@ -97,20 +98,20 @@
                                 {
                                     <tr>
                                         <td>
-                                            <strong>@item.User.PartitionKey</strong>
-                                            @if (item.User.IsFoster)
+                                            <strong>@item.UserName</strong>
+                                            @if (item.IsFoster)
                                             {
                                                 <text>&nbsp;</text><span class="badge bg-info ms-1">Foster</span>
                                             }
                                         </td>
-                                        <td>@item.User.RowKey</td>
-                                        <td>@item.User.PhoneNumber</td>
+                                        <td>@item.Email</td>
+                                        <td>@item.PhoneNumber</td>
                                         <td>
-                                            @if (item.Shelter != null)
+                                            @if (!string.IsNullOrEmpty(item.ShelterName))
                                             {
                                                 <div>
-                                                    <strong>@item.Shelter.PartitionKey</strong><br />
-                                                    <small class="text-muted">@item.Shelter.RowKey</small>
+                                                    <strong>@item.ShelterName</strong><br />
+                                                    <small class="text-muted">@item.ShelterLocation</small>
                                                 </div>
                                             }
                                             else
@@ -119,12 +120,12 @@
                                             }
                                         </td>
                                         <td>
-                                            <span class="badge @GetRoleBadgeClass(item.User.Role)">
-                                                @item.User.Role
+                                            <span class="badge @GetRoleBadgeClass(item.Role)">
+                                                @item.Role
                                             </span>
                                         </td>
                                         <td>
-                                            @if (item.User.IsAccountDisabled)
+                                            @if (item.IsAccountDisabled)
                                             {
                                                 <span class="badge bg-danger">
                                                     <i class="fa fa-ban"></i> Disabled
@@ -140,20 +141,20 @@
                                         <td class="text-center">
                                             <div class="btn-group btn-group-sm" role="group">
                                                 <button class="btn btn-outline-primary action-view" title="View Details"
-                                                        @onclick="() => ShowViewModal(item.User)">
+                                                        @onclick="() => ShowViewModal(item)">
                                                     <i class="fa fa-eye"></i>
                                                 </button>
                                                 <button class="btn btn-outline-success action-edit" title="Edit"
-                                                        @onclick="() => ShowEditModal(item.User)">
+                                                        @onclick="() => ShowEditModal(item)">
                                                     <i class="fa fa-edit"></i>
                                                 </button>
-                                                <button class="btn btn-outline-@(item.User.IsAccountDisabled ? "success" : "warning") action-toggle" 
-                                                        title="@(item.User.IsAccountDisabled ? "Enable" : "Disable")"
-                                                        @onclick="() => ToggleUserStatus(item.User)">
-                                                    <i class="fa fa-@(item.User.IsAccountDisabled ? "check" : "ban")"></i>
+                                                <button class="btn btn-outline-@(item.IsAccountDisabled ? "success" : "warning") action-toggle" 
+                                                        title="@(item.IsAccountDisabled ? "Enable" : "Disable")"
+                                                        @onclick="() => ToggleUserStatus(item)">
+                                                    <i class="fa fa-@(item.IsAccountDisabled ? "check" : "ban")"></i>
                                                 </button>
                                                 <button class="btn btn-outline-danger action-delete" title="Delete"
-                                                        @onclick="() => ShowDeleteConfirmation(item.User)">
+                                                        @onclick="() => ShowDeleteConfirmation(item)">
                                                     <i class="fa fa-trash"></i>
                                                 </button>
                                             </div>
@@ -417,8 +418,8 @@
                                         <strong>Basic Information</strong>
                                     </div>
                                     <ul class="list-group list-group-flush">
-                                        <li class="list-group-item"><strong>Name:</strong> @viewingUser.PartitionKey</li>
-                                        <li class="list-group-item"><strong>Email:</strong> @viewingUser.RowKey</li>
+                                        <li class="list-group-item"><strong>Name:</strong> @viewingUser.UserName</li>
+                                        <li class="list-group-item"><strong>Email:</strong> @viewingUser.Email</li>
                                         <li class="list-group-item"><strong>Phone:</strong> @viewingUser.PhoneNumber</li>
                                         <li class="list-group-item"><strong>Country:</strong> @viewingUser.Country</li>
                                         <li class="list-group-item"><strong>Address:</strong> @viewingUser.Address</li>
@@ -453,10 +454,10 @@
                                                 @(viewingUser.IsProfileCompleted ? "Complete" : "Incomplete")
                                             </span>
                                         </li>
-                                        @if (viewingUser.Timestamp.HasValue)
+                                        @if (viewingUser.LastUpdated.HasValue)
                                         {
                                             <li class="list-group-item">
-                                                <strong>Last Updated:</strong> @viewingUser.Timestamp.Value.ToString("g")
+                                                <strong>Last Updated:</strong> @viewingUser.LastUpdated.Value.ToString("g")
                                             </li>
                                         }
                                     </ul>
@@ -540,8 +541,8 @@
                     <div class="modal-body">
                         <p>Are you sure you want to delete the following user?</p>
                         <div class="alert alert-warning">
-                            <strong>Name:</strong> @deletingUser.PartitionKey<br />
-                            <strong>Email:</strong> @deletingUser.RowKey
+                            <strong>Name:</strong> @deletingUser.UserName<br />
+                            <strong>Email:</strong> @deletingUser.Email
                         </div>
                         <p class="text-danger"><strong>This action cannot be undone!</strong></p>
                     </div>
@@ -564,10 +565,25 @@
 </div>
 
 @code {
+    // Serialization-safe DTO class
     private class UserWithShelter
     {
-        public User User { get; set; } = null!;
-        public Shelter? Shelter { get; set; }
+        public required string UserName { get; set; }
+        public required string Email { get; set; }
+        public required string PhoneNumber { get; set; }
+        public string? ShelterName { get; set; }
+        public string? ShelterLocation { get; set; }
+        public required UserRole Role { get; set; }
+        public required bool IsAccountDisabled { get; set; }
+        public required bool IsFoster { get; set; }
+        public required bool IsProfileCompleted { get; set; }
+        public required string Address { get; set; }
+        public required string Country { get; set; }
+        public string? Website { get; set; }
+        public string? Facebook { get; set; }
+        public string? Instagram { get; set; }
+        public DateTimeOffset? LastUpdated { get; set; }
+        public ETag OriginalETag { get; set; }
     }
 
     private List<UserWithShelter>? userWithShelters;
@@ -585,10 +601,10 @@
     private bool isSaving = false;
     private bool isDeleting = false;
     
-    // Edit/Create state
+    // Edit/Create state - simplified
     private User? editingUser;
-    private User? viewingUser;
-    private User? deletingUser;
+    private UserWithShelter? viewingUser;
+    private UserWithShelter? deletingUser;
     
     // Filter states
     private string searchTerm = string.Empty;
@@ -625,10 +641,25 @@
                     }
                 }
 
+                // Create serialization-safe DTO
                 userWithShelters.Add(new UserWithShelter
                 {
-                    User = user,
-                    Shelter = shelter
+                    UserName = user.PartitionKey,
+                    Email = user.RowKey,
+                    PhoneNumber = user.PhoneNumber,
+                    ShelterName = shelter?.PartitionKey,
+                    ShelterLocation = shelter?.RowKey,
+                    Role = user.Role,
+                    IsAccountDisabled = user.IsAccountDisabled,
+                    IsFoster = user.IsFoster,
+                    IsProfileCompleted = user.IsProfileCompleted,
+                    Address = user.Address,
+                    Country = user.Country,
+                    Website = user.Website,
+                    Facebook = user.Facebook,
+                    Instagram = user.Instagram,
+                    LastUpdated = user.Timestamp,
+                    OriginalETag = user.ETag
                 });
             }
             
@@ -708,23 +739,23 @@
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
             filtered = filtered.Where(x => 
-                x.User.PartitionKey.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                x.User.RowKey.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                x.User.PhoneNumber.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                (x.Shelter?.PartitionKey?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false));
+                x.UserName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                x.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                x.PhoneNumber.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                (x.ShelterName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false));
         }
 
         // Role filter
         if (!string.IsNullOrEmpty(selectedRole) && Enum.TryParse<UserRole>(selectedRole, out var role))
         {
-            filtered = filtered.Where(x => x.User.Role == role);
+            filtered = filtered.Where(x => x.Role == role);
         }
 
         // Status filter
         if (!string.IsNullOrEmpty(selectedStatus))
         {
             filtered = filtered.Where(x => 
-                selectedStatus == "active" ? !x.User.IsAccountDisabled : x.User.IsAccountDisabled);
+                selectedStatus == "active" ? !x.IsAccountDisabled : x.IsAccountDisabled);
         }
 
         filteredUsers = filtered.ToList();
@@ -749,26 +780,26 @@
         ClearMessages();
     }
 
-    private void ShowEditModal(User user)
+    private void ShowEditModal(UserWithShelter userDto)
     {
-        // Create a copy to edit
+        // Create a User entity for editing
         editingUser = new User
         {
-            PartitionKey = user.PartitionKey,
-            RowKey = user.RowKey,
-            PhoneNumber = user.PhoneNumber,
-            Address = user.Address,
-            Country = user.Country,
-            Website = user.Website,
-            Facebook = user.Facebook,
-            Instagram = user.Instagram,
-            IsAccountDisabled = user.IsAccountDisabled,
-            Role = user.Role,
-            ShelterName = user.ShelterName,
-            ShelterLocation = user.ShelterLocation,
-            IsFoster = user.IsFoster,
-            IsProfileCompleted = user.IsProfileCompleted,
-            ETag = user.ETag
+            PartitionKey = userDto.UserName,
+            RowKey = userDto.Email,
+            PhoneNumber = userDto.PhoneNumber,
+            Address = userDto.Address,
+            Country = userDto.Country,
+            Website = userDto.Website,
+            Facebook = userDto.Facebook,
+            Instagram = userDto.Instagram,
+            IsAccountDisabled = userDto.IsAccountDisabled,
+            Role = userDto.Role,
+            ShelterName = userDto.ShelterName ?? string.Empty,
+            ShelterLocation = userDto.ShelterLocation ?? string.Empty,
+            IsFoster = userDto.IsFoster,
+            IsProfileCompleted = userDto.IsProfileCompleted,
+            ETag = userDto.OriginalETag
         };
         isEditMode = true;
         showModal = true;
@@ -776,16 +807,16 @@
         ClearMessages();
     }
 
-    private void ShowViewModal(User user)
+    private void ShowViewModal(UserWithShelter userDto)
     {
-        viewingUser = user;
+        viewingUser = userDto;
         showViewModal = true;
         ClearMessages();
     }
 
-    private void ShowDeleteConfirmation(User user)
+    private void ShowDeleteConfirmation(UserWithShelter userDto)
     {
-        deletingUser = user;
+        deletingUser = userDto;
         showDeleteModal = true;
         ClearMessages();
     }
@@ -854,34 +885,34 @@
         }
     }
 
-    private async Task ToggleUserStatus(User user)
+    private async Task ToggleUserStatus(UserWithShelter userDto)
     {
         ClearMessages();
         
         try
         {
-            // Create a copy with toggled status to avoid mutating the displayed object
+            // Create a User entity for the update
             var updatedUser = new User
             {
-                PartitionKey = user.PartitionKey,
-                RowKey = user.RowKey,
-                PhoneNumber = user.PhoneNumber,
-                Address = user.Address,
-                Country = user.Country,
-                Website = user.Website,
-                Facebook = user.Facebook,
-                Instagram = user.Instagram,
-                IsAccountDisabled = !user.IsAccountDisabled,
-                Role = user.Role,
-                ShelterName = user.ShelterName,
-                ShelterLocation = user.ShelterLocation,
-                IsFoster = user.IsFoster,
-                IsProfileCompleted = user.IsProfileCompleted,
-                ETag = user.ETag
+                PartitionKey = userDto.UserName,
+                RowKey = userDto.Email,
+                PhoneNumber = userDto.PhoneNumber,
+                Address = userDto.Address,
+                Country = userDto.Country,
+                Website = userDto.Website,
+                Facebook = userDto.Facebook,
+                Instagram = userDto.Instagram,
+                IsAccountDisabled = !userDto.IsAccountDisabled,
+                Role = userDto.Role,
+                ShelterName = userDto.ShelterName ?? string.Empty,
+                ShelterLocation = userDto.ShelterLocation ?? string.Empty,
+                IsFoster = userDto.IsFoster,
+                IsProfileCompleted = userDto.IsProfileCompleted,
+                ETag = userDto.OriginalETag
             };
             
             await UserService.UpdateUserAsync(updatedUser);
-            successMessage = $"User {user.PartitionKey} {(updatedUser.IsAccountDisabled ? "disabled" : "enabled")} successfully";
+            successMessage = $"User {userDto.UserName} {(!userDto.IsAccountDisabled ? "disabled" : "enabled")} successfully";
             
             // Reload all users to get fresh data
             await LoadUsers();
@@ -902,17 +933,14 @@
         isDeleting = true;
         try
         {
-            await UserService.DeleteUserAsync(deletingUser.PartitionKey, deletingUser.RowKey);
+            await UserService.DeleteUserAsync(deletingUser.UserName, deletingUser.Email);
             
-            var itemToRemove = userWithShelters.FirstOrDefault(x => x.User == deletingUser);
-            if (itemToRemove != null)
-            {
-                userWithShelters.Remove(itemToRemove);
-            }
-            
-            successMessage = $"User {deletingUser.PartitionKey} deleted successfully";
+            successMessage = $"User {deletingUser.UserName} deleted successfully";
             CloseDeleteModal();
-            ApplyFilters(); // Refresh filtered list
+            
+            // Reload users after delete
+            await LoadUsers();
+            ApplyFilters();
         }
         catch (Exception ex)
         {
