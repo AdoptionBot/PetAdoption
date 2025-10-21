@@ -195,16 +195,23 @@
 /* Pet Size Badges - Force White Text */
 .pets-page-wrapper .badge.bg-info,
 .pets-page-wrapper .badge.bg-primary,
-.pets-page-wrapper .badge.bg-warning,
 .pets-page-wrapper .badge.bg-secondary {
     color: #fff !important;
     font-weight: 600 !important;
 }
 
-/* Override warning badge (Large size) to have white text */
+/* Override warning badge (Large size) - keep white text everywhere except in modal */
 .pets-page-wrapper .badge.bg-warning {
     color: #fff !important;
     background-color: #ffc107 !important;
+    font-weight: 600 !important;
+}
+
+/* Large size badge in pet detail modal - black text */
+.pets-page-wrapper .modal-body .badge.bg-warning {
+    color: #000 !important;
+    background-color: #ffc107 !important;
+    font-weight: 600 !important;
 }
 
 /* Pet Card Styling */
@@ -226,7 +233,6 @@
 /* Modal Badge Styles */
 .pets-page-wrapper .modal-body .badge.bg-info,
 .pets-page-wrapper .modal-body .badge.bg-primary,
-.pets-page-wrapper .modal-body .badge.bg-warning,
 .pets-page-wrapper .modal-body .badge.bg-secondary {
     color: #fff !important;
     font-weight: 600 !important;
