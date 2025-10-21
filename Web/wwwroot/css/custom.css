@@ -240,6 +240,46 @@
 }
 
 /* ===================================
+   MY PETS PAGE SPECIFIC STYLES
+   =================================== */
+
+/* Action Button Styles - View (Blue) */
+.table .btn-outline-primary.action-pet-view {
+    border-color: #000 !important;
+    color: #007bff !important;
+}
+
+.table .btn-outline-primary.action-pet-view:hover {
+    background-color: #007bff !important;
+    border-color: #000 !important;
+    color: #fff !important;
+}
+
+/* Action Button Styles - Edit (Green) */
+.table .btn-outline-success.action-pet-edit {
+    border-color: #000 !important;
+    color: #00bd56 !important;
+}
+
+.table .btn-outline-success.action-pet-edit:hover {
+    background-color: #00bd56 !important;
+    border-color: #000 !important;
+    color: #fff !important;
+}
+
+/* Action Button Styles - Delete (Red) */
+.table .btn-outline-danger.action-pet-delete {
+    border-color: #000 !important;
+    color: #dc3545 !important;
+}
+
+.table .btn-outline-danger.action-pet-delete:hover {
+    background-color: #dc3545 !important;
+    border-color: #000 !important;
+    color: #fff !important;
+}
+
+/* ===================================
    USER MANAGEMENT PAGE SPECIFIC STYLES
    =================================== */
 

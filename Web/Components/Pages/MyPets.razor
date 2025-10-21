@@ -175,15 +175,15 @@
                                         </td>
                                         <td>
                                             <div class="btn-group btn-group-sm" role="group">
-                                                <button class="btn btn-outline-info" @onclick="() => ViewPet(pet)"
+                                                <button class="btn btn-outline-primary action-pet-view" @onclick="() => ViewPet(pet)"
                                                         title="View Details">
                                                     <i class="fa fa-eye"></i>
                                                 </button>
-                                                <button class="btn btn-outline-primary" @onclick="() => EditPet(pet)"
+                                                <button class="btn btn-outline-success action-pet-edit" @onclick="() => EditPet(pet)"
                                                         title="Edit">
                                                     <i class="fa fa-edit"></i>
                                                 </button>
-                                                <button class="btn btn-outline-danger" @onclick="() => ShowDeleteConfirmation(pet)"
+                                                <button class="btn btn-outline-danger action-pet-delete" @onclick="() => ShowDeleteConfirmation(pet)"
                                                         title="Delete">
                                                     <i class="fa fa-trash"></i>
                                                 </button>
