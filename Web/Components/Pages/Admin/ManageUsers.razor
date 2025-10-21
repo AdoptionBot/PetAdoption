@@ -774,16 +774,20 @@
             {
                 // Update existing user
                 await UserService.UpdateUserAsync(editingUser);
+                
+                // Reload the fresh user from database
+                var updatedUser = await UserService.GetUserByEmailAsync(editingUser.RowKey);
+                
                 successMessage = $"User {editingUser.PartitionKey} updated successfully";
                 
-                // Update in local list
+                // Update in local list with fresh data
                 var existingItem = userWithShelters?.FirstOrDefault(x => 
                     x.User.PartitionKey == editingUser.PartitionKey && 
                     x.User.RowKey == editingUser.RowKey);
-                
-                if (existingItem != null)
+            
+                if (existingItem != null && updatedUser != null)
                 {
-                    existingItem.User = editingUser;
+                    existingItem.User = updatedUser; // Use the fresh user from DB
                 }
             }
             else
