@@ -104,6 +104,91 @@
 }
 
 /* ===================================
+   SHARED MODAL SCROLLING STYLES
+   =================================== */
+
+/* Apply to all modals with modal-dialog-scrollable class */
+.modal-dialog-scrollable .modal-content {
+    max-height: calc(100vh - 60px) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+}
+
+.modal-dialog-scrollable .modal-body {
+    max-height: calc(100vh - 250px) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    flex: 1 1 auto !important;
+    padding-bottom: 1rem !important;
+}
+
+.modal-dialog-scrollable .modal-footer {
+    position: relative !important;
+    bottom: 0 !important;
+    background-color: #ffffff !important;
+    border-top: 1px solid #dee2e6 !important;
+    z-index: 10 !important;
+    flex-shrink: 0 !important;
+    margin: 0 !important;
+    padding: 1rem !important;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Ensure no content bleeds through footer */
+.modal-dialog-scrollable .modal-footer::before {
+    content: '' !important;
+    position: absolute !important;
+    top: -20px !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 20px !important;
+    background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%) !important;
+    pointer-events: none !important;
+}
+
+/* Remove margins from last elements in modal body */
+.modal-dialog-scrollable .modal-body > *:last-child {
+    margin-bottom: 0 !important;
+}
+
+.modal-dialog-scrollable .modal-body .card:last-child {
+    margin-bottom: 0 !important;
+}
+
+/* Custom scrollbar styling for all scrollable modals */
+.modal-dialog-scrollable .modal-body::-webkit-scrollbar {
+    width: 10px;
+}
+
+.modal-dialog-scrollable .modal-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 5px;
+}
+
+.modal-dialog-scrollable .modal-body::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 5px;
+}
+
+.modal-dialog-scrollable .modal-body::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-height: 800px) {
+    .modal-dialog-scrollable .modal-body {
+        max-height: calc(100vh - 200px) !important;
+    }
+}
+
+@media (max-height: 600px) {
+    .modal-dialog-scrollable .modal-body {
+        max-height: calc(100vh - 180px) !important;
+    }
+}
+
+/* ===================================
    PETS PAGE SPECIFIC STYLES
    =================================== */
 
@@ -226,97 +311,4 @@
     background-color: #dc3545 !important;
     border-color: #000 !important;
     color: #fff !important;
-}
-
-/* Modal Scrolling and Layout - Integrated */
-.user-management-page #edit-modal .modal-content,
-.user-management-page #view-modal .modal-content {
-    max-height: calc(100vh - 60px) !important;
-    display: flex !important;
-    flex-direction: column !important;
-    overflow: hidden !important;
-}
-
-.user-management-page #edit-modal .modal-body,
-.user-management-page #view-modal .modal-body {
-    max-height: calc(100vh - 250px) !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    flex: 1 1 auto !important;
-    padding-bottom: 1rem !important;
-}
-
-.user-management-page #edit-modal .modal-footer,
-.user-management-page #view-modal .modal-footer {
-    position: relative !important;
-    bottom: 0 !important;
-    background-color: #ffffff !important;
-    border-top: 1px solid #dee2e6 !important;
-    z-index: 10 !important;
-    flex-shrink: 0 !important;
-    margin: 0 !important;
-    padding: 1rem !important;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1) !important;
-}
-
-/* Ensure no content bleeds through footer */
-.user-management-page #edit-modal .modal-footer::before,
-.user-management-page #view-modal .modal-footer::before {
-    content: '' !important;
-    position: absolute !important;
-    top: -20px !important;
-    left: 0 !important;
-    right: 0 !important;
-    height: 20px !important;
-    background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%) !important;
-    pointer-events: none !important;
-}
-
-/* Remove margins from last elements in modal body */
-.user-management-page #edit-modal .modal-body > *:last-child,
-.user-management-page #view-modal .modal-body > *:last-child {
-    margin-bottom: 0 !important;
-}
-
-.user-management-page #edit-modal .modal-body .card:last-child,
-.user-management-page #view-modal .modal-body .card:last-child {
-    margin-bottom: 0 !important;
-}
-
-/* Custom scrollbar styling */
-.user-management-page #edit-modal .modal-body::-webkit-scrollbar,
-.user-management-page #view-modal .modal-body::-webkit-scrollbar {
-    width: 10px;
-}
-
-.user-management-page #edit-modal .modal-body::-webkit-scrollbar-track,
-.user-management-page #view-modal .modal-body::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 5px;
-}
-
-.user-management-page #edit-modal .modal-body::-webkit-scrollbar-thumb,
-.user-management-page #view-modal .modal-body::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 5px;
-}
-
-.user-management-page #edit-modal .modal-body::-webkit-scrollbar-thumb:hover,
-.user-management-page #view-modal .modal-body::-webkit-scrollbar-thumb:hover {
-    background: #555;
-}
-
-/* Responsive adjustments for smaller screens */
-@media (max-height: 800px) {
-    .user-management-page #edit-modal .modal-body,
-    .user-management-page #view-modal .modal-body {
-        max-height: calc(100vh - 200px) !important;
-    }
-}
-
-@media (max-height: 600px) {
-    .user-management-page #edit-modal .modal-body,
-    .user-management-page #view-modal .modal-body {
-        max-height: calc(100vh - 180px) !important;
-    }
 }
