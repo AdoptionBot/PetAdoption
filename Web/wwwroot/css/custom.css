@@ -71,7 +71,8 @@
 /* Default badge styles for shared components */
 .badge.bg-info,
 .badge.bg-primary,
-.badge.bg-secondary {
+.badge.bg-secondary,
+.badge.bg-success {
     color: #fff !important;
 }
 
