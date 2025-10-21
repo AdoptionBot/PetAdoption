@@ -4,6 +4,7 @@
 @using PetAdoption.Data.TableStorage
 @using PetAdoption.Data.TableStorage.Enums
 @using PetAdoption.Web.Components.Shared
+@using Microsoft.AspNetCore.WebUtilities
 @attribute [Authorize(Roles = "Shelter")]
 @inject IUserService UserService
 @inject IShelterService ShelterService
@@ -86,7 +87,7 @@
                     <!-- Search and Filter -->
                     <div class="row mb-4">
                         <div class="col-md-6">
-                            <input type="text" class="form-control" placeholder="Search by pet name..." 
+                            <input type="text" class="form-control" placeholder="Search by pet name..."
                                    @bind="searchQuery" @bind:event="oninput" @bind:after="ApplyFilters" />
                         </div>
                         <div class="col-md-3">
@@ -145,12 +146,12 @@
                                         <td>
                                             @if (!string.IsNullOrEmpty(pet.Image1Url))
                                             {
-                                                <img src="@pet.Image1Url" alt="@pet.PartitionKey" 
+                                                <img src="@pet.Image1Url" alt="@pet.PartitionKey"
                                                      class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;" />
                                             }
                                             else
                                             {
-                                                <div class="bg-secondary text-white d-flex align-items-center justify-content-center" 
+                                                <div class="bg-secondary text-white d-flex align-items-center justify-content-center"
                                                      style="width: 60px; height: 60px; border-radius: 4px;">
                                                     <i class="fa fa-paw"></i>
                                                 </div>
@@ -174,15 +175,15 @@
                                         </td>
                                         <td>
                                             <div class="btn-group btn-group-sm" role="group">
-                                                <button class="btn btn-outline-info" @onclick="() => ViewPet(pet)" 
+                                                <button class="btn btn-outline-info" @onclick="() => ViewPet(pet)"
                                                         title="View Details">
                                                     <i class="fa fa-eye"></i>
                                                 </button>
-                                                <button class="btn btn-outline-primary" @onclick="() => EditPet(pet)" 
+                                                <button class="btn btn-outline-primary" @onclick="() => EditPet(pet)"
                                                         title="Edit">
                                                     <i class="fa fa-edit"></i>
                                                 </button>
-                                                <button class="btn btn-outline-danger" @onclick="() => ShowDeleteConfirmation(pet)" 
+                                                <button class="btn btn-outline-danger" @onclick="() => ShowDeleteConfirmation(pet)"
                                                         title="Delete">
                                                     <i class="fa fa-trash"></i>
                                                 </button>
@@ -204,7 +205,7 @@
                                         <i class="fa fa-chevron-left"></i> Previous
                                     </button>
                                 </li>
-                                
+
                                 @for (int i = GetStartPage(); i <= GetEndPage(); i++)
                                 {
                                     int pageNumber = i;
@@ -214,7 +215,7 @@
                                         </button>
                                     </li>
                                 }
-                                
+
                                 <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
                                     <button class="page-link" @onclick="() => GoToPage(currentPage + 1)" disabled="@(currentPage == totalPages)">
                                         Next <i class="fa fa-chevron-right"></i>
@@ -411,20 +412,20 @@
     private List<Pet> allPets = new();
     private List<Pet> filteredPets = new();
     private List<Pet> currentPagePets = new();
-    
+
     private bool isLoading = true;
     private bool isDeleting = false;
     private string? successMessage;
     private string? errorMessage;
-    
+
     private int currentPage = 1;
     private const int pageSize = 25;
     private int totalPages = 1;
-    
+
     private string searchQuery = "";
     private string filterStatus = "";
     private string filterSpecies = "";
-    
+
     private Pet? selectedPet;
     private Pet? petToDelete;
     private bool showViewModal = false;
@@ -432,13 +433,24 @@
 
     protected override async Task OnInitializedAsync()
     {
+        // Check for success parameter in URL
+        var uri = new Uri(Navigation.Uri);
+        var queryParams = QueryHelpers.ParseQuery(uri.Query);
+
+        if (queryParams.TryGetValue("updated", out var updated) && updated == "true")
+        {
+            successMessage = "Pet updated successfully!";
+            // Remove the query parameter from the URL without reload
+            Navigation.NavigateTo("/mypets", replace: true);
+        }
+
         await LoadDataAsync();
     }
 
     private async Task LoadDataAsync()
     {
         isLoading = true;
-        
+
         try
         {
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
@@ -450,15 +462,15 @@
                 if (!string.IsNullOrEmpty(email))
                 {
                     currentUser = await UserService.GetUserByEmailAsync(email);
-                    
-                    if (currentUser != null && 
-                        !string.IsNullOrEmpty(currentUser.ShelterName) && 
+
+                    if (currentUser != null &&
+                        !string.IsNullOrEmpty(currentUser.ShelterName) &&
                         !string.IsNullOrEmpty(currentUser.ShelterLocation))
                     {
                         currentShelter = await ShelterService.GetShelterAsync(
-                            currentUser.ShelterName, 
+                            currentUser.ShelterName,
                             currentUser.ShelterLocation);
-                        
+
                         if (currentShelter != null)
                         {
                             await LoadPetsAsync();
@@ -483,12 +495,12 @@
         try
         {
             var pets = await PetService.GetPetsByShelterAsync(
-                currentShelter!.PartitionKey, 
+                currentShelter!.PartitionKey,
                 currentShelter.RowKey);
-            
+
             allPets = pets.OrderByDescending(p => p.Timestamp).ToList();
             ApplyFilters();
-            
+
             Logger.LogInformation("Loaded {Count} pets for shelter {ShelterName}", allPets.Count, currentShelter.PartitionKey);
         }
         catch (Exception ex)
@@ -519,7 +531,7 @@
 
         totalPages = (int)Math.Ceiling((double)filteredPets.Count / pageSize);
         currentPage = Math.Min(currentPage, Math.Max(1, totalPages));
-        
+
         UpdateCurrentPagePets();
     }
 
@@ -613,10 +625,10 @@
 
             // Delete pet from database
             await PetService.DeletePetAsync(petToDelete.PartitionKey, petToDelete.RowKey);
-            
+
             successMessage = $"Pet '{petToDelete.PartitionKey}' has been deleted successfully.";
             Logger.LogInformation("Deleted pet: {PetName}", petToDelete.PartitionKey);
-            
+
             CloseDeleteModal();
             await LoadPetsAsync();
             await JSRuntime.InvokeVoidAsync("scrollToTopInstant");
@@ -677,7 +689,7 @@
             return "None";
 
         var vaccinationList = new List<string>();
-        
+
         foreach (Vaccinations vac in Enum.GetValues(typeof(Vaccinations)))
         {
             if (vac != Vaccinations.none && vaccinations.HasFlag(vac))

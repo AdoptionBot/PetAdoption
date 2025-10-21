@@ -416,8 +416,6 @@
 
         try
         {
-            await JSRuntime.InvokeVoidAsync("scrollToTopInstant");
-
             // Validate that required fields are set
             var validationContext = new ValidationContext(currentPet);
             var validationResults = new List<ValidationResult>();
@@ -427,19 +425,23 @@
             {
                 errorMessage = "Please complete all required fields: " + 
                     string.Join(", ", validationResults.Select(r => r.ErrorMessage));
+                await JSRuntime.InvokeVoidAsync("scrollToTopInstant");
                 return;
             }
 
             // Update pet in storage
             await PetService.UpdatePetAsync(currentPet);
             
-            successMessage = $"Pet '{currentPet.PartitionKey}' has been updated successfully!";
             Logger.LogInformation("Updated pet: {PetName}", currentPet.PartitionKey);
+            
+            // Navigate back to MyPets with a success parameter
+            Navigation.NavigateTo("/mypets?updated=true", forceLoad: false);
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error updating pet: {PetName}", currentPet.PartitionKey);
             errorMessage = "Failed to update pet: " + ex.Message;
+            await JSRuntime.InvokeVoidAsync("scrollToTopInstant");
         }
         finally
         {
