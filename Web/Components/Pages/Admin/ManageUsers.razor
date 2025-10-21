@@ -306,20 +306,32 @@
                                     <h6 class="mb-0"><i class="fa fa-home"></i> Shelter Association</h6>
                                 </div>
                                 <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">Shelter Name</label>
-                                            <InputText @bind-Value="editingUser!.ShelterName" class="form-control" 
-                                                       placeholder="Associated shelter name" />
-                                            <small class="form-text text-muted">Optional: Link to shelter</small>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">Shelter Location</label>
-                                            <InputText @bind-Value="editingUser!.ShelterLocation" class="form-control" 
-                                                       placeholder="Shelter city/town" />
-                                            <small class="form-text text-muted">Optional: Shelter location</small>
-                                        </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Select Shelter</label>
+                                        <select class="form-select" @onchange="OnShelterSelectionChanged">
+                                            <option value="">-- None --</option>
+                                            @if (availableShelters != null)
+                                            {
+                                                @foreach (var shelter in availableShelters)
+                                                {
+                                                    var shelterKey = $"{shelter.PartitionKey}|{shelter.RowKey}";
+                                                    var isSelected = editingUser?.ShelterName == shelter.PartitionKey && 
+                                                                    editingUser?.ShelterLocation == shelter.RowKey;
+                                                    <option value="@shelterKey" selected="@isSelected">
+                                                        @shelter.PartitionKey - @shelter.RowKey
+                                                    </option>
+                                                }
+                                            }
+                                        </select>
+                                        <small class="form-text text-muted">Optional: Link user to a shelter</small>
                                     </div>
+                                    @if (!string.IsNullOrEmpty(editingUser?.ShelterName))
+                                    {
+                                        <div class="alert alert-info">
+                                            <strong>Selected Shelter:</strong> @editingUser.ShelterName<br />
+                                            <strong>Location:</strong> @editingUser.ShelterLocation
+                                        </div>
+                                    }
                                 </div>
                             </div>
 
@@ -560,6 +572,7 @@
 
     private List<UserWithShelter>? userWithShelters;
     private List<UserWithShelter>? filteredUsers;
+    private List<Shelter>? availableShelters;
     private bool isLoading = true;
     private string? successMessage;
     private string? errorMessage;
@@ -585,6 +598,7 @@
     protected override async Task OnInitializedAsync()
     {
         await LoadUsers();
+        await LoadShelters();
     }
 
     private async Task LoadUsers()
@@ -627,6 +641,43 @@
         finally
         {
             isLoading = false;
+        }
+    }
+
+    private async Task LoadShelters()
+    {
+        try
+        {
+            var shelters = await ShelterService.GetAllSheltersAsync();
+            availableShelters = shelters.ToList();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Failed to load shelters: " + ex.Message;
+        }
+    }
+
+    private void OnShelterSelectionChanged(ChangeEventArgs e)
+    {
+        if (editingUser == null) return;
+
+        var selectedValue = e.Value?.ToString();
+        
+        if (string.IsNullOrEmpty(selectedValue))
+        {
+            // "None" option selected - clear shelter association
+            editingUser.ShelterName = string.Empty;
+            editingUser.ShelterLocation = string.Empty;
+        }
+        else
+        {
+            // Parse the shelter key format: "ShelterName|Location"
+            var parts = selectedValue.Split('|');
+            if (parts.Length == 2)
+            {
+                editingUser.ShelterName = parts[0];
+                editingUser.ShelterLocation = parts[1];
+            }
         }
     }
 
@@ -788,6 +839,29 @@
                 if (existingItem != null && updatedUser != null)
                 {
                     existingItem.User = updatedUser; // Use the fresh user from DB
+                    
+                    // Reload shelter if association changed
+                    if (!string.IsNullOrEmpty(updatedUser.ShelterName) && !string.IsNullOrEmpty(updatedUser.ShelterLocation))
+                    {
+                        try
+                        {
+                            existingItem.Shelter = await ShelterService.GetShelterAsync(updatedUser.ShelterName, updatedUser.ShelterLocation);
+                        }
+                        catch
+                        {
+                            existingItem.Shelter = null;
+                        }
+                    }
+                    else
+                    {
+                        existingItem.Shelter = null;
+                    }
+                    
+                    // Reapply filters to update the filtered list
+                    ApplyFilters();
+                    
+                    // Force UI refresh
+                    StateHasChanged();
                 }
             }
             else
@@ -820,11 +894,17 @@
             await UserService.UpdateUserAsync(user);
             successMessage = $"User {user.PartitionKey} {(user.IsAccountDisabled ? "disabled" : "enabled")} successfully";
             errorMessage = null;
+            
+            // Force UI refresh
+            StateHasChanged();
         }
         catch (Exception ex)
         {
             errorMessage = $"Failed to update user status: {ex.Message}";
             successMessage = null;
+            
+            // Revert the change on error
+            user.IsAccountDisabled = !user.IsAccountDisabled;
         }
     }
 
