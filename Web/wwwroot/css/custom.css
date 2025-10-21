@@ -227,3 +227,90 @@
     border-color: #000 !important;
     color: #fff !important;
 }
+
+/* ===================================
+   FORCE MODAL BODY SCROLLING
+   =================================== */
+
+/* Target the edit modal specifically */
+#edit-modal .modal-body {
+    max-height: calc(100vh - 250px) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+/* Ensure modal-footer doesn't scroll */
+#edit-modal .modal-footer {
+    position: sticky !important;
+    bottom: 0 !important;
+    background-color: white !important;
+    border-top: 1px solid #dee2e6 !important;
+    z-index: 1 !important;
+}
+
+/* Also apply to view modal if needed */
+#view-modal .modal-body {
+    max-height: calc(100vh - 250px) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+#view-modal .modal-footer {
+    position: sticky !important;
+    bottom: 0 !important;
+    background-color: white !important;
+    border-top: 1px solid #dee2e6 !important;
+    z-index: 1 !important;
+}
+
+/* Custom scrollbar styling */
+#edit-modal .modal-body::-webkit-scrollbar,
+#view-modal .modal-body::-webkit-scrollbar {
+    width: 10px;
+}
+
+#edit-modal .modal-body::-webkit-scrollbar-track,
+#view-modal .modal-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 5px;
+}
+
+#edit-modal .modal-body::-webkit-scrollbar-thumb,
+#view-modal .modal-body::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 5px;
+}
+
+#edit-modal .modal-body::-webkit-scrollbar-thumb:hover,
+#view-modal .modal-body::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Ensure modal content doesn't overflow */
+#edit-modal .modal-content,
+#view-modal .modal-content {
+    max-height: calc(100vh - 60px) !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* Prevent body from growing */
+#edit-modal .modal-body,
+#view-modal .modal-body {
+    flex: 1 1 auto !important;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-height: 800px) {
+    #edit-modal .modal-body,
+    #view-modal .modal-body {
+        max-height: calc(100vh - 200px) !important;
+    }
+}
+
+@media (max-height: 600px) {
+    #edit-modal .modal-body,
+    #view-modal .modal-body {
+        max-height: calc(100vh - 180px) !important;
+    }
+}
