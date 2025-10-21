@@ -41,7 +41,30 @@ namespace PetAdoption.Services.Data
 
         public async Task UpdateUserAsync(User user)
         {
-            await _tableStorageService.UpsertEntityAsync(TableName, user);
+            // Fetch the latest entity from database to get the current ETag
+            var currentUser = await _tableStorageService.GetEntityAsync<User>(TableName, user.PartitionKey, user.RowKey);
+            
+            if (currentUser == null)
+            {
+                throw new InvalidOperationException($"User not found: {user.PartitionKey} ({user.RowKey})");
+            }
+
+            // Update the properties while keeping the fresh ETag
+            currentUser.PhoneNumber = user.PhoneNumber;
+            currentUser.Address = user.Address;
+            currentUser.Country = user.Country;
+            currentUser.Website = user.Website;
+            currentUser.Facebook = user.Facebook;
+            currentUser.Instagram = user.Instagram;
+            currentUser.IsAccountDisabled = user.IsAccountDisabled;
+            currentUser.Role = user.Role;
+            currentUser.ShelterName = user.ShelterName;
+            currentUser.ShelterLocation = user.ShelterLocation;
+            currentUser.IsFoster = user.IsFoster;
+            currentUser.IsProfileCompleted = user.IsProfileCompleted;
+
+            // Use UpsertEntityAsync which handles ETag internally
+            await _tableStorageService.UpsertEntityAsync(TableName, currentUser);
         }
 
         public async Task DeleteUserAsync(string userName, string email)
