@@ -1,4 +1,5 @@
 using System.Xml.Linq;
+using System.Reflection;
 
 namespace PetAdoption.Data.TableStorage.Validation
 {
@@ -46,34 +47,64 @@ namespace PetAdoption.Data.TableStorage.Validation
 
             try
             {
-                // Get the path to the XML file
+                string? xmlPath = null;
+                
+                // Strategy 1: Look in the base directory (works for Azure App Service)
                 var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-                var xmlPath = Path.Combine(baseDirectory, "XML", "ICAO_Codes_PT.xml");
-
-                // Fallback paths for different deployment scenarios
-                if (!File.Exists(xmlPath))
+                var candidatePath = Path.Combine(baseDirectory, "XML", "ICAO_Codes_PT.xml");
+                if (File.Exists(candidatePath))
                 {
-                    xmlPath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "XML", "ICAO_Codes_PT.xml");
+                    xmlPath = candidatePath;
                 }
 
-                if (!File.Exists(xmlPath))
+                // Strategy 2: Look in current directory
+                if (xmlPath == null)
                 {
-                    // Try relative path from project root
-                    var projectRoot = Directory.GetCurrentDirectory();
-                    while (projectRoot != null && !File.Exists(Path.Combine(projectRoot, "Data", "XML", "ICAO_Codes_PT.xml")))
+                    candidatePath = Path.Combine(Directory.GetCurrentDirectory(), "XML", "ICAO_Codes_PT.xml");
+                    if (File.Exists(candidatePath))
                     {
-                        projectRoot = Directory.GetParent(projectRoot)?.FullName;
-                    }
-
-                    if (projectRoot != null)
-                    {
-                        xmlPath = Path.Combine(projectRoot, "Data", "XML", "ICAO_Codes_PT.xml");
+                        xmlPath = candidatePath;
                     }
                 }
 
-                if (!File.Exists(xmlPath))
+                // Strategy 3: Look relative to Data assembly location
+                if (xmlPath == null)
                 {
-                    throw new FileNotFoundException($"ICAO_Codes_PT.xml not found. Searched paths include: {xmlPath}");
+                    var assemblyLocation = Assembly.GetExecutingAssembly().Location;
+                    var assemblyDirectory = Path.GetDirectoryName(assemblyLocation);
+                    if (!string.IsNullOrEmpty(assemblyDirectory))
+                    {
+                        candidatePath = Path.Combine(assemblyDirectory, "XML", "ICAO_Codes_PT.xml");
+                        if (File.Exists(candidatePath))
+                        {
+                            xmlPath = candidatePath;
+                        }
+                    }
+                }
+
+                // Strategy 4: Development fallback - walk up to find project root
+                if (xmlPath == null)
+                {
+                    var currentDir = Directory.GetCurrentDirectory();
+                    while (currentDir != null)
+                    {
+                        candidatePath = Path.Combine(currentDir, "Data", "XML", "ICAO_Codes_PT.xml");
+                        if (File.Exists(candidatePath))
+                        {
+                            xmlPath = candidatePath;
+                            break;
+                        }
+                        currentDir = Directory.GetParent(currentDir)?.FullName;
+                    }
+                }
+
+                if (string.IsNullOrEmpty(xmlPath) || !File.Exists(xmlPath))
+                {
+                    throw new FileNotFoundException(
+                        $"ICAO_Codes_PT.xml not found. Searched locations:\n" +
+                        $"  - {Path.Combine(baseDirectory, "XML", "ICAO_Codes_PT.xml")}\n" +
+                        $"  - {Path.Combine(Directory.GetCurrentDirectory(), "XML", "ICAO_Codes_PT.xml")}\n" +
+                        $"Please ensure the XML file is included in the deployment package.");
                 }
 
                 var doc = XDocument.Load(xmlPath);
@@ -84,6 +115,12 @@ namespace PetAdoption.Data.TableStorage.Validation
                 foreach (var designacao in designacoes)
                 {
                     countries.Add(designacao);
+                }
+
+                // Validate that we actually loaded countries
+                if (countries.Count == 0)
+                {
+                    throw new InvalidOperationException("No countries were loaded from the XML file.");
                 }
             }
             catch (Exception ex)
