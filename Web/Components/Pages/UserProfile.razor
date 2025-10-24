@@ -4,6 +4,7 @@
 @using PetAdoption.Services
 @using PetAdoption.Data.TableStorage
 @using PetAdoption.Data.TableStorage.Enums
+@using PetAdoption.Web.Components.Shared
 @attribute [Authorize]
 @inject IUserService UserService
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -83,7 +84,7 @@
 
                                 <div class="mb-3">
                                     <label class="form-label">Country <span class="text-danger">*</span></label>
-                                    <InputText @bind-Value="currentUser.Country" class="form-control" />
+                                    <CountryDropdown @bind-Value="currentUser.Country" CssClass="form-select" />
                                     <ValidationMessage For="@(() => currentUser.Country)" />
                                 </div>
 

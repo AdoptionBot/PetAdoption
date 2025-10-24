@@ -1,0 +1,143 @@
+@using PetAdoption.Data.TableStorage.Validation
+@using Microsoft.AspNetCore.Components.Forms
+@inject IConfiguration Configuration
+
+<div class="country-dropdown-wrapper">
+    <select @ref="selectElement" 
+            class="@CssClass" 
+            value="@CurrentValue"
+            @onchange="HandleChange"
+            @onkeydown="HandleKeyDown"
+            @attributes="AdditionalAttributes">
+        @if (string.IsNullOrEmpty(CurrentValue))
+        {
+            <option value="">-- Select Country --</option>
+        }
+        @foreach (var country in countries)
+        {
+            <option value="@country" selected="@(country == CurrentValue)">@country</option>
+        }
+    </select>
+</div>
+
+@code {
+    private ElementReference selectElement;
+    private List<string> countries = new();
+    private string? currentValue;
+    private string? lastKeyPressed;
+    private DateTime lastKeyPressTime = DateTime.MinValue;
+    private int currentMatchIndex = 0;
+
+    [Parameter]
+    public string? Value { get; set; }
+
+    [Parameter]
+    public EventCallback<string?> ValueChanged { get; set; }
+
+    [Parameter]
+    public string CssClass { get; set; } = "form-select";
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    protected string? CurrentValue
+    {
+        get => currentValue;
+        set
+        {
+            if (currentValue == value) return;
+            currentValue = value;
+            _ = ValueChanged.InvokeAsync(value);
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        // Load countries from IcaoCountryLoader
+        countries = IcaoCountryLoader.GetCountryList();
+
+        // Set default value from configuration if no value is provided
+        if (string.IsNullOrEmpty(Value))
+        {
+            var defaultCountry = Configuration["DefaultCountryValue"];
+            if (!string.IsNullOrEmpty(defaultCountry) && countries.Contains(defaultCountry))
+            {
+                currentValue = defaultCountry;
+                // Invoke ValueChanged to update parent component
+                _ = ValueChanged.InvokeAsync(currentValue);
+            }
+        }
+        else
+        {
+            currentValue = Value;
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        // Only update if the incoming Value is different and not null/empty
+        if (!string.IsNullOrEmpty(Value) && Value != currentValue)
+        {
+            currentValue = Value;
+        }
+        else if (string.IsNullOrEmpty(Value) && string.IsNullOrEmpty(currentValue))
+        {
+            // If both are empty, try to set default again
+            var defaultCountry = Configuration["DefaultCountryValue"];
+            if (!string.IsNullOrEmpty(defaultCountry) && countries.Contains(defaultCountry))
+            {
+                currentValue = defaultCountry;
+                _ = ValueChanged.InvokeAsync(currentValue);
+            }
+        }
+    }
+
+    private void HandleChange(ChangeEventArgs e)
+    {
+        var newValue = e.Value?.ToString();
+        CurrentValue = newValue;
+        StateHasChanged();
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        // Only handle single letter keys
+        if (e.Key.Length != 1 || !char.IsLetter(e.Key[0]))
+            return;
+
+        var key = e.Key.ToUpperInvariant();
+        var now = DateTime.Now;
+
+        // If same key pressed within 1 second, cycle through matches
+        if (key == lastKeyPressed && (now - lastKeyPressTime).TotalMilliseconds < 1000)
+        {
+            currentMatchIndex++;
+        }
+        else
+        {
+            // New key or timeout, reset to first match
+            currentMatchIndex = 0;
+            lastKeyPressed = key;
+        }
+
+        lastKeyPressTime = now;
+
+        // Find all countries starting with the pressed letter
+        var matches = countries
+            .Where(c => c.StartsWith(key, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        if (matches.Any())
+        {
+            // Cycle through matches
+            var selectedCountry = matches[currentMatchIndex % matches.Count];
+            CurrentValue = selectedCountry;
+            
+            // Force UI update
+            StateHasChanged();
+        }
+
+        // Small delay to ensure the component processes the change
+        await Task.Delay(10);
+    }
+}
