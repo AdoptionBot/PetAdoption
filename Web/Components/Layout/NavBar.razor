@@ -64,10 +64,22 @@
                         </AuthorizeView>
                         <AuthorizeView Policy="AdminOnly" Context="adminContext">
                             <Authorized>
-                                <li class="nav-item">
-                                    <a class="nav-link @GetDisabledClass()" href="/admin/users" @onclick='() => HandleNavigationClick("/admin/users")' @onclick:preventDefault="true">
-                                        <span class="fa fa-users mr-1"></span><span class="nav-text">Admin</span>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle @GetDisabledClass()" href="#" id="adminDropdown" role="button" 
+                                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" 
+                                       @onclick:preventDefault="@(!isProfileComplete)">
+                                        <span class="fa fa-cog mr-1"></span><span class="nav-text">Admin</span>
                                     </a>
+                                    <div class="dropdown-menu" aria-labelledby="adminDropdown">
+                                        <a class="dropdown-item @GetDisabledClass()" href="/admin/users" 
+                                           @onclick='() => HandleNavigationClick("/admin/users")' @onclick:preventDefault="true">
+                                            <span class="fa fa-users mr-1"></span> Manage Users
+                                        </a>
+                                        <a class="dropdown-item @GetDisabledClass()" href="/admin/shelters" 
+                                           @onclick='() => HandleNavigationClick("/admin/shelters")' @onclick:preventDefault="true">
+                                            <span class="fa fa-home mr-1"></span> Manage Shelters
+                                        </a>
+                                    </div>
                                 </li>
                             </Authorized>
                         </AuthorizeView>

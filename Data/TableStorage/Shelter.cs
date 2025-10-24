@@ -37,15 +37,15 @@ namespace PetAdoption.Data.TableStorage
         [EmailAddress(ErrorMessage = "Email must be a valid email address.")]
         public string Email { get; set; } = string.Empty;
 
-        [Url(ErrorMessage = "Website must be a valid URL.")]
+        [OptionalUrl(ErrorMessage = "Website must be a valid URL.")]
         [StringLength(256, ErrorMessage = "Website URL cannot exceed 256 characters.")]
         public string? Website { get; set; }
 
-        [Url(ErrorMessage = "Facebook URL must be a valid URL.")]
+        [OptionalUrl(ErrorMessage = "Facebook URL must be a valid URL.")]
         [StringLength(256, ErrorMessage = "Facebook URL cannot exceed 256 characters.")]
         public string? Facebook { get; set; }
 
-        [Url(ErrorMessage = "Instagram URL must be a valid URL.")]
+        [OptionalUrl(ErrorMessage = "Instagram URL must be a valid URL.")]
         [StringLength(256, ErrorMessage = "Instagram URL cannot exceed 256 characters.")]
         public string? Instagram { get; set; }
 

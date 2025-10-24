@@ -1,0 +1,677 @@
+@page "/admin/shelters"
+@using Microsoft.AspNetCore.Authorization
+@using PetAdoption.Services.Interfaces
+@using PetAdoption.Data.TableStorage
+@using System.ComponentModel.DataAnnotations
+@using PetAdoption.Web.Components.Shared
+@using Azure
+@attribute [Authorize(Policy = "AdminOnly")]
+@inject IShelterService ShelterService
+@inject IConfiguration Configuration
+@rendermode InteractiveServer
+
+<PageTitle>Manage Shelters - Admin</PageTitle>
+
+<div class="shelter-management-page">
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">Shelter Management</h3>
+                <button class="btn btn-light btn-sm" @onclick="ShowCreateModal">
+                    <i class="fa fa-plus"></i> Add New Shelter
+                </button>
+            </div>
+            <div class="card-body">
+                @if (isLoading)
+                {
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3 text-muted">Loading shelters...</p>
+                    </div>
+                }
+                else if (shelters != null && shelters.Any())
+                {
+                    @if (!string.IsNullOrEmpty(successMessage))
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fa fa-check-circle"></i> @successMessage
+                            <button type="button" class="btn-close" @onclick="() => successMessage = null" aria-label="Close">
+                                <i class="fa fa-times"></i>
+                            </button>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fa fa-exclamation-circle"></i> @errorMessage
+                            <button type="button" class="btn-close" @onclick="() => errorMessage = null" aria-label="Close">
+                                <i class="fa fa-times"></i>
+                            </button>
+                        </div>
+                    }
+
+                    <!-- Search and Filter Section -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa fa-search"></i></span>
+                                <input type="text" class="form-control" placeholder="Search shelters..." 
+                                       @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterShelters" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <select class="form-select" @onchange="FilterByCountry">
+                                <option value="">All Countries</option>
+                                @if (availableCountries != null)
+                                {
+                                    @foreach (var country in availableCountries)
+                                    {
+                                        <option value="@country">@country</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Shelter Name</th>
+                                    <th>Location</th>
+                                    <th>Country</th>
+                                    <th>Contact</th>
+                                    <th>Email</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var shelter in filteredShelters ?? shelters)
+                                {
+                                    <tr>
+                                        <td><strong>@shelter.ShelterName</strong></td>
+                                        <td>@shelter.Location</td>
+                                        <td>@shelter.Country</td>
+                                        <td>@shelter.PhoneNumber</td>
+                                        <td>@shelter.Email</td>
+                                        <td class="text-center">
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <button class="btn btn-outline-primary action-view" title="View Details"
+                                                        @onclick="() => ShowViewModal(shelter)">
+                                                    <i class="fa fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-outline-success action-edit" title="Edit"
+                                                        @onclick="() => ShowEditModal(shelter)">
+                                                    <i class="fa fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger action-delete" title="Delete"
+                                                        @onclick="() => ShowDeleteConfirmation(shelter)">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-3 d-flex justify-content-between align-items-center">
+                        <p class="text-muted mb-0">
+                            <i class="fa fa-home"></i> Total Shelters: <strong>@shelters.Count()</strong>
+                            @if (filteredShelters != null)
+                            {
+                                <span> | Filtered: <strong>@filteredShelters.Count()</strong></span>
+                            }
+                        </p>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <div class="alert alert-info d-inline-block">
+                            <i class="fa fa-info-circle"></i> No shelters found in the system.
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Create/Edit Modal -->
+    @if (showModal)
+    {
+        <ModalHelper OnClose="CloseModal" ModalId="edit-modal" />
+        <div id="edit-modal" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">
+                            <i class="fa fa-@(isEditMode ? "edit" : "plus-circle")"></i>
+                            @(isEditMode ? "Edit Shelter" : "Create New Shelter")
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" @onclick="CloseModal" aria-label="Close">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <EditForm Model="editingShelter" OnValidSubmit="SaveShelter">
+                            <DataAnnotationsValidator />
+                            
+                            <!-- Basic Information Section -->
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="fa fa-home"></i> Basic Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">
+                                                Shelter Name
+                                                @if (!isEditMode)
+                                                {
+                                                    <span class="text-danger">*</span>
+                                                }
+                                            </label>
+                                            @if (isEditMode)
+                                            {
+                                                <input type="text" class="form-control" value="@editingShelter!.PartitionKey" disabled />
+                                            }
+                                            else
+                                            {
+                                                <InputText @bind-Value="editingShelter!.PartitionKey" class="form-control" placeholder="Enter shelter name" />
+                                                <ValidationMessage For="@(() => editingShelter!.PartitionKey)" class="text-danger" />
+                                            }
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">
+                                                City/Town
+                                                @if (!isEditMode)
+                                                {
+                                                    <span class="text-danger">*</span>
+                                                }
+                                            </label>
+                                            @if (isEditMode)
+                                            {
+                                                <input type="text" class="form-control" value="@editingShelter!.RowKey" disabled />
+                                            }
+                                            else
+                                            {
+                                                <InputText @bind-Value="editingShelter!.RowKey" class="form-control" placeholder="Enter city/town" />
+                                                <ValidationMessage For="@(() => editingShelter!.RowKey)" class="text-danger" />
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Country <span class="text-danger">*</span></label>
+                                            <CountryDropdown @bind-Value="editingShelter!.Country" CssClass="form-select" />
+                                            <ValidationMessage For="@(() => editingShelter!.Country)" class="text-danger" />
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                            <InputText @bind-Value="editingShelter!.PhoneNumber" class="form-control" 
+                                                       placeholder="+1234567890" />
+                                            <ValidationMessage For="@(() => editingShelter!.PhoneNumber)" class="text-danger" />
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Email <span class="text-danger">*</span></label>
+                                        <InputText @bind-Value="editingShelter!.Email" class="form-control" 
+                                                   type="email" placeholder="shelter@example.com" />
+                                        <ValidationMessage For="@(() => editingShelter!.Email)" class="text-danger" />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Address <span class="text-danger">*</span></label>
+                                        <InputTextArea @bind-Value="editingShelter!.Address" class="form-control" rows="2" 
+                                                       placeholder="Street address, city, state, zip" />
+                                        <ValidationMessage For="@(() => editingShelter!.Address)" class="text-danger" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Social Media Section -->
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="fa fa-share-alt"></i> Social Media & Website</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">Website</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fa fa-globe"></i></span>
+                                            <InputText @bind-Value="editingShelter!.Website" class="form-control" 
+                                                       placeholder="https://example.com" />
+                                        </div>
+                                        <ValidationMessage For="@(() => editingShelter!.Website)" class="text-danger" />
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Facebook</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fa fa-facebook"></i></span>
+                                                <InputText @bind-Value="editingShelter!.Facebook" class="form-control" 
+                                                           placeholder="https://facebook.com/..." />
+                                            </div>
+                                            <ValidationMessage For="@(() => editingShelter!.Facebook)" class="text-danger" />
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Instagram</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fa fa-instagram"></i></span>
+                                                <InputText @bind-Value="editingShelter!.Instagram" class="form-control" 
+                                                           placeholder="https://instagram.com/..." />
+                                            </div>
+                                            <ValidationMessage For="@(() => editingShelter!.Instagram)" class="text-danger" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <ValidationSummary class="text-danger" />
+                            
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" @onclick="CloseModal">
+                                    <i class="fa fa-times"></i> Cancel
+                                </button>
+                                <button type="submit" class="btn btn-primary" disabled="@isSaving">
+                                    @if (isSaving)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2"></span>
+                                    }
+                                    <i class="fa fa-save"></i> @(isEditMode ? "Update" : "Create") Shelter
+                                </button>
+                            </div>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- View Details Modal -->
+    @if (showViewModal && viewingShelter != null)
+    {
+        <ModalHelper OnClose="CloseViewModal" ModalId="view-modal" />
+        <div id="view-modal" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">
+                            <i class="fa fa-home"></i> Shelter Details
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" @onclick="CloseViewModal" aria-label="Close">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card mb-3">
+                                    <div class="card-header bg-light">
+                                        <strong>Basic Information</strong>
+                                    </div>
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item"><strong>Name:</strong> @viewingShelter.ShelterName</li>
+                                        <li class="list-group-item"><strong>Location:</strong> @viewingShelter.Location</li>
+                                        <li class="list-group-item"><strong>Country:</strong> @viewingShelter.Country</li>
+                                        <li class="list-group-item"><strong>Phone:</strong> @viewingShelter.PhoneNumber</li>
+                                        <li class="list-group-item"><strong>Email:</strong> @viewingShelter.Email</li>
+                                        <li class="list-group-item"><strong>Address:</strong> @viewingShelter.Address</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card mb-3">
+                                    <div class="card-header bg-light">
+                                        <strong>Additional Information</strong>
+                                    </div>
+                                    <ul class="list-group list-group-flush">
+                                        @if (viewingShelter.LastUpdated.HasValue)
+                                        {
+                                            <li class="list-group-item">
+                                                <strong>Last Updated:</strong> @viewingShelter.LastUpdated.Value.ToString("g")
+                                            </li>
+                                        }
+                                        @if (!string.IsNullOrEmpty(viewingShelter.Website))
+                                        {
+                                            <li class="list-group-item">
+                                                <strong>Website:</strong> 
+                                                <a href="@viewingShelter.Website" target="_blank">@viewingShelter.Website</a>
+                                            </li>
+                                        }
+                                        @if (!string.IsNullOrEmpty(viewingShelter.Facebook))
+                                        {
+                                            <li class="list-group-item">
+                                                <strong>Facebook:</strong> 
+                                                <a href="@viewingShelter.Facebook" target="_blank">@viewingShelter.Facebook</a>
+                                            </li>
+                                        }
+                                        @if (!string.IsNullOrEmpty(viewingShelter.Instagram))
+                                        {
+                                            <li class="list-group-item">
+                                                <strong>Instagram:</strong> 
+                                                <a href="@viewingShelter.Instagram" target="_blank">@viewingShelter.Instagram</a>
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CloseViewModal">
+                            <i class="fa fa-times"></i> Close
+                        </button>
+                        <button type="button" class="btn btn-primary" @onclick="() => ShowEditModal(viewingShelter)">
+                            <i class="fa fa-edit"></i> Edit Shelter
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Delete Confirmation Modal -->
+    @if (showDeleteModal && deletingShelter != null)
+    {
+        <ModalHelper OnClose="CloseDeleteModal" ModalId="delete-modal" />
+        <div id="delete-modal" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title">
+                            <i class="fa fa-exclamation-triangle"></i> Confirm Delete
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" @onclick="CloseDeleteModal" aria-label="Close">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete the following shelter?</p>
+                        <div class="alert alert-warning">
+                            <strong>Name:</strong> @deletingShelter.ShelterName<br />
+                            <strong>Location:</strong> @deletingShelter.Location
+                        </div>
+                        <p class="text-danger"><strong>This action cannot be undone!</strong></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CloseDeleteModal">
+                            <i class="fa fa-times"></i> Cancel
+                        </button>
+                        <button type="button" class="btn btn-danger" @onclick="ConfirmDelete" disabled="@isDeleting">
+                            @if (isDeleting)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2"></span>
+                            }
+                            <i class="fa fa-trash"></i> Delete Shelter
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    // Serialization-safe DTO class
+    private class ShelterDto
+    {
+        public required string ShelterName { get; set; }
+        public required string Location { get; set; }
+        public required string Country { get; set; }
+        public required string PhoneNumber { get; set; }
+        public required string Address { get; set; }
+        public required string Email { get; set; }
+        public string? Website { get; set; }
+        public string? Facebook { get; set; }
+        public string? Instagram { get; set; }
+        public DateTimeOffset? LastUpdated { get; set; }
+        public ETag OriginalETag { get; set; }
+    }
+
+    private List<ShelterDto>? shelters;
+    private List<ShelterDto>? filteredShelters;
+    private List<string>? availableCountries;
+    private bool isLoading = true;
+    private string? successMessage;
+    private string? errorMessage;
+    
+    // Modal states
+    private bool showModal = false;
+    private bool showViewModal = false;
+    private bool showDeleteModal = false;
+    private bool isEditMode = false;
+    private bool isSaving = false;
+    private bool isDeleting = false;
+    
+    // Edit/Create state
+    private Shelter? editingShelter;
+    private ShelterDto? viewingShelter;
+    private ShelterDto? deletingShelter;
+    
+    // Filter states
+    private string searchTerm = string.Empty;
+    private string? selectedCountry;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadShelters();
+    }
+
+    private async Task LoadShelters()
+    {
+        isLoading = true;
+        try
+        {
+            var allShelters = await ShelterService.GetAllSheltersAsync();
+            shelters = new List<ShelterDto>();
+
+            foreach (var shelter in allShelters)
+            {
+                shelters.Add(new ShelterDto
+                {
+                    ShelterName = shelter.PartitionKey,
+                    Location = shelter.RowKey,
+                    Country = shelter.Country,
+                    PhoneNumber = shelter.PhoneNumber,
+                    Address = shelter.Address,
+                    Email = shelter.Email,
+                    Website = shelter.Website,
+                    Facebook = shelter.Facebook,
+                    Instagram = shelter.Instagram,
+                    LastUpdated = shelter.Timestamp,
+                    OriginalETag = shelter.ETag
+                });
+            }
+
+            // Extract unique countries for filter
+            availableCountries = shelters.Select(s => s.Country).Distinct().OrderBy(c => c).ToList();
+            
+            filteredShelters = null;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Failed to load shelters: " + ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void FilterShelters()
+    {
+        ApplyFilters();
+    }
+
+    private void FilterByCountry(ChangeEventArgs e)
+    {
+        selectedCountry = e.Value?.ToString();
+        ApplyFilters();
+    }
+
+    private void ApplyFilters()
+    {
+        if (shelters == null) return;
+
+        var filtered = shelters.AsEnumerable();
+
+        // Search filter
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            filtered = filtered.Where(x => 
+                x.ShelterName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                x.Location.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                x.Country.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                x.PhoneNumber.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                x.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Country filter
+        if (!string.IsNullOrEmpty(selectedCountry))
+        {
+            filtered = filtered.Where(x => x.Country == selectedCountry);
+        }
+
+        filteredShelters = filtered.ToList();
+    }
+
+    private void ShowCreateModal()
+    {
+        var defaultCountry = Configuration["DefaultCountryValue"] ?? string.Empty;
+
+        editingShelter = new Shelter
+        {
+            PartitionKey = string.Empty,
+            RowKey = string.Empty,
+            Country = defaultCountry,
+            PhoneNumber = string.Empty,
+            Address = string.Empty,
+            Email = string.Empty
+        };
+        isEditMode = false;
+        showModal = true;
+        ClearMessages();
+    }
+
+    private void ShowEditModal(ShelterDto shelterDto)
+    {
+        editingShelter = new Shelter
+        {
+            PartitionKey = shelterDto.ShelterName,
+            RowKey = shelterDto.Location,
+            Country = shelterDto.Country,
+            PhoneNumber = shelterDto.PhoneNumber,
+            Address = shelterDto.Address,
+            Email = shelterDto.Email,
+            Website = shelterDto.Website,
+            Facebook = shelterDto.Facebook,
+            Instagram = shelterDto.Instagram,
+            ETag = shelterDto.OriginalETag
+        };
+        isEditMode = true;
+        showModal = true;
+        showViewModal = false;
+        ClearMessages();
+    }
+
+    private void ShowViewModal(ShelterDto shelterDto)
+    {
+        viewingShelter = shelterDto;
+        showViewModal = true;
+        ClearMessages();
+    }
+
+    private void ShowDeleteConfirmation(ShelterDto shelterDto)
+    {
+        deletingShelter = shelterDto;
+        showDeleteModal = true;
+        ClearMessages();
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
+        editingShelter = null;
+    }
+
+    private void CloseViewModal()
+    {
+        showViewModal = false;
+        viewingShelter = null;
+    }
+
+    private void CloseDeleteModal()
+    {
+        showDeleteModal = false;
+        deletingShelter = null;
+    }
+
+    private void ClearMessages()
+    {
+        successMessage = null;
+        errorMessage = null;
+    }
+
+    private async Task SaveShelter()
+    {
+        if (editingShelter == null) return;
+
+        isSaving = true;
+        ClearMessages();
+        
+        try
+        {
+            if (isEditMode)
+            {
+                await ShelterService.UpdateShelterAsync(editingShelter);
+                successMessage = $"Shelter {editingShelter.PartitionKey} updated successfully";
+            }
+            else
+            {
+                await ShelterService.AddShelterAsync(editingShelter);
+                successMessage = $"Shelter {editingShelter.PartitionKey} created successfully";
+            }
+            
+            CloseModal();
+            await LoadShelters();
+            ApplyFilters();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to save shelter: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private async Task ConfirmDelete()
+    {
+        if (deletingShelter == null || shelters == null) return;
+
+        isDeleting = true;
+        try
+        {
+            await ShelterService.DeleteShelterAsync(deletingShelter.ShelterName, deletingShelter.Location);
+            
+            successMessage = $"Shelter {deletingShelter.ShelterName} deleted successfully";
+            CloseDeleteModal();
+            await LoadShelters();
+            ApplyFilters();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to delete shelter: {ex.Message}";
+        }
+        finally
+        {
+            isDeleting = false;
+        }
+    }
+}

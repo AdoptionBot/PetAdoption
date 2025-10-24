@@ -216,16 +216,40 @@
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">User Name <span class="text-danger">*</span></label>
-                                            <InputText @bind-Value="editingUser!.PartitionKey" class="form-control" 
-                                                       placeholder="Enter user name" disabled="@isEditMode" />
-                                            <ValidationMessage For="@(() => editingUser!.PartitionKey)" class="text-danger" />
+                                            <label class="form-label">
+                                                User Name
+                                                @if (!isEditMode)
+                                                {
+                                                    <span class="text-danger">*</span>
+                                                }
+                                            </label>
+                                            @if (isEditMode)
+                                            {
+                                                <input type="text" class="form-control" value="@editingUser!.PartitionKey" disabled />
+                                            }
+                                            else
+                                            {
+                                                <InputText @bind-Value="editingUser!.PartitionKey" class="form-control" placeholder="Enter user name" />
+                                                <ValidationMessage For="@(() => editingUser!.PartitionKey)" class="text-danger" />
+                                            }
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Email <span class="text-danger">*</span></label>
-                                            <InputText @bind-Value="editingUser!.RowKey" class="form-control" 
-                                                       type="email" placeholder="user@example.com" disabled="@isEditMode" />
-                                            <ValidationMessage For="@(() => editingUser!.RowKey)" class="text-danger" />
+                                            <label class="form-label">
+                                                Email
+                                                @if (!isEditMode)
+                                                {
+                                                    <span class="text-danger">*</span>
+                                                }
+                                            </label>
+                                            @if (isEditMode)
+                                            {
+                                                <input type="email" class="form-control" value="@editingUser!.RowKey" disabled />
+                                            }
+                                            else
+                                            {
+                                                <InputText @bind-Value="editingUser!.RowKey" class="form-control" type="email" placeholder="user@example.com" />
+                                                <ValidationMessage For="@(() => editingUser!.RowKey)" class="text-danger" />
+                                            }
                                         </div>
                                     </div>
                                     <div class="row">
@@ -288,15 +312,20 @@
                                                 </label>
                                             </div>
                                         </div>
-                                        <div class="col-md-6 mb-3">
-                                            <div class="form-check form-switch">
-                                                <InputCheckbox @bind-Value="editingUser!.IsProfileCompleted" 
-                                                              class="form-check-input" id="profileCompleted" />
-                                                <label class="form-check-label" for="profileCompleted">
-                                                    Profile Completed
-                                                </label>
+                                        @if (isEditMode)
+                                        {
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Profile Status</label>
+                                                <div class="form-check form-switch mt-2">
+                                                    <input type="checkbox" class="form-check-input" id="profileCompleted"
+                                                           checked="@editingUser!.IsProfileCompleted" disabled />
+                                                    <label class="form-check-label" for="profileCompleted">
+                                                        Profile Completed
+                                                    </label>
+                                                </div>
+                                                <small class="form-text text-muted">Automatically set by user profile completion</small>
                                             </div>
-                                        </div>
+                                        }
                                     </div>
                                 </div>
                             </div>
