@@ -1,4 +1,4 @@
-@inject IJSRuntime JSRuntime
+@inject IJsModuleService JsModuleService
 @implements IAsyncDisposable
 
 @code {
@@ -16,7 +16,7 @@
         if (firstRender)
         {
             dotNetRef = DotNetObjectReference.Create(this);
-            jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./js/modal-helper.js");
+            jsModule = await JsModuleService.ImportModuleAsync("./js/modal-helper.js");
             await jsModule.InvokeVoidAsync("initializeModal", ModalId, dotNetRef);
         }
     }

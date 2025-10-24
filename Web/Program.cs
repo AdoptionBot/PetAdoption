@@ -77,6 +77,10 @@ namespace PetAdoption.Web
                 options.KeepAliveInterval = TimeSpan.FromSeconds(15);
             });
 
+            // Services for static asset versioning and JS module loading
+            builder.Services.AddSingleton<IStaticAssetService, StaticAssetService>();
+            builder.Services.AddScoped<IJsModuleService, JsModuleService>();
+
             var app = builder.Build();
 
             // Configure middleware pipeline
