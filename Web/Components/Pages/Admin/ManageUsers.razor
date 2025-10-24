@@ -8,6 +8,7 @@
 @attribute [Authorize(Policy = "AdminOnly")]
 @inject IUserService UserService
 @inject IShelterService ShelterService
+@inject IConfiguration Configuration
 @rendermode InteractiveServer
 
 <PageTitle>Manage Users - Admin</PageTitle>
@@ -236,8 +237,7 @@
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Country <span class="text-danger">*</span></label>
-                                            <InputText @bind-Value="editingUser!.Country" class="form-control" 
-                                                       placeholder="Country code (e.g., US)" />
+                                            <CountryDropdown @bind-Value="editingUser!.Country" CssClass="form-select" />
                                             <ValidationMessage For="@(() => editingUser!.Country)" class="text-danger" />
                                         </div>
                                     </div>
@@ -763,13 +763,15 @@
 
     private void ShowCreateModal()
     {
+        var defaultCountry = Configuration["DefaultCountryValue"] ?? string.Empty;
+
         editingUser = new User
         {
             PartitionKey = string.Empty,
             RowKey = string.Empty,
             PhoneNumber = string.Empty,
             Address = string.Empty,
-            Country = string.Empty,
+            Country = defaultCountry,
             Role = UserRole.User,
             IsAccountDisabled = false,
             IsFoster = false,
