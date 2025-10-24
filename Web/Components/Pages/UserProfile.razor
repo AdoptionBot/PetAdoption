@@ -58,16 +58,15 @@
                             <!-- User Form Section -->
                             <div class="mb-4">
                                 <h5 class="border-bottom pb-2">User Information</h5>
-                                
+
                                 <div class="mb-3">
                                     <label class="form-label">Email</label>
                                     <input type="email" class="form-control" value="@currentUser.RowKey" disabled />
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">User Name <span class="text-danger">*</span></label>
-                                    <InputText @bind-Value="currentUser.PartitionKey" class="form-control" />
-                                    <ValidationMessage For="@(() => currentUser.PartitionKey)" />
+                                    <label class="form-label">User Name</label>
+                                    <input type="text" class="form-control" value="@currentUser.PartitionKey" disabled />
                                 </div>
 
                                 <div class="mb-3">

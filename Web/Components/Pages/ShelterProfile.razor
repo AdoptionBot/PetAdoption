@@ -49,15 +49,29 @@
                                 <h5 class="border-bottom pb-2">Shelter Information</h5>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Shelter Name <span class="text-danger">*</span></label>
-                                    <InputText @bind-Value="currentShelter.PartitionKey" class="form-control" />
-                                    <ValidationMessage For="@(() => currentShelter.PartitionKey)" />
+                                    <label class="form-label">Shelter Name @(!IsExistingShelter ? "<span class=\"text-danger\">*</span>" : "")</label>
+                                    @if (IsExistingShelter)
+                                    {
+                                        <input type="text" class="form-control" value="@currentShelter.PartitionKey" disabled />
+                                    }
+                                    else
+                                    {
+                                        <InputText @bind-Value="currentShelter.PartitionKey" class="form-control" />
+                                        <ValidationMessage For="@(() => currentShelter.PartitionKey)" />
+                                    }
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Shelter City/Town <span class="text-danger">*</span></label>
-                                    <InputText @bind-Value="currentShelter.RowKey" class="form-control" />
-                                    <ValidationMessage For="@(() => currentShelter.RowKey)" />
+                                    <label class="form-label">Shelter City/Town @(!IsExistingShelter ? "<span class=\"text-danger\">*</span>" : "")</label>
+                                    @if (IsExistingShelter)
+                                    {
+                                        <input type="text" class="form-control" value="@currentShelter.RowKey" disabled />
+                                    }
+                                    else
+                                    {
+                                        <InputText @bind-Value="currentShelter.RowKey" class="form-control" />
+                                        <ValidationMessage For="@(() => currentShelter.RowKey)" />
+                                    }
                                 </div>
 
                                 <div class="mb-3">
@@ -133,6 +147,9 @@
     private bool isSaving = false;
     private string? successMessage;
     private string? errorMessage;
+
+    private bool IsExistingShelter => !string.IsNullOrEmpty(currentShelter?.ETag.ToString()) 
+                                       && currentShelter.ETag != default;
 
     protected override async Task OnInitializedAsync()
     {
