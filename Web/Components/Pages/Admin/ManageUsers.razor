@@ -205,7 +205,7 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <EditForm Model="editingUser" OnValidSubmit="SaveUser">
+                        <ValidatedForm Model="editingUser" OnValidSubmit="SaveUser" IsModal="true" ModalId="edit-modal">
                             <DataAnnotationsValidator />
                             
                             <!-- Basic Information Section -->
@@ -417,7 +417,7 @@
                                     <i class="fa fa-save"></i> @(isEditMode ? "Update" : "Create") User
                                 </button>
                             </div>
-                        </EditForm>
+                        </ValidatedForm>
                     </div>
                 </div>
             </div>

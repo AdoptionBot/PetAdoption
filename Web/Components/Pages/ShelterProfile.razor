@@ -31,7 +31,7 @@
                     }
                     else if (currentShelter != null)
                     {
-                        <EditForm Model="currentShelter" OnValidSubmit="HandleValidSubmit">
+                        <ValidatedForm Model="currentShelter" OnValidSubmit="HandleValidSubmit" ScrollToTopOnValidation="true">
                             <DataAnnotationsValidator />
                             <ValidationSummary class="alert alert-danger" />
 
@@ -126,7 +126,7 @@
                                     Save Shelter
                                 </button>
                             </div>
-                        </EditForm>
+                        </ValidatedForm>
                     }
                     else
                     {
@@ -220,16 +220,10 @@
             await UserService.UpdateUserAsync(currentUser);
 
             successMessage = "Shelter information saved successfully!";
-            
-            // Scroll to top of page using shared function
-            await JSRuntime.InvokeVoidAsync("scrollToTopInstant");
         }
         catch (Exception ex)
         {
             errorMessage = "Failed to save shelter information: " + ex.Message;
-            
-            // Scroll to top to show error message
-            await JSRuntime.InvokeVoidAsync("scrollToTopInstant");
         }
         finally
         {

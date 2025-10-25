@@ -41,7 +41,8 @@
                     }
                     else if (currentUser != null)
                     {
-                        <EditForm Model="currentUser" OnValidSubmit="HandleValidSubmit">
+                        <!-- Replace EditForm with ValidatedForm for consistency -->
+                        <ValidatedForm Model="currentUser" OnValidSubmit="HandleValidSubmit" ScrollToTopOnValidation="true">
                             <DataAnnotationsValidator />
                             <ValidationSummary class="alert alert-danger" />
 
@@ -125,7 +126,7 @@
                                     Save Changes
                                 </button>
                             </div>
-                        </EditForm>
+                        </ValidatedForm>
                     }
                     else
                     {
@@ -223,17 +224,11 @@
             
             // Notify other components that profile is completed
             ProfileState.NotifyProfileCompleted();
-            
-            // Scroll to top of page using shared function
-            await JSRuntime.InvokeVoidAsync("scrollToTopInstant");
         }
         catch (Exception ex)
         {
             errorMessage = "Failed to update profile: " + ex.Message;
             currentUser.IsProfileCompleted = false;
-            
-            // Scroll to top to show error message
-            await JSRuntime.InvokeVoidAsync("scrollToTopInstant");
         }
         finally
         {
