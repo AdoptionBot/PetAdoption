@@ -255,7 +255,16 @@
                                 </div>
 
                                 <div class="row">
-                                    <div class="col-md-6 mb-3">
+                                    <div class="col-md-4 mb-3">
+                                        <div class="form-check">
+                                            <InputCheckbox @bind-Value="currentPet.Neutered" class="form-check-input" id="neutered" />
+                                            <label class="form-check-label" for="neutered">
+                                                Neutered/Spayed
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4 mb-3">
                                         <div class="form-check">
                                             <InputCheckbox @bind-Value="currentPet.Dewormed" class="form-check-input" id="dewormed" />
                                             <label class="form-check-label" for="dewormed">
@@ -264,7 +273,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-6 mb-3">
+                                    <div class="col-md-4 mb-3">
                                         <div class="form-check">
                                             <InputCheckbox @bind-Value="currentPet.Chipped" class="form-check-input" id="chipped" />
                                             <label class="form-check-label" for="chipped">

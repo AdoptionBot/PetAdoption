@@ -56,6 +56,7 @@ namespace PetAdoption.Data.TableStorage
         [StringLength(1000, ErrorMessage = "Known medical issues cannot exceed 1000 characters.")]
         public string? KnownMedicalIssues { get; set; }
 
+        public bool Neutered { get; set; }
         public bool Dewormed { get; set; }
         public bool Chipped { get; set; }
 
@@ -92,7 +93,7 @@ namespace PetAdoption.Data.TableStorage
 
         public Pet(string name, DateTime birthDate, string? species, string? breed, string? colour, Gender gender, Size size,
             string about, AdoptionStatus adoptionStatus, Vaccinations vaccinations, string? medicalTreatments,
-            string? knownMedicalIssues, bool dewormed, bool chipped, string shelterName, string shelterLocation)
+            string? knownMedicalIssues, bool neutered, bool dewormed, bool chipped, string shelterName, string shelterLocation)
         {
             PartitionKey = name;
             RowKey = birthDate.ToString("yyyy-MM-dd");
@@ -108,6 +109,7 @@ namespace PetAdoption.Data.TableStorage
             KnownMedicalIssues = knownMedicalIssues;
             Dewormed = dewormed;
             Chipped = chipped;
+            Neutered = neutered;
             ShelterName = shelterName;
             ShelterLocation = shelterLocation;
         }
