@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Components.Authorization
 @inject IJSRuntime JS
+@inject IConfiguration Configuration
 
 <PageTitle>Home - Madeira Pet Adoption</PageTitle>
 
@@ -10,17 +11,15 @@
         <div class="row">
             <div class="col-md-6 d-flex align-items-center">
                 <p class="mb-0 phone pl-md-2">
-                    <a href="#" class="mr-2"><span class="fa fa-phone mr-1"></span> +351 xxx xxx xxx</a>
-                    <a href="#"><span class="fa fa-paper-plane mr-1"></span> info@petadoption.com</a>
+                    <a href="mailto:@organizationEmail?subject=Pet%20Adoption%20Inquiry"><span class="fa fa-paper-plane mr-1"></span> @organizationEmail</a>
                 </p>
             </div>
             <div class="col-md-6 d-flex justify-content-md-end">
                 <div class="social-media">
                     <p class="mb-0 d-flex">
-                        <a href="#" class="d-flex align-items-center justify-content-center"><span class="fa fa-facebook"><i class="sr-only">Facebook</i></span></a>
-                        <a href="#" class="d-flex align-items-center justify-content-center"><span class="fa fa-twitter"><i class="sr-only">Twitter</i></span></a>
-                        <a href="#" class="d-flex align-items-center justify-content-center"><span class="fa fa-instagram"><i class="sr-only">Instagram</i></span></a>
-                        <a href="#" class="d-flex align-items-center justify-content-center"><span class="fa fa-dribbble"><i class="sr-only">Dribbble</i></span></a>
+                        <a href="@facebookUrl" class="d-flex align-items-center justify-content-center"><span class="fa-brands fa-facebook"><i class="sr-only">Facebook</i></span></a>
+                        <a href="@xUrl" class="d-flex align-items-center justify-content-center"><span class="fa-brands fa-x-twitter"><i class="sr-only">X</i></span></a>
+                        <a href="@instagramUrl" class="d-flex align-items-center justify-content-center"><span class="fa-brands fa-instagram"><i class="sr-only">Instagram</i></span></a>
                     </p>
                 </div>
             </div>
@@ -716,6 +715,19 @@
 </section>
 
 @code {
+    private string organizationEmail = string.Empty;
+    private string facebookUrl = string.Empty;
+    private string xUrl = string.Empty;
+    private string instagramUrl = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        organizationEmail = Configuration["OrganizationEmail"] ?? String.Empty;
+        facebookUrl = Configuration["FacebookUrl"] ?? String.Empty;
+        xUrl = Configuration["XUrl"] ?? String.Empty;
+        instagramUrl = Configuration["InstagramUrl"] ?? String.Empty;
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
