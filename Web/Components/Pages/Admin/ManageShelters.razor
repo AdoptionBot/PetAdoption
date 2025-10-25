@@ -158,7 +158,7 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <EditForm Model="editingShelter" OnValidSubmit="SaveShelter">
+                        <ValidatedForm Model="editingShelter" OnValidSubmit="SaveShelter">
                             <DataAnnotationsValidator />
                             
                             <!-- Basic Information Section -->
@@ -285,7 +285,7 @@
                                     <i class="fa fa-save"></i> @(isEditMode ? "Update" : "Create") Shelter
                                 </button>
                             </div>
-                        </EditForm>
+                        </ValidatedForm>
                     </div>
                 </div>
             </div>
