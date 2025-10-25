@@ -5,7 +5,7 @@
 @using PetAdoption.Data.TableStorage.Enums
 @using PetAdoption.Web.Components.Shared
 @using Microsoft.AspNetCore.WebUtilities
-@attribute [Authorize(Roles = "Shelter")]
+@attribute [Authorize(Roles = "Shelter,Admin")]
 @inject IUserService UserService
 @inject IShelterService ShelterService
 @inject IPetService PetService
