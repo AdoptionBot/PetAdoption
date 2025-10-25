@@ -359,3 +359,43 @@
     border-color: #000 !important;
     color: #fff !important;
 }
+
+/* ===================================
+   SHELTER MANAGEMENT PAGE SPECIFIC STYLES
+   =================================== */
+
+/* Action Button Styles - View (Blue) */
+.shelter-management-page .btn-outline-primary.action-view {
+    border-color: #000 !important;
+    color: #007bff !important;
+}
+
+.shelter-management-page .btn-outline-primary.action-view:hover {
+    background-color: #007bff !important;
+    border-color: #000 !important;
+    color: #fff !important;
+}
+
+/* Action Button Styles - Edit (Green) */
+.shelter-management-page .btn-outline-success.action-edit {
+    border-color: #000 !important;
+    color: #00bd56 !important;
+}
+
+.shelter-management-page .btn-outline-success.action-edit:hover {
+    background-color: #00bd56 !important;
+    border-color: #000 !important;
+    color: #fff !important;
+}
+
+/* Action Button Styles - Delete (Red) */
+.shelter-management-page .btn-outline-danger.action-delete {
+    border-color: #000 !important;
+    color: #dc3545 !important;
+}
+
+.shelter-management-page .btn-outline-danger.action-delete:hover {
+    background-color: #dc3545 !important;
+    border-color: #000 !important;
+    color: #fff !important;
+}
