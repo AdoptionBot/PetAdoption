@@ -43,22 +43,28 @@
                                 <span class="fa fa-user mr-1"></span><span class="nav-text">Profile</span>
                             </NavLink>
                         </li>
-                        <AuthorizeView Roles="Shelter" Context="shelterContext">
+                        <AuthorizeView Roles="Shelter,Admin" Context="shelterContext">
                             <Authorized>
-                                <li class="nav-item">
-                                    <NavLink class="nav-link" href="/shelter">
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle @GetDisabledClass()" href="#" id="shelterDropdown" role="button" 
+                                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" 
+                                       @onclick:preventDefault="@(!isProfileComplete)">
                                         <span class="fa fa-home mr-1"></span><span class="nav-text">Shelter</span>
-                                    </NavLink>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link @GetDisabledClass()" href="/mypets" @onclick='() => HandleNavigationClick("/mypets")' @onclick:preventDefault="true">
-                                        <span class="fa fa-list mr-1"></span><span class="nav-text">My Pets</span>
                                     </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link @GetDisabledClass()" href="/addpet" @onclick='() => HandleNavigationClick("/addpet")' @onclick:preventDefault="true">
-                                        <span class="fa fa-plus-circle mr-1"></span><span class="nav-text">Add Pet</span>
-                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="shelterDropdown">
+                                        <a class="dropdown-item @GetDisabledClass()" href="/shelter" 
+                                           @onclick='() => HandleNavigationClick("/shelter")' @onclick:preventDefault="true">
+                                            <span class="fa fa-building mr-1"></span> Shelter Details
+                                        </a>
+                                        <a class="dropdown-item @GetDisabledClass()" href="/mypets" 
+                                           @onclick='() => HandleNavigationClick("/mypets")' @onclick:preventDefault="true">
+                                            <span class="fa fa-paw mr-1"></span> My Pets
+                                        </a>
+                                        <a class="dropdown-item @GetDisabledClass()" href="/addpet" 
+                                           @onclick='() => HandleNavigationClick("/addpet")' @onclick:preventDefault="true">
+                                            <span class="fa fa-plus-circle mr-1"></span> Add Pet
+                                        </a>
+                                    </div>
                                 </li>
                             </Authorized>
                         </AuthorizeView>
