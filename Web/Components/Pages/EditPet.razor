@@ -76,8 +76,13 @@
 
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
-                                        <label class="form-label">Species (Optional)</label>
-                                        <InputText @bind-Value="currentPet.Species" class="form-control" placeholder="e.g., Dog, Cat" />
+                                        <label class="form-label">Species <span class="text-danger">*</span></label>
+                                        <InputSelect @bind-Value="currentPet.Species" class="form-select">
+                                            @foreach (Species species in Enum.GetValues(typeof(Species)))
+                                            {
+                                                <option value="@species">@species</option>
+                                            }
+                                        </InputSelect>
                                         <ValidationMessage For="@(() => currentPet.Species)" />
                                     </div>
 

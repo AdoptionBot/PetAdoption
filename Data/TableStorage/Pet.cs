@@ -21,8 +21,9 @@ namespace PetAdoption.Data.TableStorage
         public ETag ETag { get; set; }
 
         // Custom properties
-        [StringLength(50, ErrorMessage = "Species cannot exceed 50 characters.")]
-        public string? Species { get; set; }
+        [Required(ErrorMessage = "Species is required.")]
+        [EnumDataType(typeof(Species), ErrorMessage = "Invalid species.")]
+        public Species Species { get; set; }
 
         [StringLength(50, ErrorMessage = "Breed cannot exceed 50 characters.")]
         public string? Breed { get; set; }
@@ -91,7 +92,7 @@ namespace PetAdoption.Data.TableStorage
         // Parameterless constructor for deserialization
         public Pet() { }
 
-        public Pet(string name, DateTime birthDate, string? species, string? breed, string? colour, Gender gender, Size size,
+        public Pet(string name, DateTime birthDate, Species species, string? breed, string? colour, Gender gender, Size size,
             string about, AdoptionStatus adoptionStatus, Vaccinations vaccinations, string? medicalTreatments,
             string? knownMedicalIssues, bool neutered, bool dewormed, bool chipped, string shelterName, string shelterLocation)
         {
@@ -107,9 +108,9 @@ namespace PetAdoption.Data.TableStorage
             Vaccinations = vaccinations;
             MedicalTreatments = medicalTreatments;
             KnownMedicalIssues = knownMedicalIssues;
+            Neutered = neutered;
             Dewormed = dewormed;
             Chipped = chipped;
-            Neutered = neutered;
             ShelterName = shelterName;
             ShelterLocation = shelterLocation;
         }

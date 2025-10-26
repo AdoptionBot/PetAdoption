@@ -298,7 +298,7 @@
                                 </tr>
                                 <tr>
                                     <th>Species:</th>
-                                    <td>@(selectedPet.Species ?? "Not specified")</td>
+                                    <td>@selectedPet.Species</td>
                                 </tr>
                                 <tr>
                                     <th>Breed:</th>
@@ -521,14 +521,14 @@
         {
             bool matchesSearch = string.IsNullOrEmpty(searchQuery) ||
                 p.PartitionKey.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
-                (p.Species?.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                p.Species.ToString().Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
                 (p.Breed?.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ?? false);
 
             bool matchesStatus = string.IsNullOrEmpty(filterStatus) ||
                 p.AdoptionStatus.ToString() == filterStatus;
 
             bool matchesSpecies = string.IsNullOrEmpty(filterSpecies) ||
-                p.Species == filterSpecies;
+                p.Species.ToString() == filterSpecies;
 
             return matchesSearch && matchesStatus && matchesSpecies;
         }).ToList();
@@ -566,13 +566,11 @@
         return Math.Min(totalPages, currentPage + 2);
     }
 
-    private List<string> GetUniqueSpecies()
+    private List<Species> GetUniqueSpecies()
     {
-        return allPets
-            .Where(p => !string.IsNullOrEmpty(p.Species))
-            .Select(p => p.Species!)
-            .Distinct()
-            .OrderBy(s => s)
+        return Enum.GetValues(typeof(Species))
+            .Cast<Species>()
+            .OrderBy(s => s.ToString())
             .ToList();
     }
 

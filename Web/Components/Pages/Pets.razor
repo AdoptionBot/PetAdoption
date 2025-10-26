@@ -114,7 +114,7 @@
                                 <div class="card-body">
                                     <h5 class="card-title">@pet.PartitionKey</h5>
                                     <p class="card-text">
-                                        <strong>Species:</strong> @(pet.Species ?? "Unknown")<br />
+                                        <strong>Species:</strong> @pet.Species<br />
                                         <strong>Age:</strong> @GetPetAge(pet.RowKey)<br />
                                         <strong>Gender:</strong> @pet.Gender
                                     </p>
@@ -234,7 +234,7 @@
                                     </tr>
                                     <tr>
                                         <th>Species:</th>
-                                        <td>@(selectedPet.Species ?? "Not specified")</td>
+                                        <td>@selectedPet.Species</td>
                                     </tr>
                                     <tr>
                                         <th>Breed:</th>
