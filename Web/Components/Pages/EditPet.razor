@@ -61,7 +61,7 @@
                             <!-- Pet Basic Information -->
                             <div class="mb-4">
                                 <h5 class="border-bottom pb-2">Basic Information</h5>
-                                
+
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Pet Name</label>
@@ -87,20 +87,6 @@
                                     </div>
 
                                     <div class="col-md-4 mb-3">
-                                        <label class="form-label">Breed (Optional)</label>
-                                        <InputText @bind-Value="currentPet.Breed" class="form-control" placeholder="e.g., Labrador, Siamese" />
-                                        <ValidationMessage For="@(() => currentPet.Breed)" />
-                                    </div>
-
-                                    <div class="col-md-4 mb-3">
-                                        <label class="form-label">Colour (Optional)</label>
-                                        <InputText @bind-Value="currentPet.Colour" class="form-control" placeholder="e.g., Brown, Black" />
-                                        <ValidationMessage For="@(() => currentPet.Colour)" />
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
                                         <label class="form-label">Gender <span class="text-danger">*</span></label>
                                         <InputSelect @bind-Value="currentPet.Gender" class="form-select">
                                             @foreach (Gender gender in Enum.GetValues(typeof(Gender)))
@@ -111,7 +97,7 @@
                                         <ValidationMessage For="@(() => currentPet.Gender)" />
                                     </div>
 
-                                    <div class="col-md-6 mb-3">
+                                    <div class="col-md-4 mb-3">
                                         <label class="form-label">Size <span class="text-danger">*</span></label>
                                         <InputSelect @bind-Value="currentPet.Size" class="form-select">
                                             @foreach (Size size in Enum.GetValues(typeof(Size)))
@@ -123,9 +109,23 @@
                                     </div>
                                 </div>
 
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Breed (Optional)</label>
+                                        <InputText @bind-Value="currentPet.Breed" class="form-control" placeholder="e.g., Labrador, Siamese" />
+                                        <ValidationMessage For="@(() => currentPet.Breed)" />
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Colour (Optional)</label>
+                                        <InputText @bind-Value="currentPet.Colour" class="form-control" placeholder="e.g., Brown, Black" />
+                                        <ValidationMessage For="@(() => currentPet.Colour)" />
+                                    </div>
+                                </div>
+
                                 <div class="mb-3">
                                     <label class="form-label">About <span class="text-danger">*</span></label>
-                                    <InputTextArea @bind-Value="currentPet.About" class="form-control" rows="4" 
+                                    <InputTextArea @bind-Value="currentPet.About" class="form-control" rows="4"
                                                    placeholder="Describe the pet's personality, behavior, and any special needs..." />
                                     <ValidationMessage For="@(() => currentPet.About)" />
                                     <small class="text-muted">@(currentPet.About?.Length ?? 0) / 2000 characters</small>
