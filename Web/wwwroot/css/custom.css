@@ -85,23 +85,18 @@
    CLOSE BUTTON ICON STYLES
    =================================== */
 
-/* Override Bootstrap's default close button to show an X icon */
+/* Bootstrap 5 close button - ensure it displays properly */
 .btn-close {
-    background: transparent;
+    opacity: 0.8;
+}
+
+.btn-close:hover {
     opacity: 1;
 }
 
-.btn-close i.fa-times {
-    font-size: 1.2rem;
-    font-weight: normal;
-}
-
+/* For alert close buttons */
 .alert .btn-close {
     padding: 0.5rem;
-}
-
-.alert .btn-close i.fa-times {
-    font-size: 1rem;
 }
 
 /* ===================================

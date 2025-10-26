@@ -51,7 +51,6 @@
                     <div class="alert alert-success alert-dismissible fade show">
                         @successMessage
                         <button type="button" class="btn-close" @onclick="() => successMessage = null" aria-label="Close">
-                            <i class="fa fa-times"></i>
                         </button>
                     </div>
                 }
@@ -61,7 +60,6 @@
                     <div class="alert alert-danger alert-dismissible fade show">
                         @errorMessage
                         <button type="button" class="btn-close" @onclick="() => errorMessage = null" aria-label="Close">
-                            <i class="fa fa-times"></i>
                         </button>
                     </div>
                 }
@@ -242,7 +240,6 @@
                         <i class="fa fa-paw"></i> @selectedPet.PartitionKey
                     </h5>
                     <button type="button" class="btn-close" @onclick="CloseModal" aria-label="Close">
-                        <i class="fa fa-times"></i>
                     </button>
                 </div>
                 <div class="modal-body">
@@ -384,7 +381,6 @@
                         <i class="fa fa-exclamation-triangle"></i> Confirm Deletion
                     </h5>
                     <button type="button" class="btn-close btn-close-white" @onclick="CloseDeleteModal" aria-label="Close">
-                        <i class="fa fa-times"></i>
                     </button>
                 </div>
                 <div class="modal-body">

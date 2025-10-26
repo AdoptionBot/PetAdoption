@@ -37,9 +37,7 @@
                     {
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
                             <i class="fa fa-check-circle"></i> @successMessage
-                            <button type="button" class="btn-close" @onclick="() => successMessage = null" aria-label="Close">
-                                <i class="fa fa-times"></i>
-                            </button>
+                            <button type="button" class="btn-close" @onclick="() => successMessage = null" aria-label="Close"></button>
                         </div>
                     }
 
@@ -47,9 +45,7 @@
                     {
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
                             <i class="fa fa-exclamation-circle"></i> @errorMessage
-                            <button type="button" class="btn-close" @onclick="() => errorMessage = null" aria-label="Close">
-                                <i class="fa fa-times"></i>
-                            </button>
+                            <button type="button" class="btn-close" @onclick="() => errorMessage = null" aria-label="Close"></button>
                         </div>
                     }
 
@@ -153,9 +149,7 @@
                             <i class="fa fa-@(isEditMode ? "edit" : "plus-circle")"></i>
                             @(isEditMode ? "Edit Shelter" : "Create New Shelter")
                         </h5>
-                        <button type="button" class="btn-close btn-close-white" @onclick="CloseModal" aria-label="Close">
-                            <i class="fa fa-times"></i>
-                        </button>
+                        <button type="button" class="btn-close btn-close-white" @onclick="CloseModal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <ValidatedForm Model="editingShelter" OnValidSubmit="SaveShelter">
@@ -314,9 +308,7 @@
                         <h5 class="modal-title">
                             <i class="fa fa-home"></i> Shelter Details
                         </h5>
-                        <button type="button" class="btn-close btn-close-white" @onclick="CloseViewModal" aria-label="Close">
-                            <i class="fa fa-times"></i>
-                        </button>
+                        <button type="button" class="btn-close btn-close-white" @onclick="CloseViewModal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <div class="row">
@@ -460,9 +452,7 @@
                         <h5 class="modal-title">
                             <i class="fa fa-exclamation-triangle"></i> Confirm Delete
                         </h5>
-                        <button type="button" class="btn-close btn-close-white" @onclick="CloseDeleteModal" aria-label="Close">
-                            <i class="fa fa-times"></i>
-                        </button>
+                        <button type="button" class="btn-close btn-close-white" @onclick="CloseDeleteModal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <p>Are you sure you want to delete the following shelter?</p>

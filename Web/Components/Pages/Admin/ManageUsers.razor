@@ -39,7 +39,6 @@
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
                             <i class="fa fa-check-circle"></i> @successMessage
                             <button type="button" class="btn-close" @onclick="() => successMessage = null" aria-label="Close">
-                                <i class="fa fa-times"></i>
                             </button>
                         </div>
                     }
@@ -49,7 +48,6 @@
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
                             <i class="fa fa-exclamation-circle"></i> @errorMessage
                             <button type="button" class="btn-close" @onclick="() => errorMessage = null" aria-label="Close">
-                                <i class="fa fa-times"></i>
                             </button>
                         </div>
                     }
@@ -201,7 +199,6 @@
                             @(isEditMode ? "Edit User" : "Create New User")
                         </h5>
                         <button type="button" class="btn-close btn-close-white" @onclick="CloseModal" aria-label="Close">
-                            <i class="fa fa-times"></i>
                         </button>
                     </div>
                     <div class="modal-body">
@@ -447,7 +444,6 @@
                             <i class="fa fa-user-circle"></i> User Details
                         </h5>
                         <button type="button" class="btn-close btn-close-white" @onclick="CloseViewModal" aria-label="Close">
-                            <i class="fa fa-times"></i>
                         </button>
                     </div>
                     <div class="modal-body">
@@ -627,7 +623,6 @@
                             <i class="fa fa-exclamation-triangle"></i> Confirm Delete
                         </h5>
                         <button type="button" class="btn-close btn-close-white" @onclick="CloseDeleteModal" aria-label="Close">
-                            <i class="fa fa-times"></i>
                         </button>
                     </div>
                     <div class="modal-body">
