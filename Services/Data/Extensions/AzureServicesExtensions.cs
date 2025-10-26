@@ -80,7 +80,8 @@ namespace PetAdoption.Services.Data.Extensions
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IShelterService, ShelterService>();
             services.AddScoped<IPetService, PetService>();
-            
+            services.AddScoped<IAdoptionApplicationService, AdoptionApplicationService>();
+
             return services;
         }
 
