@@ -375,9 +375,9 @@
 <!-- Delete Confirmation Modal -->
 @if (petToDelete != null && showDeleteModal)
 {
-    <ModalHelper OnClose="CloseDeleteModal" ModalId="delete-pet-modal" EnableVerticalScroll="true" />
+    <ModalHelper OnClose="CloseDeleteModal" ModalId="delete-pet-modal" />
     <div id="delete-pet-modal" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-        <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
                     <h5 class="modal-title">
@@ -389,20 +389,25 @@
                 </div>
                 <div class="modal-body">
                     <p>Are you sure you want to delete <strong>@petToDelete.PartitionKey</strong>?</p>
-                    <p class="text-danger mb-0">
-                        <i class="fa fa-warning"></i> This action cannot be undone. All associated images and videos will be permanently deleted from storage.
+                    <div class="alert alert-warning">
+                        <strong>Pet Name:</strong> @petToDelete.PartitionKey<br />
+                        <strong>Species:</strong> @petToDelete.Species<br />
+                        <strong>Birth Date:</strong> @DateTime.Parse(petToDelete.RowKey).ToShortDateString()
+                    </div>
+                    <p class="text-danger">
+                        <i class="fa fa-warning"></i> <strong>This action cannot be undone!</strong> All associated images and videos will be permanently deleted from storage.
                     </p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" @onclick="CloseDeleteModal" disabled="@isDeleting">
-                        Cancel
+                        <i class="fa fa-times"></i> Cancel
                     </button>
                     <button type="button" class="btn btn-danger" @onclick="ConfirmDelete" disabled="@isDeleting">
                         @if (isDeleting)
                         {
                             <span class="spinner-border spinner-border-sm me-2"></span>
                         }
-                        Delete Pet
+                        <i class="fa fa-trash"></i> Delete Pet
                     </button>
                 </div>
             </div>
@@ -444,6 +449,12 @@
         if (queryParams.TryGetValue("updated", out var updated) && updated == "true")
         {
             successMessage = "Pet updated successfully!";
+            // Remove the query parameter from the URL without reload
+            Navigation.NavigateTo("/mypets", replace: true);
+        }
+        else if (queryParams.TryGetValue("added", out var added) && added == "true")
+        {
+            successMessage = "Pet added successfully!";
             // Remove the query parameter from the URL without reload
             Navigation.NavigateTo("/mypets", replace: true);
         }
@@ -604,12 +615,12 @@
             // Delete associated media from blob storage
             var mediaUrls = new[]
             {
-                petToDelete.Image1Url,
-                petToDelete.Image2Url,
-                petToDelete.Image3Url,
-                petToDelete.Image4Url,
-                petToDelete.Video1Url
-            };
+            petToDelete.Image1Url,
+            petToDelete.Image2Url,
+            petToDelete.Image3Url,
+            petToDelete.Image4Url,
+            petToDelete.Video1Url
+        };
 
             foreach (var url in mediaUrls.Where(u => !string.IsNullOrEmpty(u)))
             {
@@ -632,13 +643,19 @@
             Logger.LogInformation("Deleted pet: {PetName}", petToDelete.PartitionKey);
 
             CloseDeleteModal();
+
+            // Reload pets after delete
             await LoadPetsAsync();
+            ApplyFilters();
+
+            // Scroll to top to show success message
             await JSRuntime.InvokeVoidAsync("scrollToTopInstant");
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error deleting pet: {PetName}", petToDelete.PartitionKey);
             errorMessage = "Failed to delete pet: " + ex.Message;
+            CloseDeleteModal();
             await JSRuntime.InvokeVoidAsync("scrollToTopInstant");
         }
         finally

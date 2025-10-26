@@ -12,6 +12,7 @@
 @inject IPetService PetService
 @inject IAzureBlobStorageService BlobStorageService
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager Navigation
 @inject IJSRuntime JSRuntime
 @inject ILogger<AddPet> Logger
 @rendermode InteractiveServer
@@ -497,36 +498,29 @@
 
             if (!isValid)
             {
-                errorMessage = "Please complete all required fields: " + 
+                errorMessage = "Please complete all required fields: " +
                     string.Join(", ", validationResults.Select(r => r.ErrorMessage));
                 return;
             }
 
             // Add pet to storage
             await PetService.AddPetAsync(currentPet);
-            
+
             isPetSaved = true;
-            successMessage = $"Pet '{currentPet.PartitionKey}' has been added successfully! You can now navigate to other pages or add another pet.";
-            
+            Logger.LogInformation("Pet '{PetName}' added successfully", currentPet.PartitionKey);
+
             // Allow navigation after pet is saved
             await JSRuntime.InvokeVoidAsync("eval", "window.petSaved = true;");
 
             // Clear the uploaded media list since the pet was saved successfully
             uploadedMediaUrls.Clear();
 
-            // Reset form for another pet
-            currentPet = new Pet
-            {
-                ShelterName = currentShelter.PartitionKey,
-                ShelterLocation = currentShelter.RowKey,
-                AdoptionStatus = AdoptionStatus.NotAdopted,
-                Vaccinations = Vaccinations.none,
-                RowKey = DateTime.Today.ToString("yyyy-MM-dd") // Set default RowKey
-            };
-            petBirthDate = DateTime.Today;
+            // Redirect to MyPets page with success message
+            Navigation.NavigateTo("/mypets?added=true", replace: true);
         }
         catch (Exception ex)
         {
+            Logger.LogError(ex, "Failed to add pet");
             errorMessage = "Failed to add pet: " + ex.Message;
             isPetSaved = false;
         }
