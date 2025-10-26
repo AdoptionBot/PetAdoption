@@ -49,11 +49,15 @@ namespace PetAdoption.Data.TableStorage
         [StringLength(256, ErrorMessage = "Instagram URL cannot exceed 256 characters.")]
         public string? Instagram { get; set; }
 
+        [OptionalUrl(ErrorMessage = "X URL must be a valid URL.")]
+        [StringLength(256, ErrorMessage = "X URL cannot exceed 256 characters.")]
+        public string? X { get; set; }
+
         // Parameterless constructor for deserialization
         public Shelter() { }
 
         public Shelter(string shelterName, string shelterCityTown, string country, string phoneNumber,
-            string address, string email, string? website, string? facebook, string? instagram)
+            string address, string email, string? website, string? facebook, string? instagram, string? x)
         {
             PartitionKey = shelterName;
             RowKey = shelterCityTown;
@@ -64,6 +68,7 @@ namespace PetAdoption.Data.TableStorage
             Website = website;
             Facebook = facebook;
             Instagram = instagram;
+            X = x;
         }
     }
 }

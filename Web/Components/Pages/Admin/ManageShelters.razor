@@ -268,6 +268,17 @@
                                             <ValidationMessage For="@(() => editingShelter!.Instagram)" class="text-danger" />
                                         </div>
                                     </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">X</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fa-brands fa-x-twitter"></i></span>
+                                                <InputText @bind-Value="editingShelter!.X" class="form-control"
+                                                           placeholder="https://x.com/..." />
+                                            </div>
+                                            <ValidationMessage For="@(() => editingShelter!.X)" class="text-danger" />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -357,6 +368,13 @@
                                                 <a href="@viewingShelter.Instagram" target="_blank">@viewingShelter.Instagram</a>
                                             </li>
                                         }
+                                        @if (!string.IsNullOrEmpty(viewingShelter.X))
+                                        {
+                                            <li class="list-group-item">
+                                                <strong>X:</strong>
+                                                <a href="@viewingShelter.X" target="_blank">@viewingShelter.X</a>
+                                            </li>
+                                        }
                                     </ul>
                                 </div>
                             </div>
@@ -429,6 +447,7 @@
         public string? Website { get; set; }
         public string? Facebook { get; set; }
         public string? Instagram { get; set; }
+        public string? X { get; set; }
         public DateTimeOffset? LastUpdated { get; set; }
         public ETag OriginalETag { get; set; }
     }
@@ -483,6 +502,7 @@
                     Website = shelter.Website,
                     Facebook = shelter.Facebook,
                     Instagram = shelter.Instagram,
+                    X = shelter.X,
                     LastUpdated = shelter.Timestamp,
                     OriginalETag = shelter.ETag
                 });
@@ -571,6 +591,7 @@
             Website = shelterDto.Website,
             Facebook = shelterDto.Facebook,
             Instagram = shelterDto.Instagram,
+            X = shelterDto.X,
             ETag = shelterDto.OriginalETag
         };
         isEditMode = true;

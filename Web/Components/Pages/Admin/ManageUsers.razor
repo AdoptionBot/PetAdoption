@@ -400,6 +400,17 @@
                                             <ValidationMessage For="@(() => editingUser!.Instagram)" class="text-danger" />
                                         </div>
                                     </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">X</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fa-brands fa-x-twitter"></i></span>
+                                                <InputText @bind-Value="editingUser!.X" class="form-control"
+                                                           placeholder="https://x.com/..." />
+                                            </div>
+                                            <ValidationMessage For="@(() => editingUser!.X)" class="text-danger" />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -535,6 +546,13 @@
                                             <a href="@viewingUser.Instagram" target="_blank">@viewingUser.Instagram</a>
                                         </li>
                                     }
+                                    @if (!string.IsNullOrEmpty(viewingUser.X))
+                                    {
+                                        <li class="list-group-item">
+                                            <strong>X:</strong>
+                                            <a href="@viewingUser.X" target="_blank">@viewingUser.X</a>
+                                        </li>
+                                    }
                                 </ul>
                             </div>
                         }
@@ -611,6 +629,7 @@
         public string? Website { get; set; }
         public string? Facebook { get; set; }
         public string? Instagram { get; set; }
+        public string? X { get; set; }
         public DateTimeOffset? LastUpdated { get; set; }
         public ETag OriginalETag { get; set; }
     }
@@ -687,6 +706,7 @@
                     Website = user.Website,
                     Facebook = user.Facebook,
                     Instagram = user.Instagram,
+                    X = user.X,
                     LastUpdated = user.Timestamp,
                     OriginalETag = user.ETag
                 });
@@ -933,6 +953,7 @@
                 Website = userDto.Website,
                 Facebook = userDto.Facebook,
                 Instagram = userDto.Instagram,
+                X = userDto.X,
                 IsAccountDisabled = !userDto.IsAccountDisabled,
                 Role = userDto.Role,
                 ShelterName = userDto.ShelterName ?? string.Empty,

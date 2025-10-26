@@ -46,6 +46,10 @@ namespace PetAdoption.Data.TableStorage
         [StringLength(256, ErrorMessage = "Instagram URL cannot exceed 256 characters.")]
         public string? Instagram { get; set; }
 
+        [OptionalUrl(ErrorMessage = "X URL must be a valid URL.")]
+        [StringLength(256, ErrorMessage = "X URL cannot exceed 256 characters.")]
+        public string? X { get; set; }
+
         public bool IsAccountDisabled { get; set; }
 
         [Required(ErrorMessage = "User role is required.")]
@@ -66,7 +70,7 @@ namespace PetAdoption.Data.TableStorage
         public User() { }
 
         public User(string userName, string userEmail, string phoneNumber, string address, string country, string? website,
-            string? facebook, string? instagram, UserRole role, string? shelterName, string? shelterLocation)
+            string? facebook, string? instagram, string? x, UserRole role, string? shelterName, string? shelterLocation)
         {
             PartitionKey = userName;
             RowKey = userEmail;
@@ -76,6 +80,7 @@ namespace PetAdoption.Data.TableStorage
             Website = website;
             Facebook = facebook;
             Instagram = instagram;
+            X = x;
             IsAccountDisabled = false;
             Role = role;
             ShelterName = shelterName;
