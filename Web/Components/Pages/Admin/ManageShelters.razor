@@ -347,36 +347,92 @@
                                                 <strong>Last Updated:</strong> @viewingShelter.LastUpdated.Value.ToString("g")
                                             </li>
                                         }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <strong><i class="fa fa-share-alt"></i> Social Media & Website</strong>
+                            </div>
+                            <div class="card-body">
+                                @if (!string.IsNullOrEmpty(viewingShelter.Website) || 
+                                     !string.IsNullOrEmpty(viewingShelter.Facebook) || 
+                                     !string.IsNullOrEmpty(viewingShelter.Instagram) || 
+                                     !string.IsNullOrEmpty(viewingShelter.X))
+                                {
+                                    <div class="row">
                                         @if (!string.IsNullOrEmpty(viewingShelter.Website))
                                         {
-                                            <li class="list-group-item">
-                                                <strong>Website:</strong> 
-                                                <a href="@viewingShelter.Website" target="_blank">@viewingShelter.Website</a>
-                                            </li>
+                                            <div class="col-md-6 mb-3">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-shrink-0" style="width: 32px;">
+                                                        <i class="fa fa-globe fa-lg text-primary"></i>
+                                                    </div>
+                                                    <div class="flex-grow-1 ms-3">
+                                                        <small class="text-muted d-block mb-1">Website</small>
+                                                        <a href="@viewingShelter.Website" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-break">
+                                                            @viewingShelter.Website <i class="fa fa-external-link-alt fa-xs ms-1"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         }
                                         @if (!string.IsNullOrEmpty(viewingShelter.Facebook))
                                         {
-                                            <li class="list-group-item">
-                                                <strong>Facebook:</strong> 
-                                                <a href="@viewingShelter.Facebook" target="_blank">@viewingShelter.Facebook</a>
-                                            </li>
+                                            <div class="col-md-6 mb-3">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-shrink-0" style="width: 32px;">
+                                                        <i class="fa-brands fa-facebook fa-lg text-primary"></i>
+                                                    </div>
+                                                    <div class="flex-grow-1 ms-3">
+                                                        <small class="text-muted d-block mb-1">Facebook</small>
+                                                        <a href="@viewingShelter.Facebook" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-break">
+                                                            @viewingShelter.Facebook <i class="fa fa-external-link-alt fa-xs ms-1"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         }
                                         @if (!string.IsNullOrEmpty(viewingShelter.Instagram))
                                         {
-                                            <li class="list-group-item">
-                                                <strong>Instagram:</strong> 
-                                                <a href="@viewingShelter.Instagram" target="_blank">@viewingShelter.Instagram</a>
-                                            </li>
+                                            <div class="col-md-6 mb-3">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-shrink-0" style="width: 32px;">
+                                                        <i class="fa-brands fa-instagram fa-lg text-danger"></i>
+                                                    </div>
+                                                    <div class="flex-grow-1 ms-3">
+                                                        <small class="text-muted d-block mb-1">Instagram</small>
+                                                        <a href="@viewingShelter.Instagram" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-break">
+                                                            @viewingShelter.Instagram <i class="fa fa-external-link-alt fa-xs ms-1"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         }
                                         @if (!string.IsNullOrEmpty(viewingShelter.X))
                                         {
-                                            <li class="list-group-item">
-                                                <strong>X:</strong>
-                                                <a href="@viewingShelter.X" target="_blank">@viewingShelter.X</a>
-                                            </li>
+                                            <div class="col-md-6 mb-3">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-shrink-0" style="width: 32px;">
+                                                        <i class="fa-brands fa-x-twitter fa-lg text-dark"></i>
+                                                    </div>
+                                                    <div class="flex-grow-1 ms-3">
+                                                        <small class="text-muted d-block mb-1">X (Twitter)</small>
+                                                        <a href="@viewingShelter.X" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-break">
+                                                            @viewingShelter.X <i class="fa fa-external-link-alt fa-xs ms-1"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         }
-                                    </ul>
-                                </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <p class="text-muted mb-0"><i class="fa fa-info-circle"></i> No social media links available</p>
+                                }
                             </div>
                         </div>
                     </div>

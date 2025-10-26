@@ -518,44 +518,89 @@
                             </div>
                         }
 
-                        @if (!string.IsNullOrEmpty(viewingUser.Website) || !string.IsNullOrEmpty(viewingUser.Facebook) || !string.IsNullOrEmpty(viewingUser.Instagram))
-                        {
-                            <div class="card">
-                                <div class="card-header bg-light">
-                                    <strong><i class="fa fa-share-alt"></i> Social Links</strong>
-                                </div>
-                                <ul class="list-group list-group-flush">
-                                    @if (!string.IsNullOrEmpty(viewingUser.Website))
-                                    {
-                                        <li class="list-group-item">
-                                            <strong>Website:</strong> 
-                                            <a href="@viewingUser.Website" target="_blank">@viewingUser.Website</a>
-                                        </li>
-                                    }
-                                    @if (!string.IsNullOrEmpty(viewingUser.Facebook))
-                                    {
-                                        <li class="list-group-item">
-                                            <strong>Facebook:</strong> 
-                                            <a href="@viewingUser.Facebook" target="_blank">@viewingUser.Facebook</a>
-                                        </li>
-                                    }
-                                    @if (!string.IsNullOrEmpty(viewingUser.Instagram))
-                                    {
-                                        <li class="list-group-item">
-                                            <strong>Instagram:</strong> 
-                                            <a href="@viewingUser.Instagram" target="_blank">@viewingUser.Instagram</a>
-                                        </li>
-                                    }
-                                    @if (!string.IsNullOrEmpty(viewingUser.X))
-                                    {
-                                        <li class="list-group-item">
-                                            <strong>X:</strong>
-                                            <a href="@viewingUser.X" target="_blank">@viewingUser.X</a>
-                                        </li>
-                                    }
-                                </ul>
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <strong><i class="fa fa-share-alt"></i> Social Media & Website</strong>
                             </div>
-                        }
+                            <div class="card-body">
+                                @if (!string.IsNullOrEmpty(viewingUser.Website) || 
+                                     !string.IsNullOrEmpty(viewingUser.Facebook) || 
+                                     !string.IsNullOrEmpty(viewingUser.Instagram) || 
+                                     !string.IsNullOrEmpty(viewingUser.X))
+                                {
+                                    <div class="row">
+                                        @if (!string.IsNullOrEmpty(viewingUser.Website))
+                                        {
+                                            <div class="col-md-6 mb-3">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-shrink-0" style="width: 32px;">
+                                                        <i class="fa fa-globe fa-lg text-primary"></i>
+                                                    </div>
+                                                    <div class="flex-grow-1 ms-3">
+                                                        <small class="text-muted d-block mb-1">Website</small>
+                                                        <a href="@viewingUser.Website" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-break">
+                                                            @viewingUser.Website <i class="fa fa-external-link-alt fa-xs ms-1"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                        @if (!string.IsNullOrEmpty(viewingUser.Facebook))
+                                        {
+                                            <div class="col-md-6 mb-3">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-shrink-0" style="width: 32px;">
+                                                        <i class="fa-brands fa-facebook fa-lg text-primary"></i>
+                                                    </div>
+                                                    <div class="flex-grow-1 ms-3">
+                                                        <small class="text-muted d-block mb-1">Facebook</small>
+                                                        <a href="@viewingUser.Facebook" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-break">
+                                                            @viewingUser.Facebook <i class="fa fa-external-link-alt fa-xs ms-1"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                        @if (!string.IsNullOrEmpty(viewingUser.Instagram))
+                                        {
+                                            <div class="col-md-6 mb-3">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-shrink-0" style="width: 32px;">
+                                                        <i class="fa-brands fa-instagram fa-lg text-danger"></i>
+                                                    </div>
+                                                    <div class="flex-grow-1 ms-3">
+                                                        <small class="text-muted d-block mb-1">Instagram</small>
+                                                        <a href="@viewingUser.Instagram" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-break">
+                                                            @viewingUser.Instagram <i class="fa fa-external-link-alt fa-xs ms-1"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                        @if (!string.IsNullOrEmpty(viewingUser.X))
+                                        {
+                                            <div class="col-md-6 mb-3">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-shrink-0" style="width: 32px;">
+                                                        <i class="fa-brands fa-x-twitter fa-lg text-dark"></i>
+                                                    </div>
+                                                    <div class="flex-grow-1 ms-3">
+                                                        <small class="text-muted d-block mb-1">X (Twitter)</small>
+                                                        <a href="@viewingUser.X" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-break">
+                                                            @viewingUser.X <i class="fa fa-external-link-alt fa-xs ms-1"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <p class="text-muted mb-0"><i class="fa fa-info-circle"></i> No social media links available</p>
+                                }
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" @onclick="CloseViewModal">
@@ -844,6 +889,7 @@
             Website = userDto.Website,
             Facebook = userDto.Facebook,
             Instagram = userDto.Instagram,
+            X = userDto.X,
             IsAccountDisabled = userDto.IsAccountDisabled,
             Role = userDto.Role,
             ShelterName = userDto.ShelterName ?? string.Empty,

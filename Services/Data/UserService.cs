@@ -56,6 +56,7 @@ namespace PetAdoption.Services.Data
             currentUser.Website = user.Website;
             currentUser.Facebook = user.Facebook;
             currentUser.Instagram = user.Instagram;
+            currentUser.X = user.X;
             currentUser.IsAccountDisabled = user.IsAccountDisabled;
             currentUser.Role = user.Role;
             currentUser.ShelterName = user.ShelterName;
