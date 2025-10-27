@@ -4,97 +4,120 @@
 @inject IAzureBlobStorageService BlobStorageService
 @implements IAsyncDisposable
 
-<div class="mb-3">
-    <label class="form-label">@Label (Optional)</label>
+<div class="mb-4 border-bottom pb-3">
+    <label class="form-label fw-bold">@Label</label>
     
-    <div class="card p-3">
-        <!-- Radio button group for choosing input method -->
-        <div class="mb-3">
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="@InputName" id="@($"{InputName}_upload")"
-                       checked="@IsUploadMode" @onchange="@(() => SetInputMode(true))" />
-                <label class="form-check-label" for="@($"{InputName}_upload")">Upload File</label>
-            </div>
+    <div class="card">
+        <div class="card-body">
+            <!-- Radio button group for choosing input method -->
+            <div class="mb-3">
+                <div class="btn-group w-100" role="group">
+                    <input type="radio" class="btn-check" name="@InputName" id="@($"{InputName}_upload")"
+                           checked="@IsUploadMode" @onchange="@(() => SetInputMode(true))" />
+                    <label class="btn btn-outline-primary" for="@($"{InputName}_upload")">
+                        <i class="fas fa-upload me-1"></i> Upload File
+                    </label>
 
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="@InputName" id="@($"{InputName}_url")"
-                       checked="@(!IsUploadMode)" @onchange="@(() => SetInputMode(false))" />
-                <label class="form-check-label" for="@($"{InputName}_url")">Enter URL</label>
-            </div>
-        </div>
-
-        @if (IsUploadMode)
-        {
-            <div class="mb-2">
-                <InputFile OnChange="HandleFileSelected" 
-                          class="form-control" 
-                          accept="@AcceptTypes" 
-                          disabled="@IsUploading"
-                          id="@InputId" />
-                <small class="text-muted d-block mt-2">
-                    Max file size: @MaxSizeText (@(IsVideo ? "videos" : "images") only)
-                </small>
-                
-                @if (selectedFile != null && !IsUploading)
-                {
-                    <div class="alert alert-info mt-2 mb-0 d-flex justify-content-between align-items-center">
-                        <span>
-                            <i class="bi bi-file-earmark"></i>
-                            @selectedFile.Name (@FormatFileSize(selectedFile.Size))
-                        </span>
-                        <button type="button" class="btn btn-sm btn-primary" @onclick="HandleUploadClick" disabled="@IsUploading">
-                            Upload Now
-                        </button>
-                    </div>
-                }
-            </div>
-        }
-        else
-        {
-            <div class="mb-2">
-                <input type="url" class="form-control" 
-                       placeholder="@($"Enter {MediaType} URL (e.g., https://example.com/{MediaType}.jpg)")"
-                       value="@UrlInput" @oninput="HandleUrlInput" />
-                <small class="text-muted">Enter a valid URL starting with http:// or https://</small>
-            </div>
-        }
-
-        @if (!string.IsNullOrEmpty(ErrorMessage))
-        {
-            <div class="alert alert-danger mt-3 mb-0">
-                <i class="bi bi-exclamation-triangle me-2"></i>
-                @ErrorMessage
-            </div>
-        }
-
-        @if (IsUploading)
-        {
-            <div class="alert alert-info d-flex align-items-center mt-3 mb-0">
-                <div class="spinner-border spinner-border-sm me-2"></div>
-                <div>Uploading @MediaType to Azure Blob Storage...</div>
-            </div>
-        }
-        else if (!string.IsNullOrEmpty(CurrentUrl))
-        {
-            <div class="alert alert-success d-flex align-items-center justify-content-between mt-3 mb-0">
-                <div>
-                    <i class="bi bi-check-circle me-2"></i>
-                    @MediaType uploaded successfully
+                    <input type="radio" class="btn-check" name="@InputName" id="@($"{InputName}_url")"
+                           checked="@(!IsUploadMode)" @onchange="@(() => SetInputMode(false))" />
+                    <label class="btn btn-outline-primary" for="@($"{InputName}_url")">
+                        <i class="fas fa-link me-1"></i> Enter URL
+                    </label>
                 </div>
-                <button type="button" class="btn btn-sm btn-outline-danger" @onclick="ClearMedia">Clear</button>
             </div>
 
-            <div class="mt-2">
-                @if (IsVideo)
-                {
-                    <video src="@CurrentUrl" class="img-thumbnail" style="max-width: 200px; max-height: 150px;" controls></video>
-                }
-                else
-                {
-                    <img src="@CurrentUrl" class="img-thumbnail" style="max-width: 200px; max-height: 150px;" alt="@Label preview" />
-                }
-            </div>
-        }
+            @if (IsUploadMode)
+            {
+                <div class="mb-2">
+                    <div class="mb-2">
+                        <label for="@InputId" class="btn btn-outline-secondary w-100 text-start position-relative">
+                            <i class="fas fa-file-upload me-2"></i>
+                            @if (selectedFile != null)
+                            {
+                                <span>@selectedFile.Name</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Choose @MediaType file...</span>
+                            }
+                            <InputFile OnChange="HandleFileSelected" 
+                                      class="position-absolute opacity-0 w-100 h-100 top-0 start-0" 
+                                      style="cursor: pointer;"
+                                      accept="@AcceptTypes" 
+                                      disabled="@IsUploading"
+                                      id="@InputId" />
+                        </label>
+                    </div>
+                    <small class="text-muted d-block">
+                        Max file size: @MaxSizeText (@(IsVideo ? "videos" : "images") only)
+                    </small>
+                    
+                    @if (selectedFile != null && !IsUploading)
+                    {
+                        <div class="alert alert-info mt-2 mb-0 d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="fas fa-file-alt me-2"></i>
+                                @selectedFile.Name (@FormatFileSize(selectedFile.Size))
+                            </span>
+                            <button type="button" class="btn btn-sm btn-primary" @onclick="HandleUploadClick" disabled="@IsUploading">
+                                <i class="fas fa-cloud-upload-alt me-1"></i> Upload Now
+                            </button>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="mb-2">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-link"></i></span>
+                        <input type="url" class="form-control" 
+                               placeholder="@($"Enter {MediaType} URL (e.g., https://example.com/{MediaType}.jpg)")"
+                               value="@UrlInput" @oninput="HandleUrlInput" />
+                    </div>
+                    <small class="text-muted">Enter a valid URL starting with http:// or https://</small>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                <div class="alert alert-danger mt-3 mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    @ErrorMessage
+                </div>
+            }
+
+            @if (IsUploading)
+            {
+                <div class="alert alert-info d-flex align-items-center mt-3 mb-0">
+                    <div class="spinner-border spinner-border-sm me-2"></div>
+                    <div>Uploading @MediaType to Azure Blob Storage...</div>
+                </div>
+            }
+            else if (!string.IsNullOrEmpty(CurrentUrl))
+            {
+                <div class="alert alert-success d-flex align-items-center justify-content-between mt-3 mb-0">
+                    <div>
+                        <i class="fas fa-check-circle me-2"></i>
+                        @MediaType uploaded successfully
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-danger" @onclick="ClearMedia">
+                        <i class="fas fa-times me-1"></i> Clear
+                    </button>
+                </div>
+
+                <div class="mt-2">
+                    @if (IsVideo)
+                    {
+                        <video src="@CurrentUrl" class="img-thumbnail" style="max-width: 200px; max-height: 150px;" controls></video>
+                    }
+                    else
+                    {
+                        <img src="@CurrentUrl" class="img-thumbnail" style="max-width: 200px; max-height: 150px;" alt="@Label preview" />
+                    }
+                </div>
+            }
+        </div>
     </div>
 </div>
 

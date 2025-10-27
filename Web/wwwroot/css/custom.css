@@ -65,6 +65,15 @@
 }
 
 /* ===================================
+   MEDIA INPUT FILE UPLOAD STYLES
+   =================================== */
+
+/* File input button hover effect - make placeholder text white on hover */
+.btn-outline-secondary.position-relative:hover .text-muted {
+    color: #ffffff !important;
+}
+
+/* ===================================
    GLOBAL BADGE STYLES (SHARED)
    =================================== */
 

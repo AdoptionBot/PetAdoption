@@ -25,7 +25,7 @@
                 <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
                     <h3 class="mb-0">Edit Pet</h3>
                     <a href="/mypets" class="btn btn-secondary">
-                        <i class="fa fa-arrow-left"></i> Back to My Pets
+                        <i class="fas fa-arrow-left"></i> Back to My Pets
                     </a>
                 </div>
                 <div class="card-body p-4">
@@ -76,7 +76,7 @@
 
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
-                                        <label class="form-label">Species <span class="text-danger">*</span></label>
+                                        <label class="form-label">Species</label>
                                         <InputSelect @bind-Value="currentPet.Species" class="form-select">
                                             @foreach (Species species in Enum.GetValues(typeof(Species)))
                                             {
@@ -87,7 +87,7 @@
                                     </div>
 
                                     <div class="col-md-4 mb-3">
-                                        <label class="form-label">Gender <span class="text-danger">*</span></label>
+                                        <label class="form-label">Gender</label>
                                         <InputSelect @bind-Value="currentPet.Gender" class="form-select">
                                             @foreach (Gender gender in Enum.GetValues(typeof(Gender)))
                                             {
@@ -98,7 +98,7 @@
                                     </div>
 
                                     <div class="col-md-4 mb-3">
-                                        <label class="form-label">Size <span class="text-danger">*</span></label>
+                                        <label class="form-label">Size</label>
                                         <InputSelect @bind-Value="currentPet.Size" class="form-select">
                                             @foreach (Size size in Enum.GetValues(typeof(Size)))
                                             {
@@ -137,7 +137,7 @@
                                 <h5 class="border-bottom pb-2">Adoption Status</h5>
                                 
                                 <div class="mb-3">
-                                    <label class="form-label">Adoption Status <span class="text-danger">*</span></label>
+                                    <label class="form-label">Adoption Status</label>
                                     <InputSelect @bind-Value="currentPet.AdoptionStatus" class="form-select">
                                         @foreach (AdoptionStatus status in Enum.GetValues(typeof(AdoptionStatus)))
                                         {
@@ -153,7 +153,7 @@
                                 <h5 class="border-bottom pb-2">Medical Information</h5>
                                 
                                 <div class="mb-3">
-                                    <label class="form-label">Vaccinations <span class="text-danger">*</span></label>
+                                    <label class="form-label">Vaccinations</label>
                                     <div class="card p-3">
                                         <div class="row">
                                             <div class="col-md-6">
@@ -307,7 +307,7 @@
                             <!-- Images and Video Section -->
                             <div class="mb-4">
                                 <h5 class="border-bottom pb-2">Images & Video</h5>
-                                <p class="text-muted small">Update images or videos for this pet (optional)</p>
+                                <p class="text-muted small mb-3">Update images or videos for this pet (optional)</p>
 
                                 <MediaInput @key="@($"img1_{currentPet.PartitionKey}")" Label="Image 1" @bind-CurrentUrl="currentPet.Image1Url" />
                                 <MediaInput @key="@($"img2_{currentPet.PartitionKey}")" Label="Image 2" @bind-CurrentUrl="currentPet.Image2Url" />
