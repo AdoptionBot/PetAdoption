@@ -286,6 +286,14 @@
                                         <p class="mb-0 small">The shelter has accepted your application! Please review the pet's information and decide if you want to proceed with the adoption.</p>
                                     </div>
                                 }
+
+                                @if (!isUserRole && selectedApplication.AdoptionStatus == AdoptionStatus.AcceptedByUser)
+                                {
+                                    <div class="alert alert-success mt-4">
+                                        <h6><i class="fa fa-check-circle"></i> Ready to Complete</h6>
+                                        <p class="mb-0 small">The applicant has accepted the adoption! You can now confirm the adoption is complete once the pet has been handed over to the new family.</p>
+                                    </div>
+                                }
                             </div>
                         </div>
                     }
@@ -310,6 +318,14 @@
                         </button>
                         <button type="button" class="btn btn-warning" @onclick="UserRejectApplication">
                             <i class="fa fa-times-circle"></i> Decline
+                        </button>
+                    }
+
+                    @* Shelter button - shown when status is AcceptedByUser (FINAL STEP) *@
+                    @if (!isUserRole && selectedApplication.AdoptionStatus == AdoptionStatus.AcceptedByUser && !isProcessing)
+                    {
+                        <button type="button" class="btn btn-success" @onclick="ConfirmAdoptionComplete">
+                            <i class="fa fa-check-circle"></i> Adoption Successful
                         </button>
                     }
 
@@ -572,6 +588,40 @@
         {
             Logger.LogError(ex, "Error rejecting application");
             errorMessage = $"Failed to reject application: {ex.Message}";
+        }
+        finally
+        {
+            isProcessing = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ConfirmAdoptionComplete()
+    {
+        if (selectedApplication == null) return;
+
+        try
+        {
+            isProcessing = true;
+            StateHasChanged();
+
+            var result = await AdoptionProcessService.ConfirmAdoptionCompleteAsync(selectedApplication);
+            
+            if (result.Success)
+            {
+                successMessage = result.Message;
+                CloseDetailsModal();
+                await LoadApplicationsAsync();
+            }
+            else
+            {
+                errorMessage = result.Message;
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error confirming adoption completion");
+            errorMessage = $"Failed to confirm adoption: {ex.Message}";
         }
         finally
         {

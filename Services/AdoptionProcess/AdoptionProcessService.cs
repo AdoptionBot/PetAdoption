@@ -259,6 +259,46 @@ namespace PetAdoption.Services.AdoptionProcess
             }
         }
 
+        public async Task<(bool Success, string Message)> ConfirmAdoptionCompleteAsync(AdoptionApplication application)
+        {
+            try
+            {
+                // Get the pet
+                var pet = await GetPetForApplicationAsync(application);
+                if (pet == null)
+                {
+                    return (false, "Pet not found.");
+                }
+
+                // Verify the pet is in AcceptedByUser status
+                if (pet.AdoptionStatus != AdoptionStatus.AcceptedByUser)
+                {
+                    return (false, $"Cannot complete adoption. Pet status is: {pet.AdoptionStatus}. The user must accept the application first.");
+                }
+
+                // Update pet status to Adopted (final state)
+                pet.AdoptionStatus = AdoptionStatus.Adopted;
+                await _petService.UpdatePetAsync(pet);
+
+                // Update application status to Adopted
+                application.AdoptionStatus = AdoptionStatus.Adopted;
+                await _applicationService.UpdateApplicationAsync(application);
+
+                _logger.LogInformation(
+                    "Adoption completed by shelter: User {UserEmail} adopted Pet {PetName}",
+                    application.Email, application.PetName);
+
+                return (true, $"Adoption of {application.PetName} has been successfully completed! Congratulations to the new family!");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, 
+                    "Error completing adoption for pet {PetName}", 
+                    application.PetName);
+                return (false, $"An error occurred while completing the adoption: {ex.Message}");
+            }
+        }
+
         public async Task<IEnumerable<AdoptionApplication>> GetUserAdoptionApplicationsAsync(string userEmail)
         {
             try
