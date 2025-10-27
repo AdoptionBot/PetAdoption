@@ -51,5 +51,15 @@ namespace PetAdoption.Services.Interfaces
         /// Shelter rejects an adoption application
         /// </summary>
         Task<(bool Success, string Message)> RejectApplicationAsync(AdoptionApplication application);
+
+        /// <summary>
+        /// User accepts an adoption application that was accepted by shelter
+        /// </summary>
+        Task<(bool Success, string Message)> UserAcceptApplicationAsync(AdoptionApplication application);
+
+        /// <summary>
+        /// User rejects an adoption application that was accepted by shelter
+        /// </summary>
+        Task<(bool Success, string Message)> UserRejectApplicationAsync(AdoptionApplication application);
     }
 }

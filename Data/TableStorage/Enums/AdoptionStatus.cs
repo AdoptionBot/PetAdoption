@@ -6,8 +6,6 @@
         Submitted,
         AcceptedByShelter,
         AcceptedByUser,
-        RejectedByShelter,
-        RejectedByUser,
         Adopted
     }
 }

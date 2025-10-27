@@ -148,7 +148,7 @@
                                     <p class="mb-1">
                                         <strong>Status:</strong> 
                                         <span class="badge bg-@GetStatusColor(application.AdoptionStatus)">
-                                            @GetStatusDisplay(application.AdoptionStatus)
+                                            @GetStatusDisplay(application.AdoptionStatus, isUserRole)
                                         </span>
                                     </p>
                                     <p class="mb-1"><strong>Submitted:</strong> @application.DateSubmitted.ToShortDateString()</p>
@@ -252,7 +252,7 @@
                                 <h6 class="border-bottom pb-2 mb-3"><i class="fa fa-file-text"></i> Application Information</h6>
                                 <p><strong>Status:</strong> 
                                     <span class="badge bg-@GetStatusColor(selectedApplication.AdoptionStatus)">
-                                        @GetStatusDisplay(selectedApplication.AdoptionStatus)
+                                        @GetStatusDisplay(selectedApplication.AdoptionStatus, isUserRole)
                                     </span>
                                 </p>
                                 <p><strong>Date Submitted:</strong> @selectedApplication.DateSubmitted.ToShortDateString()</p>
@@ -277,20 +277,41 @@
                                         <p><strong>Website:</strong> <a href="@selectedApplicant.Website" target="_blank">@selectedApplicant.Website</a></p>
                                     }
                                 }
+
+                                @if (isUserRole && selectedApplication.AdoptionStatus == AdoptionStatus.AcceptedByShelter)
+                                {
+                                    <div class="alert alert-info mt-4">
+                                        <h6><i class="fa fa-info-circle"></i> Action Required</h6>
+                                        <p class="mb-0 small">The shelter has accepted your application! Please review the pet's information and decide if you want to proceed with the adoption.</p>
+                                    </div>
+                                }
                             </div>
                         </div>
                     }
                 </div>
                 <div class="modal-footer">
+                    @* Shelter buttons - shown when status is Submitted *@
                     @if (!isUserRole && selectedApplication.AdoptionStatus == AdoptionStatus.Submitted && !isProcessing)
                     {
-                        <button type="button" class="btn btn-success" @onclick="AcceptApplication">
+                        <button type="button" class="btn btn-success" @onclick="ShelterAcceptApplication">
                             <i class="fa fa-check"></i> Accept
                         </button>
-                        <button type="button" class="btn btn-danger" @onclick="RejectApplication">
+                        <button type="button" class="btn btn-danger" @onclick="ShelterRejectApplication">
                             <i class="fa fa-times"></i> Reject
                         </button>
                     }
+
+                    @* User buttons - shown when status is AcceptedByShelter *@
+                    @if (isUserRole && selectedApplication.AdoptionStatus == AdoptionStatus.AcceptedByShelter && !isProcessing)
+                    {
+                        <button type="button" class="btn btn-success" @onclick="UserAcceptApplication">
+                            <i class="fa fa-heart"></i> Accept Adoption
+                        </button>
+                        <button type="button" class="btn btn-warning" @onclick="UserRejectApplication">
+                            <i class="fa fa-times-circle"></i> Decline
+                        </button>
+                    }
+
                     <button type="button" class="btn btn-secondary" @onclick="CloseDetailsModal" disabled="@isProcessing">
                         Close
                     </button>
@@ -423,7 +444,7 @@
         isProcessing = false;
     }
 
-    private async Task AcceptApplication()
+    private async Task ShelterAcceptApplication()
     {
         if (selectedApplication == null) return;
 
@@ -457,7 +478,7 @@
         }
     }
 
-    private async Task RejectApplication()
+    private async Task ShelterRejectApplication()
     {
         if (selectedApplication == null) return;
 
@@ -467,6 +488,74 @@
             StateHasChanged();
 
             var result = await AdoptionProcessService.RejectApplicationAsync(selectedApplication);
+            
+            if (result.Success)
+            {
+                successMessage = result.Message;
+                CloseDetailsModal();
+                await LoadApplicationsAsync();
+            }
+            else
+            {
+                errorMessage = result.Message;
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error rejecting application");
+            errorMessage = $"Failed to reject application: {ex.Message}";
+        }
+        finally
+        {
+            isProcessing = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task UserAcceptApplication()
+    {
+        if (selectedApplication == null) return;
+
+        try
+        {
+            isProcessing = true;
+            StateHasChanged();
+
+            var result = await AdoptionProcessService.UserAcceptApplicationAsync(selectedApplication);
+            
+            if (result.Success)
+            {
+                successMessage = result.Message;
+                CloseDetailsModal();
+                await LoadApplicationsAsync();
+            }
+            else
+            {
+                errorMessage = result.Message;
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error accepting application");
+            errorMessage = $"Failed to accept application: {ex.Message}";
+        }
+        finally
+        {
+            isProcessing = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task UserRejectApplication()
+    {
+        if (selectedApplication == null) return;
+
+        try
+        {
+            isProcessing = true;
+            StateHasChanged();
+
+            var result = await AdoptionProcessService.UserRejectApplicationAsync(selectedApplication);
             
             if (result.Success)
             {
@@ -522,23 +611,19 @@
             AdoptionStatus.Submitted => "primary",
             AdoptionStatus.AcceptedByShelter => "info",
             AdoptionStatus.AcceptedByUser => "success",
-            AdoptionStatus.RejectedByShelter => "danger",
-            AdoptionStatus.RejectedByUser => "warning",
             AdoptionStatus.Adopted => "success",
             _ => "secondary"
         };
     }
 
-    private string GetStatusDisplay(AdoptionStatus status)
+    private string GetStatusDisplay(AdoptionStatus status, bool isUserRole)
     {
         return status switch
         {
             AdoptionStatus.NotAdopted => "Not Adopted",
             AdoptionStatus.Submitted => "Pending Review",
             AdoptionStatus.AcceptedByShelter => "Accepted by Shelter",
-            AdoptionStatus.AcceptedByUser => "Accepted by You",
-            AdoptionStatus.RejectedByShelter => "Rejected by Shelter",
-            AdoptionStatus.RejectedByUser => "Rejected by You",
+            AdoptionStatus.AcceptedByUser => isUserRole ? "Accepted by You" : "Accepted by Applicant",
             AdoptionStatus.Adopted => "Adopted",
             _ => status.ToString()
         };
