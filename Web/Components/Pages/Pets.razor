@@ -50,7 +50,7 @@
                             <h4>Error Loading Pets</h4>
                             <p>@errorMessage</p>
                             <button class="btn btn-primary" @onclick="RetryLoading">
-                                <i class="fa fa-refresh"></i> Retry
+                                <i class="fas fa-refresh"></i> Retry
                             </button>
                         </div>
                     </div>
@@ -69,7 +69,7 @@
                             </div>
                         }
                         <button class="btn btn-secondary mt-2" @onclick="RetryLoading">
-                            <i class="fa fa-refresh"></i> Refresh
+                            <i class="fas fa-refresh"></i> Refresh
                         </button>
                     </div>
                 </div>
@@ -79,7 +79,7 @@
                 @if (!string.IsNullOrEmpty(successMessage))
                 {
                     <div class="alert alert-success alert-dismissible fade show">
-                        <i class="fa fa-check-circle"></i> @successMessage
+                        <i class="fas fa-check-circle"></i> @successMessage
                         <button type="button" class="btn-close" @onclick="() => successMessage = null" aria-label="Close"></button>
                     </div>
                 }
@@ -183,11 +183,9 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">
-                            <i class="fa fa-paw"></i> @selectedPet.PartitionKey
+                            <i class="fas fa-paw"></i> @selectedPet.PartitionKey
                         </h5>
-                        <button type="button" class="btn-close" @onclick="CloseModal" aria-label="Close">
-                            <i class="fa fa-times"></i>
-                        </button>
+                        <button type="button" class="btn-close" @onclick="CloseModal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <div class="row">
@@ -314,7 +312,7 @@
                         @if (isUserAuthenticated && currentUserRole == UserRole.User)
                         {
                             <button type="button" class="btn btn-success" @onclick="() => ShowAdoptionRequestModal(selectedPet)">
-                                <i class="fa fa-heart"></i> Request Adoption
+                                <i class="fas fa-heart"></i> Request Adoption
                             </button>
                         }
                     </div>
@@ -332,7 +330,7 @@
                 <div class="modal-content">
                     <div class="modal-header bg-success text-white">
                         <h5 class="modal-title">
-                            <i class="fa fa-heart"></i> Adoption Request
+                            <i class="fas fa-heart"></i> Adoption Request
                         </h5>
                         <button type="button" class="btn-close btn-close-white" @onclick="CloseAdoptionModal" aria-label="Close"></button>
                     </div>
@@ -349,13 +347,13 @@
                         else if (!string.IsNullOrEmpty(adoptionResultMessage))
                         {
                             <div class="alert @(adoptionRequestSuccess ? "alert-success" : "alert-danger")">
-                                <i class="fa @(adoptionRequestSuccess ? "fa-check-circle" : "fa-exclamation-circle")"></i>
+                                <i class="fas @(adoptionRequestSuccess ? "fa-check-circle" : "fa-exclamation-circle")"></i>
                                 @adoptionResultMessage
                             </div>
                             @if (adoptionRequestSuccess)
                             {
                                 <div class="text-center">
-                                    <i class="fa fa-paw fa-5x text-success mb-3"></i>
+                                    <i class="fas fa-paw fa-5x text-success mb-3"></i>
                                     <h4>@petForAdoption.PartitionKey can't wait to meet you!</h4>
                                     <p class="text-muted">The shelter will review your application and contact you soon.</p>
                                 </div>
@@ -364,12 +362,12 @@
                         else
                         {
                             <div class="text-center mb-3">
-                                <i class="fa fa-heart fa-4x text-danger mb-3"></i>
+                                <i class="fas fa-heart fa-4x text-danger mb-3"></i>
                                 <h5>Are you ready to adopt @petForAdoption.PartitionKey?</h5>
                             </div>
                             
                             <div class="alert alert-info">
-                                <h6><i class="fa fa-info-circle"></i> Adoption Request Details</h6>
+                                <h6><i class="fas fa-info-circle"></i> Adoption Request Details</h6>
                                 <hr />
                                 <p class="mb-1"><strong>Pet:</strong> @petForAdoption.PartitionKey</p>
                                 <p class="mb-1"><strong>Species:</strong> @petForAdoption.Species</p>
@@ -396,16 +394,16 @@
                         @if (!string.IsNullOrEmpty(adoptionResultMessage))
                         {
                             <button type="button" class="btn btn-primary w-100" @onclick="CloseAdoptionModalAndRefresh">
-                                <i class="fa fa-check"></i> Close
+                                <i class="fas fa-check"></i> Close
                             </button>
                         }
                         else if (!isSubmittingAdoption)
                         {
                             <button type="button" class="btn btn-secondary" @onclick="CloseAdoptionModal">
-                                <i class="fa fa-times"></i> Cancel
+                                <i class="fas fa-times"></i> Cancel
                             </button>
                             <button type="button" class="btn btn-success" @onclick="SubmitAdoptionRequest">
-                                <i class="fa fa-heart"></i> Submit Request
+                                <i class="fas fa-heart"></i> Submit Request
                             </button>
                         }
                     </div>

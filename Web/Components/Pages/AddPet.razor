@@ -131,23 +131,6 @@
                                 </div>
                             </div>
 
-                            <!-- Adoption Status -->
-                            <div class="mb-4">
-                                <h5 class="border-bottom pb-2">Adoption Status</h5>
-                                
-                                <div class="mb-3">
-                                    <label class="form-label">Adoption Status</label>
-                                    <InputSelect @bind-Value="currentPet.AdoptionStatus" class="form-select">
-                                        <option value="">-- Select Status --</option>
-                                        @foreach (AdoptionStatus status in Enum.GetValues(typeof(AdoptionStatus)))
-                                        {
-                                            <option value="@status">@status</option>
-                                        }
-                                    </InputSelect>
-                                    <ValidationMessage For="@(() => currentPet.AdoptionStatus)" />
-                                </div>
-                            </div>
-
                             <!-- Medical Information -->
                             <div class="mb-4">
                                 <h5 class="border-bottom pb-2">Medical Information</h5>
