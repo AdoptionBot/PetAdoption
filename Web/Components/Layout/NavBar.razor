@@ -13,7 +13,7 @@
             <span class="flaticon-pawprint-1 mr-2"></span>Pet Adoption
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="fa fa-bars"></span> Menu
+            <span class="fas fa-bars"></span> Menu
         </button>
         <div class="collapse navbar-collapse" id="ftco-nav">
             <ul class="navbar-nav">
@@ -41,7 +41,7 @@
                     <Authorized>
                         <li class="nav-item">
                             <NavLink class="nav-link" href="/profile">
-                                <span class="fa fa-user mr-1"></span><span class="nav-text">Profile</span>
+                                <span class="fas fa-user me-1"></span><span class="nav-text">Profile</span>
                             </NavLink>
                         </li>
                         <AuthorizeView Roles="Shelter,Admin" Context="shelterContext">
@@ -50,16 +50,16 @@
                                     <a class="nav-link dropdown-toggle @GetDisabledClass()" href="#" id="shelterDropdown" role="button" 
                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" 
                                        @onclick:preventDefault="@(!isProfileComplete)">
-                                        <span class="fa fa-home mr-1"></span><span class="nav-text">Shelter</span>
+                                        <span class="fas fa-home me-1"></span><span class="nav-text">Shelter</span>
                                     </a>
                                     <div class="dropdown-menu" aria-labelledby="shelterDropdown">
                                         <a class="dropdown-item @GetDisabledClass()" href="/shelter" 
                                            @onclick='() => HandleNavigationClick("/shelter")' @onclick:preventDefault="true">
-                                            <span class="fa fa-building mr-1"></span> My Shelter
+                                            <span class="fas fa-building me-1"></span> My Shelter
                                         </a>
                                         <a class="dropdown-item @GetDisabledClass()" href="/mypets" 
                                            @onclick='() => HandleNavigationClick("/mypets")' @onclick:preventDefault="true">
-                                            <span class="fa fa-paw mr-1"></span> Manage Pets
+                                            <span class="fas fa-paw me-1"></span> Manage Pets
                                         </a>
                                     </div>
                                 </li>
@@ -71,16 +71,16 @@
                                     <a class="nav-link dropdown-toggle @GetDisabledClass()" href="#" id="adminDropdown" role="button" 
                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" 
                                        @onclick:preventDefault="@(!isProfileComplete)">
-                                        <span class="fa fa-cog mr-1"></span><span class="nav-text">Admin</span>
+                                        <span class="fas fa-cog me-1"></span><span class="nav-text">Admin</span>
                                     </a>
                                     <div class="dropdown-menu" aria-labelledby="adminDropdown">
                                         <a class="dropdown-item @GetDisabledClass()" href="/admin/users" 
                                            @onclick='() => HandleNavigationClick("/admin/users")' @onclick:preventDefault="true">
-                                            <span class="fa fa-users mr-1"></span> Manage Users
+                                            <span class="fas fa-users me-1"></span> Manage Users
                                         </a>
                                         <a class="dropdown-item @GetDisabledClass()" href="/admin/shelters" 
                                            @onclick='() => HandleNavigationClick("/admin/shelters")' @onclick:preventDefault="true">
-                                            <span class="fa fa-home mr-1"></span> Manage Shelters
+                                            <span class="fas fa-home me-1"></span> Manage Shelters
                                         </a>
                                     </div>
                                 </li>
@@ -88,14 +88,14 @@
                         </AuthorizeView>
                         <li class="nav-item">
                             <a class="nav-link" href="/api/auth/logout">
-                                <span class="fa fa-sign-out mr-1"></span><span class="nav-text">Logout</span>
+                                <span class="fas fa-sign-out-alt me-1"></span><span class="nav-text">Logout</span>
                             </a>
                         </li>
                     </Authorized>
                     <NotAuthorized>
                         <li class="nav-item ml-auto">
                             <NavLink class="nav-link btn btn-primary text-white px-3 py-2 ml-2" href="/login">
-                                <span class="fa fa-sign-in mr-1"></span><span class="nav-text">Login</span>
+                                <span class="fas fa-sign-in-alt me-1"></span><span class="nav-text">Login</span>
                             </NavLink>
                         </li>
                     </NotAuthorized>
