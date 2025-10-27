@@ -89,6 +89,8 @@ namespace PetAdoption.Data.TableStorage
         [StringLength(256, ErrorMessage = "Video URL cannot exceed 256 characters.")]
         public string? Video1Url { get; set; }
 
+        public DateTime DateAdded { get; } = DateTime.Now;
+
         // Parameterless constructor for deserialization
         public Pet() { }
 
