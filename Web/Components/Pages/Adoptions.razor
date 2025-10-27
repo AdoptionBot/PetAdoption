@@ -1,0 +1,331 @@
+@page "/adoptions"
+@using Microsoft.AspNetCore.Authorization
+@using PetAdoption.Services.Interfaces
+@using PetAdoption.Data.TableStorage
+@using PetAdoption.Data.TableStorage.Enums
+@using PetAdoption.Web.Components.Shared
+@attribute [Authorize(Roles = "User,Shelter,Admin")]
+@inject IAdoptionProcessService AdoptionProcessService
+@inject IUserService UserService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager Navigation
+@inject ILogger<Adoptions> Logger
+@rendermode InteractiveServer
+
+<PageTitle>My Adoptions - Madeira Pet Adoption</PageTitle>
+
+<div class="adoptions-page-wrapper">
+    <section class="hero-wrap hero-wrap-2" style="background-image: url('images/bg_2.jpg');" data-stellar-background-ratio="0.5">
+        <div class="overlay"></div>
+        <div class="container">
+            <div class="row no-gutters slider-text align-items-end">
+                <div class="col-md-9 ftco-animate pb-5">
+                    <p class="breadcrumbs mb-2">
+                        <span class="mr-2"><a href="/">Home <i class="ion-ios-arrow-forward"></i></a></span>
+                        <span>Adoptions <i class="ion-ios-arrow-forward"></i></span>
+                    </p>
+                    <h1 class="mb-0 bread">@pageTitle</h1>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="ftco-section">
+        <div class="container">
+            @if (isLoading)
+            {
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                        <p class="mt-3">Loading adoption applications...</p>
+                    </div>
+                </div>
+            }
+            else if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="alert alert-danger">
+                            <h4>Error Loading Applications</h4>
+                            <p>@errorMessage</p>
+                            <button class="btn btn-primary" @onclick="LoadApplicationsAsync">
+                                <i class="fa fa-refresh"></i> Retry
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+            else if (!applications.Any())
+            {
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <div class="alert alert-info">
+                            <i class="fa fa-info-circle fa-3x mb-3"></i>
+                            <h3>No Adoption Applications</h3>
+                            <p>@(isUserRole ? "You haven't submitted any adoption applications yet." : "No adoption applications have been received for your shelter's pets.")</p>
+                            @if (isUserRole)
+                            {
+                                <a href="/pets" class="btn btn-primary mt-2">
+                                    <i class="fa fa-paw"></i> Browse Available Pets
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                @if (!string.IsNullOrEmpty(successMessage))
+                {
+                    <div class="alert alert-success alert-dismissible fade show">
+                        <i class="fa fa-check-circle"></i> @successMessage
+                        <button type="button" class="btn-close" @onclick="() => successMessage = null" aria-label="Close"></button>
+                    </div>
+                }
+
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <i class="fa fa-list"></i> 
+                                    @(isUserRole ? "Your Adoption Applications" : "Adoption Applications for Your Pets")
+                                </h5>
+                                <p class="text-muted mb-0">
+                                    Total Applications: <strong>@applications.Count</strong>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    @foreach (var application in applications)
+                    {
+                        var pet = applicationPets.ContainsKey(application) ? applicationPets[application] : null;
+                        var applicantUser = applicationUsers.ContainsKey(application) ? applicationUsers[application] : null;
+
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100 shadow-sm application-card">
+                                <div class="card-header bg-@GetStatusColor(application.AdoptionStatus) text-white">
+                                    <h6 class="mb-0">
+                                        <i class="fa fa-paw"></i> @application.PetName
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    @if (pet != null)
+                                    {
+                                        @if (!string.IsNullOrEmpty(pet.Image1Url))
+                                        {
+                                            <img src="@pet.Image1Url" 
+                                                 class="card-img-top mb-3 rounded" 
+                                                 alt="@pet.PartitionKey"
+                                                 style="height: 200px; object-fit: cover;"
+                                                 onerror="this.src='/images/placeholder-pet.jpg';" />
+                                        }
+                                        <p class="mb-1"><strong>Species:</strong> @pet.Species</p>
+                                        <p class="mb-1"><strong>Age:</strong> @GetPetAge(pet.RowKey)</p>
+                                        <p class="mb-1"><strong>Shelter:</strong> @pet.ShelterName</p>
+                                    }
+                                    else
+                                    {
+                                        <div class="alert alert-warning small">Pet information unavailable</div>
+                                    }
+
+                                    <hr />
+
+                                    @if (!isUserRole && applicantUser != null)
+                                    {
+                                        <h6 class="mt-3"><i class="fa fa-user"></i> Applicant</h6>
+                                        <p class="mb-1"><strong>Name:</strong> @applicantUser.PartitionKey</p>
+                                        <p class="mb-1"><strong>Email:</strong> @applicantUser.RowKey</p>
+                                        <p class="mb-1"><strong>Phone:</strong> @applicantUser.PhoneNumber</p>
+                                        <hr />
+                                    }
+
+                                    <p class="mb-1">
+                                        <strong>Status:</strong> 
+                                        <span class="badge bg-@GetStatusColor(application.AdoptionStatus)">
+                                            @GetStatusDisplay(application.AdoptionStatus)
+                                        </span>
+                                    </p>
+                                    <p class="mb-1"><strong>Submitted:</strong> @application.DateSubmitted.ToShortDateString()</p>
+
+                                    @if (!string.IsNullOrEmpty(application.Notes))
+                                    {
+                                        <hr />
+                                        <p class="mb-1"><strong>Notes:</strong></p>
+                                        <p class="small text-muted">@application.Notes</p>
+                                    }
+                                </div>
+                                <div class="card-footer bg-light">
+                                    <button class="btn btn-sm btn-primary w-100" @onclick="() => ViewApplicationDetails(application)">
+                                        <i class="fa fa-eye"></i> View Details
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </section>
+</div>
+
+<style>
+    .application-card {
+        transition: transform 0.2s;
+    }
+
+    .application-card:hover {
+        transform: translateY(-5px);
+    }
+</style>
+
+@code {
+    private List<AdoptionApplication> applications = new();
+    private Dictionary<AdoptionApplication, Pet?> applicationPets = new();
+    private Dictionary<AdoptionApplication, User?> applicationUsers = new();
+    private User? currentUser;
+    private bool isLoading = true;
+    private bool isUserRole = false;
+    private string? errorMessage;
+    private string? successMessage;
+    private string pageTitle = "My Adoptions";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadApplicationsAsync();
+    }
+
+    private async Task LoadApplicationsAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            applications.Clear();
+            applicationPets.Clear();
+            applicationUsers.Clear();
+
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                var email = user.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+                if (!string.IsNullOrEmpty(email))
+                {
+                    currentUser = await UserService.GetUserByEmailAsync(email);
+
+                    if (currentUser != null)
+                    {
+                        isUserRole = currentUser.Role == UserRole.User;
+
+                        if (isUserRole)
+                        {
+                            pageTitle = "My Adoption Applications";
+                            applications = (await AdoptionProcessService.GetUserAdoptionApplicationsAsync(
+                                currentUser.PartitionKey, 
+                                currentUser.RowKey)).ToList();
+                        }
+                        else if (currentUser.Role == UserRole.Shelter && 
+                                 !string.IsNullOrEmpty(currentUser.ShelterName) && 
+                                 !string.IsNullOrEmpty(currentUser.ShelterLocation))
+                        {
+                            pageTitle = "Adoption Applications for My Pets";
+                            applications = (await AdoptionProcessService.GetShelterAdoptionApplicationsAsync(
+                                currentUser.ShelterName, 
+                                currentUser.ShelterLocation)).ToList();
+                        }
+
+                        // Load associated pets and users
+                        foreach (var application in applications)
+                        {
+                            var pet = await AdoptionProcessService.GetPetForApplicationAsync(application);
+                            applicationPets[application] = pet;
+
+                            if (!isUserRole)
+                            {
+                                var applicant = await AdoptionProcessService.GetUserForApplicationAsync(application);
+                                applicationUsers[application] = applicant;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error loading adoption applications");
+            errorMessage = $"Failed to load applications: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private string GetPetAge(string birthDateString)
+    {
+        if (!DateTime.TryParse(birthDateString, out var birthDate))
+            return "Unknown";
+
+        var age = DateTime.Now - birthDate;
+        var years = (int)(age.TotalDays / 365.25);
+        var months = (int)((age.TotalDays % 365.25) / 30.44);
+
+        if (years > 0)
+        {
+            return months > 0 ? $"{years}y {months}m" : $"{years}y";
+        }
+        else if (months > 0)
+        {
+            return $"{months}m";
+        }
+        else
+        {
+            return $"{(int)age.TotalDays}d";
+        }
+    }
+
+    private string GetStatusColor(AdoptionStatus status)
+    {
+        return status switch
+        {
+            AdoptionStatus.NotAdopted => "secondary",
+            AdoptionStatus.Submitted => "primary",
+            AdoptionStatus.AcceptedByShelter => "info",
+            AdoptionStatus.AcceptedByUser => "success",
+            AdoptionStatus.RejectedByShelter => "danger",
+            AdoptionStatus.RejectedByUser => "warning",
+            AdoptionStatus.Adopted => "success",
+            _ => "secondary"
+        };
+    }
+
+    private string GetStatusDisplay(AdoptionStatus status)
+    {
+        return status switch
+        {
+            AdoptionStatus.NotAdopted => "Not Adopted",
+            AdoptionStatus.Submitted => "Pending Review",
+            AdoptionStatus.AcceptedByShelter => "Accepted by Shelter",
+            AdoptionStatus.AcceptedByUser => "Accepted by You",
+            AdoptionStatus.RejectedByShelter => "Rejected by Shelter",
+            AdoptionStatus.RejectedByUser => "Rejected by You",
+            AdoptionStatus.Adopted => "Adopted",
+            _ => status.ToString()
+        };
+    }
+
+    private void ViewApplicationDetails(AdoptionApplication application)
+    {
+        // Future implementation: Open modal with detailed information
+        // For now, you can expand this to show more details
+        successMessage = $"Viewing details for {application.PetName} application";
+    }
+}

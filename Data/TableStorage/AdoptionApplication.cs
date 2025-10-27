@@ -29,7 +29,7 @@ namespace PetAdoption.Data.TableStorage
         [ValidBirthDate]
         public DateTime PetBirthDate { get; set; }
 
-        public DateTime DateSubmitted { get; }
+        public DateTime DateSubmitted { get; set; } = DateTime.UtcNow;
 
         [Required(ErrorMessage = "Adoption status is required.")]
         [EnumDataType(typeof(AdoptionStatus), ErrorMessage = "Invalid adoption status.")]
@@ -47,8 +47,8 @@ namespace PetAdoption.Data.TableStorage
             PartitionKey = userName;
             RowKey = userEmail;
             PetName = petName;
-            PetBirthDate = petBirthDate;
-            DateSubmitted = DateTime.Now;
+            PetBirthDate = DateTime.SpecifyKind(petBirthDate, DateTimeKind.Utc);
+            DateSubmitted = DateTime.UtcNow;
             AdoptionStatus = AdoptionStatus.Submitted;
             Notes = notes;
         }

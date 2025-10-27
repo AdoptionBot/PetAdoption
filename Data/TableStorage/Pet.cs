@@ -89,10 +89,30 @@ namespace PetAdoption.Data.TableStorage
         [StringLength(256, ErrorMessage = "Video URL cannot exceed 256 characters.")]
         public string? Video1Url { get; set; }
 
-        public DateTime DateAdded { get; } = DateTime.Now;
+        private DateTime _dateAdded = DateTime.UtcNow;
+        
+        /// <summary>
+        /// Date when the pet was added to the system. This is set once during creation and should not be modified.
+        /// </summary>
+        public DateTime DateAdded 
+        { 
+            get => _dateAdded;
+            set
+            {
+                // Only allow setting if it hasn't been set yet (for deserialization)
+                // or if the current value is the default
+                if (_dateAdded == default || _dateAdded == DateTime.MinValue)
+                {
+                    _dateAdded = value;
+                }
+            }
+        }
 
         // Parameterless constructor for deserialization
-        public Pet() { }
+        public Pet() 
+        {
+            _dateAdded = DateTime.UtcNow;
+        }
 
         public Pet(string name, DateTime birthDate, Species species, string? breed, string? colour, Gender gender, Size size,
             string about, AdoptionStatus adoptionStatus, Vaccinations vaccinations, string? medicalTreatments,
@@ -115,6 +135,7 @@ namespace PetAdoption.Data.TableStorage
             Chipped = chipped;
             ShelterName = shelterName;
             ShelterLocation = shelterLocation;
+            _dateAdded = DateTime.UtcNow;
         }
     }
 }

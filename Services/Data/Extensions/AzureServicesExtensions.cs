@@ -1,8 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PetAdoption.Services.Interfaces;
 using Microsoft.Extensions.Logging;
+using PetAdoption.Services.AdoptionProcess;
 using PetAdoption.Services.Data;
+using PetAdoption.Services.Interfaces;
 
 namespace PetAdoption.Services.Data.Extensions
 {
@@ -81,6 +82,7 @@ namespace PetAdoption.Services.Data.Extensions
             services.AddScoped<IShelterService, ShelterService>();
             services.AddScoped<IPetService, PetService>();
             services.AddScoped<IAdoptionApplicationService, AdoptionApplicationService>();
+            services.AddScoped<IAdoptionProcessService, AdoptionProcessService>();
 
             return services;
         }
