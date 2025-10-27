@@ -243,6 +243,17 @@
     font-weight: 600 !important;
 }
 
+/* Pet Card in Pets.razor - Clickable Card */
+.pets-page-wrapper .card-clickable {
+    cursor: pointer;
+}
+
+/* Pet Card Images with specific heights */
+.pets-page-wrapper .pet-card-image {
+    height: 300px;
+    object-fit: cover;
+}
+
 /* ===================================
    MY PETS PAGE SPECIFIC STYLES
    =================================== */
@@ -281,6 +292,20 @@
     background-color: #dc3545 !important;
     border-color: #000 !important;
     color: #fff !important;
+}
+
+/* My Pets Page - Pet thumbnail images in table */
+.img-thumbnail-pet {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+}
+
+/* My Pets Page - Placeholder for missing images */
+.pet-placeholder {
+    width: 60px;
+    height: 60px;
+    border-radius: 4px;
 }
 
 /* ===================================
@@ -402,4 +427,291 @@
     background-color: #dc3545 !important;
     border-color: #000 !important;
     color: #fff !important;
+}
+
+/* ===================================
+   HERO SECTION STYLES (SHARED)
+   =================================== */
+
+/* Hero section background images */
+.hero-wrap-2 {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* ===================================
+   FOOTER STYLES
+   =================================== */
+
+/* Footer news block images */
+.block-21 .img {
+    width: 80px;
+    height: 80px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* ===================================
+   MODAL OVERLAY STYLES
+   =================================== */
+
+/* Modal backdrop for all modals */
+.modal.show.d-block {
+    display: block !important;
+}
+
+.modal-backdrop-custom {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-backdrop-dark {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* ===================================
+   ADOPTIONS PAGE SPECIFIC STYLES
+   =================================== */
+
+/* Application card hover effect */
+.adoptions-page-wrapper .application-card {
+    transition: transform 0.2s, box-shadow 0.3s;
+}
+
+.adoptions-page-wrapper .application-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Adopted Card Styles */
+.adoptions-page-wrapper .adopted-card {
+    border: 3px solid #28a745;
+    box-shadow: 0 0 20px rgba(40, 167, 69, 0.3);
+    animation: gentle-glow 2s infinite alternate;
+    position: relative;
+    overflow: hidden;
+}
+
+@keyframes gentle-glow {
+    from {
+        box-shadow: 0 0 20px rgba(40, 167, 69, 0.3);
+    }
+    to {
+        box-shadow: 0 0 30px rgba(40, 167, 69, 0.5);
+    }
+}
+
+.adoptions-page-wrapper .adoption-celebration-ribbon {
+    position: absolute;
+    top: 15px;
+    right: -35px;
+    background: linear-gradient(135deg, #ffd700, #ffed4e);
+    color: #dc3545;
+    padding: 5px 40px;
+    font-weight: bold;
+    font-size: 12px;
+    transform: rotate(45deg);
+    z-index: 10;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    animation: ribbon-shimmer 2s infinite;
+}
+
+@keyframes ribbon-shimmer {
+    0%, 100% {
+        background: linear-gradient(135deg, #ffd700, #ffed4e);
+    }
+    50% {
+        background: linear-gradient(135deg, #ffed4e, #ffd700);
+    }
+}
+
+.adoptions-page-wrapper .adopted-body {
+    background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+}
+
+.adoptions-page-wrapper .congratulations-banner {
+    background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+    border-radius: 10px;
+    border: 2px solid #28a745;
+    animation: pulse-border 2s infinite;
+}
+
+@keyframes pulse-border {
+    0%, 100% {
+        border-color: #28a745;
+    }
+    50% {
+        border-color: #20c997;
+    }
+}
+
+.adoptions-page-wrapper .animated-bounce {
+    animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.adoptions-page-wrapper .animated-heartbeat {
+    animation: heartbeat 1.5s infinite;
+}
+
+@keyframes heartbeat {
+    0%, 100% {
+        transform: scale(1);
+    }
+    10%, 30% {
+        transform: scale(1.1);
+    }
+    20%, 40% {
+        transform: scale(1);
+    }
+}
+
+.adoptions-page-wrapper .animated-star {
+    animation: star-twinkle 1.5s infinite;
+}
+
+@keyframes star-twinkle {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(1.2);
+    }
+}
+
+.adoptions-page-wrapper .pulse-badge {
+    animation: pulse-badge 1.5s infinite;
+}
+
+@keyframes pulse-badge {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.9;
+    }
+}
+
+.adoptions-page-wrapper .heart-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.8;
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+}
+
+.adoptions-page-wrapper .adopted-image {
+    border: 3px solid #28a745;
+    box-shadow: 0 0 15px rgba(40, 167, 69, 0.4);
+}
+
+/* Adoption application card image */
+.adoptions-page-wrapper .adoption-pet-image {
+    height: 200px;
+    object-fit: cover;
+}
+
+.adoptions-page-wrapper .adopted-image-modal {
+    border: 4px solid #28a745;
+    box-shadow: 0 0 20px rgba(40, 167, 69, 0.5);
+}
+
+/* Adoption modal pet image */
+.adoptions-page-wrapper .modal-pet-image {
+    max-height: 300px;
+    width: 100%;
+    object-fit: cover;
+}
+
+.adoptions-page-wrapper .adopted-badge-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: badge-float 3s infinite ease-in-out;
+}
+
+@keyframes badge-float {
+    0%, 100% {
+        transform: translate(-50%, -50%) translateY(0);
+    }
+    50% {
+        transform: translate(-50%, -50%) translateY(-10px);
+    }
+}
+
+.adoptions-page-wrapper .adoption-success-message {
+    background: linear-gradient(135deg, #e8f5e9, #fff3cd, #e8f5e9);
+    border-radius: 15px;
+    border: 3px solid #28a745;
+}
+
+.adoptions-page-wrapper .adopted-modal {
+    border: 3px solid #28a745;
+}
+
+.adoptions-page-wrapper .confetti-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.adoptions-page-wrapper .confetti {
+    position: absolute;
+    font-size: 24px;
+    animation: confetti-fall 5s infinite;
+    opacity: 0.8;
+}
+
+.adoptions-page-wrapper .confetti:nth-child(1) {
+    left: 10%;
+    animation-delay: 0s;
+}
+
+.adoptions-page-wrapper .confetti:nth-child(2) {
+    left: 30%;
+    animation-delay: 1s;
+}
+
+.adoptions-page-wrapper .confetti:nth-child(3) {
+    left: 50%;
+    animation-delay: 2s;
+}
+
+.adoptions-page-wrapper .confetti:nth-child(4) {
+    left: 70%;
+    animation-delay: 3s;
+}
+
+.adoptions-page-wrapper .confetti:nth-child(5) {
+    left: 90%;
+    animation-delay: 4s;
+}
+
+@keyframes confetti-fall {
+    0% {
+        top: -10%;
+        transform: rotate(0deg);
+    }
+    100% {
+        top: 110%;
+        transform: rotate(720deg);
+    }
 }

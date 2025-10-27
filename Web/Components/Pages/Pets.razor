@@ -108,11 +108,10 @@
                         var imageUrl = GetPetImage(pet);
 
                         <div class="col-md-4 mb-4">
-                            <div class="card" style="cursor: pointer;" @onclick="() => ViewPet(pet)">
+                            <div class="card card-clickable" @onclick="() => ViewPet(pet)">
                                 <img src="@imageUrl"
-                                     class="card-img-top"
+                                     class="card-img-top pet-card-image"
                                      alt="@pet.PartitionKey"
-                                     style="height: 300px; object-fit: cover;"
                                      onerror="this.src='/images/placeholder-pet.jpg';" />
                                 <div class="card-body">
                                     <h5 class="card-title">@pet.PartitionKey</h5>
@@ -169,7 +168,7 @@
     @if (selectedPet != null && showDetailModal)
     {
         <ModalHelper OnClose="CloseModal" ModalId="pet-detail-modal" />
-        <div id="pet-detail-modal" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div id="pet-detail-modal" class="modal fade show d-block modal-backdrop-custom" tabindex="-1">
             <div class="modal-dialog modal-xl modal-dialog-scrollable">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -316,7 +315,7 @@
     @if (petForAdoption != null && showAdoptionModal)
     {
         <ModalHelper OnClose="CloseAdoptionModal" ModalId="adoption-request-modal" />
-        <div id="adoption-request-modal" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.7);">
+        <div id="adoption-request-modal" class="modal fade show d-block modal-backdrop-dark" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header bg-success text-white">
