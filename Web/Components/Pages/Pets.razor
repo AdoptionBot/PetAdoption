@@ -62,15 +62,6 @@
                     <div class="col-md-12 text-center">
                         <h3>No pets available for adoption at the moment</h3>
                         <p>Please check back later for new arrivals!</p>
-                        @if (totalPetsBeforeFilter > 0)
-                        {
-                            <div class="alert alert-info mt-3">
-                                <p><strong>Note:</strong> @totalPetsBeforeFilter pet(s) exist in the database, but none have <code>AdoptionStatus = NotAdopted</code>.</p>
-                            </div>
-                        }
-                        <button class="btn btn-secondary mt-2" @onclick="RetryLoading">
-                            <i class="fas fa-refresh"></i> Refresh
-                        </button>
                     </div>
                 </div>
             }
@@ -419,7 +410,6 @@
     private bool isLoading = true;
     private string? errorMessage;
     private string? successMessage;
-    private int totalPetsBeforeFilter = 0;
     
     private int currentPage = 1;
     private const int pageSize = 12;
@@ -512,8 +502,6 @@
             
             var pets = await PetService.GetAllPetsAsync();
             var petsList = pets.ToList();
-            
-            totalPetsBeforeFilter = petsList.Count;
             
             // Filter only pets with AdoptionStatus = NotAdopted
             allPets = petsList.Where(p => p.AdoptionStatus == AdoptionStatus.NotAdopted)
