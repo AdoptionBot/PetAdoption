@@ -54,7 +54,7 @@ namespace PetAdoption.Services.AdoptionProcess
                 }
 
                 // Check for existing application
-                if (await HasPendingApplicationAsync(userName, userEmail, petName, petBirthDate))
+                if (await HasPendingApplicationAsync(userEmail, petName, petBirthDate))
                 {
                     return (false, "You already have a pending application for this pet.");
                 }
@@ -91,8 +91,8 @@ namespace PetAdoption.Services.AdoptionProcess
             catch (Exception ex)
             {
                 _logger.LogError(ex, 
-                    "Error submitting adoption application for user {UserName} and pet {PetName}", 
-                    userName, petName);
+                    "Error submitting adoption application for user {UserEmail} and pet {PetName}", 
+                    userEmail, petName);
                 return (false, $"An error occurred while submitting your application: {ex.Message}");
             }
         }
@@ -123,8 +123,8 @@ namespace PetAdoption.Services.AdoptionProcess
                 await _applicationService.UpdateApplicationAsync(application);
 
                 _logger.LogInformation(
-                    "Adoption application accepted by shelter: User {UserName} for Pet {PetName}",
-                    application.PartitionKey, application.PetName);
+                    "Adoption application accepted by shelter: User {UserEmail} for Pet {PetName}",
+                    application.Email, application.PetName);
 
                 return (true, $"Application for {application.PetName} has been accepted!");
             }
@@ -164,8 +164,8 @@ namespace PetAdoption.Services.AdoptionProcess
                     application.RowKey);
 
                 _logger.LogInformation(
-                    "Adoption application rejected by shelter: User {UserName} for Pet {PetName}",
-                    application.PartitionKey, application.PetName);
+                    "Adoption application rejected by shelter: User {UserEmail} for Pet {PetName}",
+                    application.Email, application.PetName);
 
                 return (true, $"Application for {application.PetName} has been rejected.");
             }
@@ -204,8 +204,8 @@ namespace PetAdoption.Services.AdoptionProcess
                 await _applicationService.UpdateApplicationAsync(application);
 
                 _logger.LogInformation(
-                    "Adoption application accepted by user: User {UserName} for Pet {PetName}",
-                    application.PartitionKey, application.PetName);
+                    "Adoption application accepted by user: User {UserEmail} for Pet {PetName}",
+                    application.Email, application.PetName);
 
                 return (true, $"Congratulations! You have accepted {application.PetName} for adoption!");
             }
@@ -245,8 +245,8 @@ namespace PetAdoption.Services.AdoptionProcess
                     application.RowKey);
 
                 _logger.LogInformation(
-                    "Adoption application rejected by user: User {UserName} for Pet {PetName}",
-                    application.PartitionKey, application.PetName);
+                    "Adoption application rejected by user: User {UserEmail} for Pet {PetName}",
+                    application.Email, application.PetName);
 
                 return (true, $"You have declined the adoption of {application.PetName}. The pet is now available for other adopters.");
             }
@@ -259,21 +259,18 @@ namespace PetAdoption.Services.AdoptionProcess
             }
         }
 
-        public async Task<IEnumerable<AdoptionApplication>> GetUserAdoptionApplicationsAsync(string userName, string userEmail)
+        public async Task<IEnumerable<AdoptionApplication>> GetUserAdoptionApplicationsAsync(string userEmail)
         {
             try
             {
-                var allApplications = await _applicationService.GetAllApplicationsAsync();
-                
-                // Filter by both userName (PartitionKey) and userEmail (RowKey)
-                return allApplications
-                    .Where(a => a.PartitionKey == userName && a.RowKey == userEmail)
+                // Get all applications for this user (by email as PartitionKey)
+                return (await _applicationService.GetApplicationsByUserAsync(userEmail))
                     .OrderByDescending(a => a.DateSubmitted)
                     .ToList();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting applications for user {UserName}", userName);
+                _logger.LogError(ex, "Error getting applications for user {UserEmail}", userEmail);
                 return Enumerable.Empty<AdoptionApplication>();
             }
         }
@@ -286,14 +283,20 @@ namespace PetAdoption.Services.AdoptionProcess
             {
                 // Get all pets belonging to this shelter
                 var shelterPets = await _petService.GetPetsByShelterAsync(shelterName, shelterLocation);
-                var petNames = shelterPets.Select(p => p.PartitionKey).Distinct().ToHashSet();
+                
+                // Create a set of pet identifiers (name + birthdate)
+                var petIdentifiers = shelterPets
+                    .Select(p => new { Name = p.PartitionKey, BirthDate = p.RowKey })
+                    .ToHashSet();
 
                 // Get all applications
                 var allApplications = await _applicationService.GetAllApplicationsAsync();
 
                 // Filter applications for pets belonging to this shelter
                 return allApplications
-                    .Where(a => petNames.Contains(a.PetName))
+                    .Where(a => petIdentifiers.Any(p => 
+                        p.Name == a.PetName && 
+                        p.BirthDate == a.RowKey))
                     .OrderByDescending(a => a.DateSubmitted)
                     .ToList();
             }
@@ -312,7 +315,7 @@ namespace PetAdoption.Services.AdoptionProcess
             {
                 return await _petService.GetPetAsync(
                     application.PetName, 
-                    application.PetBirthDate.ToString("yyyy-MM-dd"));
+                    application.RowKey);
             }
             catch (Exception ex)
             {
@@ -327,30 +330,29 @@ namespace PetAdoption.Services.AdoptionProcess
         {
             try
             {
-                return await _userService.GetUserByEmailAsync(application.RowKey);
+                return await _userService.GetUserByEmailAsync(application.Email);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, 
                     "Error getting user for application: {UserEmail}", 
-                    application.RowKey);
+                    application.Email);
                 return null;
             }
         }
 
         public async Task<bool> HasPendingApplicationAsync(
-            string userName, 
             string userEmail, 
             string petName, 
             string petBirthDate)
         {
             try
             {
-                var userApplications = await GetUserAdoptionApplicationsAsync(userName, userEmail);
+                var userApplications = await GetUserAdoptionApplicationsAsync(userEmail);
                 
                 return userApplications.Any(a => 
                     a.PetName == petName && 
-                    a.PetBirthDate.ToString("yyyy-MM-dd") == petBirthDate &&
+                    a.RowKey == petBirthDate &&
                     (a.AdoptionStatus == AdoptionStatus.Submitted || 
                      a.AdoptionStatus == AdoptionStatus.AcceptedByShelter ||
                      a.AdoptionStatus == AdoptionStatus.AcceptedByUser));
@@ -358,8 +360,8 @@ namespace PetAdoption.Services.AdoptionProcess
             catch (Exception ex)
             {
                 _logger.LogError(ex, 
-                    "Error checking pending applications for user {UserName} and pet {PetName}", 
-                    userName, petName);
+                    "Error checking pending applications for user {UserEmail} and pet {PetName}", 
+                    userEmail, petName);
                 return false;
             }
         }

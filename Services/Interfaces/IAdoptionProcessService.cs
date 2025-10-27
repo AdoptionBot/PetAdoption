@@ -20,7 +20,7 @@ namespace PetAdoption.Services.Interfaces
         /// <summary>
         /// Gets all adoption applications for a specific user
         /// </summary>
-        Task<IEnumerable<AdoptionApplication>> GetUserAdoptionApplicationsAsync(string userName, string userEmail);
+        Task<IEnumerable<AdoptionApplication>> GetUserAdoptionApplicationsAsync(string userEmail);
 
         /// <summary>
         /// Gets all adoption applications for pets belonging to a specific shelter
@@ -40,7 +40,7 @@ namespace PetAdoption.Services.Interfaces
         /// <summary>
         /// Checks if a user already has a pending application for a specific pet
         /// </summary>
-        Task<bool> HasPendingApplicationAsync(string userName, string userEmail, string petName, string petBirthDate);
+        Task<bool> HasPendingApplicationAsync(string userEmail, string petName, string petBirthDate);
 
         /// <summary>
         /// Shelter accepts an adoption application

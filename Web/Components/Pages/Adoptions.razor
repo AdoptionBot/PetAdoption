@@ -177,8 +177,9 @@
 @* Application Details Modal *@
 @if (showDetailsModal && selectedApplication != null)
 {
-    <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <ModalHelper OnClose="CloseDetailsModal" ModalId="application-details-modal" />
+    <div id="application-details-modal" class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header bg-@GetStatusColor(selectedApplication.AdoptionStatus) text-white">
                     <h5 class="modal-title">
@@ -386,7 +387,6 @@
                         {
                             pageTitle = "My Adoption Applications";
                             applications = (await AdoptionProcessService.GetUserAdoptionApplicationsAsync(
-                                currentUser.PartitionKey, 
                                 currentUser.RowKey)).ToList();
                         }
                         else if (currentUser.Role == UserRole.Shelter && 

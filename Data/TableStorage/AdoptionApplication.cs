@@ -9,18 +9,26 @@ namespace PetAdoption.Data.TableStorage
     public class AdoptionApplication : ITableEntity
     {
         // ITableEntity required properties
-        [Required(ErrorMessage = "User name is required.")]
-        [StringLength(50, MinimumLength = 3, ErrorMessage = "User name must be between 3 and 50 characters.")]
-        public string PartitionKey { get; set; } = string.Empty;
-
         [Required(ErrorMessage = "User email is required.")]
         [EmailAddress(ErrorMessage = "User email must be a valid email address.")]
+        public string PartitionKey { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Pet birth date is required.")]
+        [ValidBirthDate]
         public string RowKey { get; set; } = string.Empty;
 
         public DateTimeOffset? Timestamp { get; set; }
         public ETag ETag { get; set; }
 
         // Custom properties
+        [Required(ErrorMessage = "User email is required.")]
+        [EmailAddress(ErrorMessage = "User email must be a valid email address.")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "User name is required.")]
+        [StringLength(50, MinimumLength = 3, ErrorMessage = "User name must be between 3 and 50 characters.")]
+        public string UserName { get; set; } = string.Empty;
+
         [Required(ErrorMessage = "Pet name is required.")]
         [StringLength(50, MinimumLength = 3, ErrorMessage = "Pet name must be between 3 and 50 characters.")]
         public string PetName { get; set; } = string.Empty;
@@ -44,8 +52,10 @@ namespace PetAdoption.Data.TableStorage
         public AdoptionApplication(
             string userName, string userEmail, string petName, DateTime petBirthDate, string? notes)
         {
-            PartitionKey = userName;
-            RowKey = userEmail;
+            PartitionKey = userEmail;
+            RowKey = petBirthDate.ToString("yyyy-MM-dd");
+            Email = userEmail;
+            UserName = userName;
             PetName = petName;
             PetBirthDate = DateTime.SpecifyKind(petBirthDate, DateTimeKind.Utc);
             DateSubmitted = DateTime.UtcNow;
