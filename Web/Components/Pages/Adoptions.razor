@@ -1,4 +1,4 @@
-@page "/adoptions"
+﻿@page "/adoptions"
 @using Microsoft.AspNetCore.Authorization
 @using PetAdoption.Services.Interfaces
 @using PetAdoption.Data.TableStorage
@@ -95,6 +95,13 @@
                                 </h5>
                                 <p class="text-muted mb-0">
                                     Total Applications: <strong>@applications.Count</strong>
+                                    @if (applications.Count(a => a.AdoptionStatus == AdoptionStatus.Adopted) > 0)
+                                    {
+                                        <span class="ms-3">
+                                            <i class="fa fa-heart text-danger"></i> 
+                                            Successfully Adopted: <strong class="text-success">@applications.Count(a => a.AdoptionStatus == AdoptionStatus.Adopted)</strong>
+                                        </span>
+                                    }
                                 </p>
                             </div>
                         </div>
@@ -106,25 +113,57 @@
                     {
                         var pet = applicationPets.ContainsKey(application) ? applicationPets[application] : null;
                         var applicantUser = applicationUsers.ContainsKey(application) ? applicationUsers[application] : null;
+                        var isAdopted = application.AdoptionStatus == AdoptionStatus.Adopted;
 
                         <div class="col-md-6 col-lg-4 mb-4">
-                            <div class="card h-100 shadow-sm application-card">
+                            <div class="card h-100 shadow-sm application-card @(isAdopted ? "adopted-card" : "")">
+                                @if (isAdopted)
+                                {
+                                    <div class="adoption-celebration-ribbon">
+                                        <i class="fa fa-heart"></i> ADOPTED <i class="fa fa-heart"></i>
+                                    </div>
+                                }
                                 <div class="card-header bg-@GetStatusColor(application.AdoptionStatus) text-white">
                                     <h6 class="mb-0">
                                         <i class="fa fa-paw"></i> @application.PetName
+                                        @if (isAdopted)
+                                        {
+                                            <span class="float-end">
+                                                <i class="fa fa-star animated-star"></i>
+                                            </span>
+                                        }
                                     </h6>
                                 </div>
-                                <div class="card-body">
+                                <div class="card-body @(isAdopted ? "adopted-body" : "")">
+                                    @if (isAdopted && isUserRole)
+                                    {
+                                        <div class="congratulations-banner mb-3">
+                                            <div class="text-center py-3">
+                                                <i class="fa fa-trophy text-warning fa-2x mb-2 animated-bounce"></i>
+                                                <h6 class="text-success fw-bold mb-1">🎉 Congratulations! 🎉</h6>
+                                                <p class="small text-muted mb-0">You're now a loving pet parent!</p>
+                                            </div>
+                                        </div>
+                                    }
+                                    
                                     @if (pet != null)
                                     {
-                                        @if (!string.IsNullOrEmpty(pet.Image1Url))
-                                        {
-                                            <img src="@pet.Image1Url" 
-                                                 class="card-img-top mb-3 rounded" 
-                                                 alt="@pet.PartitionKey"
-                                                 style="height: 200px; object-fit: cover;"
-                                                 onerror="this.src='/images/placeholder-pet.jpg';" />
-                                        }
+                                        <div class="position-relative">
+                                            @if (!string.IsNullOrEmpty(pet.Image1Url))
+                                            {
+                                                <img src="@pet.Image1Url" 
+                                                     class="card-img-top mb-3 rounded @(isAdopted ? "adopted-image" : "")" 
+                                                     alt="@pet.PartitionKey"
+                                                     style="height: 200px; object-fit: cover;"
+                                                     onerror="this.src='/images/placeholder-pet.jpg';" />
+                                                @if (isAdopted)
+                                                {
+                                                    <div class="heart-overlay">
+                                                        <i class="fa fa-heart fa-3x text-danger animated-heartbeat"></i>
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
                                         <p class="mb-1"><strong>Species:</strong> @pet.Species</p>
                                         <p class="mb-1"><strong>Age:</strong> @GetPetAge(pet.RowKey)</p>
                                         <p class="mb-1"><strong>Shelter:</strong> @pet.ShelterName</p>
@@ -147,11 +186,26 @@
 
                                     <p class="mb-1">
                                         <strong>Status:</strong> 
-                                        <span class="badge bg-@GetStatusColor(application.AdoptionStatus)">
+                                        <span class="badge bg-@GetStatusColor(application.AdoptionStatus) @(isAdopted ? "pulse-badge" : "")">
+                                            @if (isAdopted)
+                                            {
+                                                <i class="fa fa-heart me-1"></i>
+                                            }
                                             @GetStatusDisplay(application.AdoptionStatus, isUserRole)
                                         </span>
                                     </p>
                                     <p class="mb-1"><strong>Submitted:</strong> @application.DateSubmitted.ToShortDateString()</p>
+
+                                    @if (isAdopted && isUserRole)
+                                    {
+                                        <div class="mt-3 p-2 bg-light rounded border border-success">
+                                            <p class="small text-success mb-0">
+                                                <i class="fa fa-check-circle"></i> 
+                                                <strong>Welcome to your new family member!</strong> 
+                                                Thank you for giving @application.PetName a forever home filled with love! 💕
+                                            </p>
+                                        </div>
+                                    }
 
                                     @if (!string.IsNullOrEmpty(application.Notes))
                                     {
@@ -160,9 +214,10 @@
                                         <p class="small text-muted">@application.Notes</p>
                                     }
                                 </div>
-                                <div class="card-footer bg-light">
-                                    <button class="btn btn-sm btn-primary w-100" @onclick="() => ViewApplicationDetails(application, pet, applicantUser)">
-                                        <i class="fa fa-eye"></i> View Details
+                                <div class="card-footer @(isAdopted ? "bg-success bg-opacity-10" : "bg-light")">
+                                    <button class="btn btn-sm @(isAdopted ? "btn-success" : "btn-primary") w-100" @onclick="() => ViewApplicationDetails(application, pet, applicantUser)">
+                                        <i class="fa @(isAdopted ? "fa-heart" : "fa-eye")"></i> 
+                                        @(isAdopted ? "View Adoption" : "View Details")
                                     </button>
                                 </div>
                             </div>
@@ -177,13 +232,26 @@
 @* Application Details Modal *@
 @if (showDetailsModal && selectedApplication != null)
 {
+    var isAdoptedModal = selectedApplication.AdoptionStatus == AdoptionStatus.Adopted;
+    
     <ModalHelper OnClose="CloseDetailsModal" ModalId="application-details-modal" />
     <div id="application-details-modal" class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header bg-@GetStatusColor(selectedApplication.AdoptionStatus) text-white">
+            <div class="modal-content @(isAdoptedModal ? "adopted-modal" : "")">
+                <div class="modal-header bg-@GetStatusColor(selectedApplication.AdoptionStatus) text-white position-relative">
+                    @if (isAdoptedModal)
+                    {
+                        <div class="confetti-container">
+                            <span class="confetti">🎊</span>
+                            <span class="confetti">🎉</span>
+                            <span class="confetti">✨</span>
+                            <span class="confetti">🌟</span>
+                            <span class="confetti">💝</span>
+                        </div>
+                    }
                     <h5 class="modal-title">
-                        <i class="fa fa-paw"></i> Adoption Application Details - @selectedApplication.PetName
+                        <i class="fa @(isAdoptedModal ? "fa-heart" : "fa-paw")"></i> 
+                        @(isAdoptedModal ? "Successful Adoption" : "Adoption Application Details") - @selectedApplication.PetName
                     </h5>
                     <button type="button" class="btn-close btn-close-white" @onclick="CloseDetailsModal" aria-label="Close"></button>
                 </div>
@@ -199,19 +267,54 @@
                     }
                     else
                     {
+                        @if (isAdoptedModal && isUserRole)
+                        {
+                            <div class="adoption-success-message text-center py-4 mb-4">
+                                <i class="fa fa-trophy text-warning fa-4x mb-3 animated-bounce"></i>
+                                <h3 class="text-success fw-bold mb-3">
+                                    🎉 Congratulations on Your New Family Member! 🎉
+                                </h3>
+                                <p class="lead text-muted mb-3">
+                                    You've given <strong class="text-primary">@selectedApplication.PetName</strong> a loving forever home!
+                                </p>
+                                <div class="row justify-content-center mb-3">
+                                    <div class="col-auto">
+                                        <div class="p-3 bg-light rounded-circle">
+                                            <i class="fa fa-heart text-danger fa-2x animated-heartbeat"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-muted mb-0">
+                                    This is the beginning of a beautiful journey together. 
+                                    Thank you for choosing adoption and making a difference in @selectedApplication.PetName's life! 💕
+                                </p>
+                                <hr class="my-4" />
+                            </div>
+                        }
+                        
                         <div class="row">
                             <div class="col-md-6">
                                 <h6 class="border-bottom pb-2 mb-3"><i class="fa fa-paw"></i> Pet Information</h6>
                                 @if (selectedPet != null)
                                 {
-                                    @if (!string.IsNullOrEmpty(selectedPet.Image1Url))
-                                    {
-                                        <img src="@selectedPet.Image1Url" 
-                                             class="img-fluid rounded mb-3" 
-                                             alt="@selectedPet.PartitionKey"
-                                             style="max-height: 300px; width: 100%; object-fit: cover;"
-                                             onerror="this.src='/images/placeholder-pet.jpg';" />
-                                    }
+                                    <div class="position-relative">
+                                        @if (!string.IsNullOrEmpty(selectedPet.Image1Url))
+                                        {
+                                            <img src="@selectedPet.Image1Url" 
+                                                 class="img-fluid rounded mb-3 @(isAdoptedModal ? "adopted-image-modal" : "")" 
+                                                 alt="@selectedPet.PartitionKey"
+                                                 style="max-height: 300px; width: 100%; object-fit: cover;"
+                                                 onerror="this.src='/images/placeholder-pet.jpg';" />
+                                            @if (isAdoptedModal)
+                                            {
+                                                <div class="adopted-badge-overlay">
+                                                    <span class="badge bg-success fs-5 px-4 py-2">
+                                                        <i class="fa fa-heart me-2"></i>ADOPTED<i class="fa fa-heart ms-2"></i>
+                                                    </span>
+                                                </div>
+                                            }
+                                        }
+                                    </div>
                                     <p><strong>Name:</strong> @selectedPet.PartitionKey</p>
                                     <p><strong>Species:</strong> @selectedPet.Species</p>
                                     <p><strong>Breed:</strong> @(selectedPet.Breed ?? "Not specified")</p>
@@ -252,7 +355,11 @@
                             <div class="col-md-6">
                                 <h6 class="border-bottom pb-2 mb-3"><i class="fa fa-file-text"></i> Application Information</h6>
                                 <p><strong>Status:</strong> 
-                                    <span class="badge bg-@GetStatusColor(selectedApplication.AdoptionStatus)">
+                                    <span class="badge bg-@GetStatusColor(selectedApplication.AdoptionStatus) @(isAdoptedModal ? "pulse-badge" : "")">
+                                        @if (isAdoptedModal)
+                                        {
+                                            <i class="fa fa-heart me-1"></i>
+                                        }
                                         @GetStatusDisplay(selectedApplication.AdoptionStatus, isUserRole)
                                     </span>
                                 </p>
@@ -294,11 +401,34 @@
                                         <p class="mb-0 small">The applicant has accepted the adoption! You can now confirm the adoption is complete once the pet has been handed over to the new family.</p>
                                     </div>
                                 }
+                                
+                                @if (isAdoptedModal)
+                                {
+                                    <div class="alert alert-success mt-4 border-success">
+                                        <h6 class="text-success"><i class="fa fa-check-circle"></i> Adoption Complete!</h6>
+                                        <p class="small mb-2">
+                                            This adoption was successfully completed. 
+                                            @if (isUserRole)
+                                            {
+                                                <span>We wish you and @selectedApplication.PetName many happy years together!</span>
+                                            }
+                                            else
+                                            {
+                                                <span>Thank you for helping @selectedApplication.PetName find their forever home!</span>
+                                            }
+                                        </p>
+                                        <div class="text-center mt-3">
+                                            <i class="fa fa-paw text-success mx-1"></i>
+                                            <i class="fa fa-heart text-danger mx-1"></i>
+                                            <i class="fa fa-paw text-success mx-1"></i>
+                                        </div>
+                                    </div>
+                                }
                             </div>
                         </div>
                     }
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer @(isAdoptedModal ? "bg-success bg-opacity-10" : "")">
                     @* Shelter buttons - shown when status is Submitted *@
                     @if (!isUserRole && selectedApplication.AdoptionStatus == AdoptionStatus.Submitted && !isProcessing)
                     {
@@ -340,7 +470,7 @@
 
 <style>
     .application-card {
-        transition: transform 0.2s;
+        transition: transform 0.2s, box-shadow 0.3s;
     }
 
     .application-card:hover {
@@ -349,6 +479,226 @@
 
     .modal.show.d-block {
         display: block !important;
+    }
+
+    /* Adopted Card Styles */
+    .adopted-card {
+        border: 3px solid #28a745;
+        box-shadow: 0 0 20px rgba(40, 167, 69, 0.3);
+        animation: gentle-glow 2s infinite alternate;
+        position: relative;
+        overflow: hidden;
+    }
+
+    @@keyframes gentle-glow {
+        from {
+            box-shadow: 0 0 20px rgba(40, 167, 69, 0.3);
+        }
+        to {
+            box-shadow: 0 0 30px rgba(40, 167, 69, 0.5);
+        }
+    }
+
+    .adoption-celebration-ribbon {
+        position: absolute;
+        top: 15px;
+        right: -35px;
+        background: linear-gradient(135deg, #ffd700, #ffed4e);
+        color: #dc3545;
+        padding: 5px 40px;
+        font-weight: bold;
+        font-size: 12px;
+        transform: rotate(45deg);
+        z-index: 10;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        animation: ribbon-shimmer 2s infinite;
+    }
+
+    @@keyframes ribbon-shimmer {
+        0%, 100% {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+        }
+        50% {
+            background: linear-gradient(135deg, #ffed4e, #ffd700);
+        }
+    }
+
+    .adopted-body {
+        background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+    }
+
+    .congratulations-banner {
+        background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+        border-radius: 10px;
+        border: 2px solid #28a745;
+        animation: pulse-border 2s infinite;
+    }
+
+    @@keyframes pulse-border {
+        0%, 100% {
+            border-color: #28a745;
+        }
+        50% {
+            border-color: #20c997;
+        }
+    }
+
+    .animated-bounce {
+        animation: bounce 1s infinite;
+    }
+
+    @@keyframes bounce {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    .animated-heartbeat {
+        animation: heartbeat 1.5s infinite;
+    }
+
+    @@keyframes heartbeat {
+        0%, 100% {
+            transform: scale(1);
+        }
+        10%, 30% {
+            transform: scale(1.1);
+        }
+        20%, 40% {
+            transform: scale(1);
+        }
+    }
+
+    .animated-star {
+        animation: star-twinkle 1.5s infinite;
+    }
+
+    @@keyframes star-twinkle {
+        0%, 100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+        50% {
+            opacity: 0.5;
+            transform: scale(1.2);
+        }
+    }
+
+    .pulse-badge {
+        animation: pulse-badge 1.5s infinite;
+    }
+
+    @@keyframes pulse-badge {
+        0%, 100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+        50% {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+    }
+
+    .heart-overlay {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        opacity: 0.8;
+        filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+    }
+
+    .adopted-image {
+        border: 3px solid #28a745;
+        box-shadow: 0 0 15px rgba(40, 167, 69, 0.4);
+    }
+
+    .adopted-image-modal {
+        border: 4px solid #28a745;
+        box-shadow: 0 0 20px rgba(40, 167, 69, 0.5);
+    }
+
+    .adopted-badge-overlay {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        animation: badge-float 3s infinite ease-in-out;
+    }
+
+    @@keyframes badge-float {
+        0%, 100% {
+            transform: translate(-50%, -50%) translateY(0);
+        }
+        50% {
+            transform: translate(-50%, -50%) translateY(-10px);
+        }
+    }
+
+    .adoption-success-message {
+        background: linear-gradient(135deg, #e8f5e9, #fff3cd, #e8f5e9);
+        border-radius: 15px;
+        border: 3px solid #28a745;
+    }
+
+    .adopted-modal {
+        border: 3px solid #28a745;
+    }
+
+    .confetti-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 100%;
+        overflow: hidden;
+        pointer-events: none;
+    }
+
+    .confetti {
+        position: absolute;
+        font-size: 24px;
+        animation: confetti-fall 5s infinite;
+        opacity: 0.8;
+    }
+
+    .confetti:nth-child(1) {
+        left: 10%;
+        animation-delay: 0s;
+    }
+
+    .confetti:nth-child(2) {
+        left: 30%;
+        animation-delay: 1s;
+    }
+
+    .confetti:nth-child(3) {
+        left: 50%;
+        animation-delay: 2s;
+    }
+
+    .confetti:nth-child(4) {
+        left: 70%;
+        animation-delay: 3s;
+    }
+
+    .confetti:nth-child(5) {
+        left: 90%;
+        animation-delay: 4s;
+    }
+
+    @@keyframes confetti-fall {
+        0% {
+            top: -10%;
+            transform: rotate(0deg);
+        }
+        100% {
+            top: 110%;
+            transform: rotate(720deg);
+        }
     }
 </style>
 
@@ -418,13 +768,20 @@
                         // Load associated pets and users
                         foreach (var application in applications)
                         {
-                            var pet = await AdoptionProcessService.GetPetForApplicationAsync(application);
-                            applicationPets[application] = pet;
-
-                            if (!isUserRole)
+                            try
                             {
-                                var applicant = await AdoptionProcessService.GetUserForApplicationAsync(application);
-                                applicationUsers[application] = applicant;
+                                var pet = await AdoptionProcessService.GetPetForApplicationAsync(application);
+                                applicationPets[application] = pet;
+
+                                if (!isUserRole)
+                                {
+                                    var applicant = await AdoptionProcessService.GetUserForApplicationAsync(application);
+                                    applicationUsers[application] = applicant;
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.LogWarning(ex, "Error loading pet/user for application: {Message}", ex.Message);
                             }
                         }
                     }
