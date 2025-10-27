@@ -97,6 +97,87 @@ namespace PetAdoption.Services.AdoptionProcess
             }
         }
 
+        public async Task<(bool Success, string Message)> AcceptApplicationAsync(AdoptionApplication application)
+        {
+            try
+            {
+                // Get the pet
+                var pet = await GetPetForApplicationAsync(application);
+                if (pet == null)
+                {
+                    return (false, "Pet not found.");
+                }
+
+                // Verify the pet is in Submitted status
+                if (pet.AdoptionStatus != AdoptionStatus.Submitted)
+                {
+                    return (false, $"Cannot accept application. Pet status is: {pet.AdoptionStatus}");
+                }
+
+                // Update pet status to AcceptedByShelter
+                pet.AdoptionStatus = AdoptionStatus.AcceptedByShelter;
+                await _petService.UpdatePetAsync(pet);
+
+                // Update application status
+                application.AdoptionStatus = AdoptionStatus.AcceptedByShelter;
+                await _applicationService.UpdateApplicationAsync(application);
+
+                _logger.LogInformation(
+                    "Adoption application accepted by shelter: User {UserName} for Pet {PetName}",
+                    application.PartitionKey, application.PetName);
+
+                return (true, $"Application for {application.PetName} has been accepted!");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, 
+                    "Error accepting adoption application for pet {PetName}", 
+                    application.PetName);
+                return (false, $"An error occurred while accepting the application: {ex.Message}");
+            }
+        }
+
+        public async Task<(bool Success, string Message)> RejectApplicationAsync(AdoptionApplication application)
+        {
+            try
+            {
+                // Get the pet
+                var pet = await GetPetForApplicationAsync(application);
+                if (pet == null)
+                {
+                    return (false, "Pet not found.");
+                }
+
+                // Verify the pet is in Submitted status
+                if (pet.AdoptionStatus != AdoptionStatus.Submitted)
+                {
+                    return (false, $"Cannot reject application. Pet status is: {pet.AdoptionStatus}");
+                }
+
+                // Update pet status back to NotAdopted
+                pet.AdoptionStatus = AdoptionStatus.NotAdopted;
+                await _petService.UpdatePetAsync(pet);
+
+                // Delete the application
+                await _applicationService.DeleteApplicationAsync(
+                    application.PartitionKey, 
+                    application.RowKey);
+
+                _logger.LogInformation(
+                    "Adoption application rejected by shelter: User {UserName} for Pet {PetName}",
+                    application.PartitionKey, application.PetName);
+
+                return (true, $"Application for {application.PetName} has been rejected.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, 
+                    "Error rejecting adoption application for pet {PetName}", 
+                    application.PetName);
+                return (false, $"An error occurred while rejecting the application: {ex.Message}");
+            }
+        }
+
         public async Task<IEnumerable<AdoptionApplication>> GetUserAdoptionApplicationsAsync(string userName, string userEmail)
         {
             try

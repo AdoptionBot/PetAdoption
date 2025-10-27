@@ -41,5 +41,15 @@ namespace PetAdoption.Services.Interfaces
         /// Checks if a user already has a pending application for a specific pet
         /// </summary>
         Task<bool> HasPendingApplicationAsync(string userName, string userEmail, string petName, string petBirthDate);
+
+        /// <summary>
+        /// Shelter accepts an adoption application
+        /// </summary>
+        Task<(bool Success, string Message)> AcceptApplicationAsync(AdoptionApplication application);
+
+        /// <summary>
+        /// Shelter rejects an adoption application
+        /// </summary>
+        Task<(bool Success, string Message)> RejectApplicationAsync(AdoptionApplication application);
     }
 }
