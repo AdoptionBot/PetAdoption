@@ -1,0 +1,642 @@
+@page "/admin/veterinarians"
+@using Microsoft.AspNetCore.Authorization
+@using PetAdoption.Services.Interfaces
+@using PetAdoption.Data.TableStorage
+@using PetAdoption.Web.Components.Shared
+@using Azure
+@attribute [Authorize(Policy = "AdminOnly")]
+@inject IVeterinaryService VeterinaryService
+@inject IConfiguration Configuration
+@rendermode InteractiveServer
+
+<PageTitle>Manage Veterinarians - Admin</PageTitle>
+
+<div class="veterinary-management-page">
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">Veterinary Management</h3>
+                <button class="btn btn-light btn-sm" @onclick="ShowCreateModal">
+                    <i class="fa fa-plus"></i> Add New Veterinary
+                </button>
+            </div>
+            <div class="card-body">
+                @if (isLoading)
+                {
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3 text-muted">Loading veterinaries...</p>
+                    </div>
+                }
+                else if (veterinaries != null && veterinaries.Any())
+                {
+                    @if (!string.IsNullOrEmpty(successMessage))
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fa fa-check-circle"></i> @successMessage
+                            <button type="button" class="btn-close" @onclick="() => successMessage = null" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fa fa-exclamation-circle"></i> @errorMessage
+                            <button type="button" class="btn-close" @onclick="() => errorMessage = null" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    <!-- Search and Filter Section -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa fa-search"></i></span>
+                                <input type="text" class="form-control" placeholder="Search veterinaries..." 
+                                       @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterVeterinaries" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <select class="form-select" @onchange="FilterByCountry">
+                                <option value="">All Countries</option>
+                                @if (availableCountries != null)
+                                {
+                                    @foreach (var country in availableCountries)
+                                    {
+                                        <option value="@country">@country</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Veterinary Name</th>
+                                    <th>Location</th>
+                                    <th>Country</th>
+                                    <th>Phone</th>
+                                    <th>Opening Times</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var vet in filteredVeterinaries ?? veterinaries)
+                                {
+                                    <tr>
+                                        <td><strong>@vet.VeterinaryName</strong></td>
+                                        <td>@vet.CityTown</td>
+                                        <td>@vet.Country</td>
+                                        <td>@vet.PhoneNumber</td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(vet.OpeningTimes))
+                                            {
+                                                <small>@vet.OpeningTimes</small>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <button class="btn btn-outline-primary" title="View Details"
+                                                        @onclick="() => ShowViewModal(vet)">
+                                                    <i class="fa fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-outline-success" title="Edit"
+                                                        @onclick="() => ShowEditModal(vet)">
+                                                    <i class="fa fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger" title="Delete"
+                                                        @onclick="() => ShowDeleteConfirmation(vet)">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-3 d-flex justify-content-between align-items-center">
+                        <p class="text-muted mb-0">
+                            <i class="fa fa-hospital"></i> Total Veterinaries: <strong>@veterinaries.Count()</strong>
+                            @if (filteredVeterinaries != null)
+                            {
+                                <span> | Filtered: <strong>@filteredVeterinaries.Count()</strong></span>
+                            }
+                        </p>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <div class="alert alert-info d-inline-block">
+                            <i class="fa fa-info-circle"></i> No veterinaries found in the system.
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Create/Edit Modal -->
+    @if (showModal)
+    {
+        <ModalHelper OnClose="CloseModal" ModalId="edit-modal" />
+        <div id="edit-modal" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">
+                            <i class="fa fa-@(isEditMode ? "edit" : "plus-circle")"></i>
+                            @(isEditMode ? "Edit Veterinary" : "Create New Veterinary")
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" @onclick="CloseModal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <ValidatedForm Model="editingVeterinary" OnValidSubmit="SaveVeterinary">
+                            <DataAnnotationsValidator />
+                            
+                            <!-- Basic Information Section -->
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="fa fa-hospital"></i> Basic Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">
+                                                Veterinary Name
+                                                @if (!isEditMode)
+                                                {
+                                                    <span class="text-danger">*</span>
+                                                }
+                                            </label>
+                                            @if (isEditMode)
+                                            {
+                                                <input type="text" class="form-control" value="@editingVeterinary!.PartitionKey" disabled />
+                                            }
+                                            else
+                                            {
+                                                <InputText @bind-Value="editingVeterinary!.PartitionKey" class="form-control" placeholder="Enter veterinary name" />
+                                                <ValidationMessage For="@(() => editingVeterinary!.PartitionKey)" class="text-danger" />
+                                            }
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">
+                                                City/Town
+                                                @if (!isEditMode)
+                                                {
+                                                    <span class="text-danger">*</span>
+                                                }
+                                            </label>
+                                            @if (isEditMode)
+                                            {
+                                                <input type="text" class="form-control" value="@editingVeterinary!.RowKey" disabled />
+                                            }
+                                            else
+                                            {
+                                                <InputText @bind-Value="editingVeterinary!.RowKey" class="form-control" placeholder="Enter city/town" />
+                                                <ValidationMessage For="@(() => editingVeterinary!.RowKey)" class="text-danger" />
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Google Maps Location <span class="text-danger">*</span></label>
+                                        <InputText @bind-Value="editingVeterinary!.GoogleMapsLocation" class="form-control" 
+                                                   placeholder="https://maps.google.com/..." />
+                                        <small class="form-text text-muted">Paste the full Google Maps URL</small>
+                                        <ValidationMessage For="@(() => editingVeterinary!.GoogleMapsLocation)" class="text-danger" />
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Country</label>
+                                            <CountryDropdown @bind-Value="editingVeterinary!.Country" CssClass="form-select" />
+                                            <ValidationMessage For="@(() => editingVeterinary!.Country)" class="text-danger" />
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Phone Number</label>
+                                            <InputText @bind-Value="editingVeterinary!.PhoneNumber" class="form-control" 
+                                                       placeholder="+351 291 123 456" />
+                                            <ValidationMessage For="@(() => editingVeterinary!.PhoneNumber)" class="text-danger" />
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Address</label>
+                                        <InputTextArea @bind-Value="editingVeterinary!.Address" class="form-control" rows="2" 
+                                                       placeholder="Street address, city, postal code" />
+                                        <ValidationMessage For="@(() => editingVeterinary!.Address)" class="text-danger" />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Opening Times</label>
+                                        <InputTextArea @bind-Value="editingVeterinary!.OpeningTimes" class="form-control" rows="2" 
+                                                       placeholder="Mon-Fri: 9:00-18:00, Sat: 9:00-13:00" />
+                                        <ValidationMessage For="@(() => editingVeterinary!.OpeningTimes)" class="text-danger" />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Website</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fa fa-globe"></i></span>
+                                            <InputText @bind-Value="editingVeterinary!.Website" class="form-control" 
+                                                       placeholder="https://example.com" />
+                                        </div>
+                                        <ValidationMessage For="@(() => editingVeterinary!.Website)" class="text-danger" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <ValidationSummary class="text-danger" />
+                            
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" @onclick="CloseModal">
+                                    <i class="fa fa-times"></i> Cancel
+                                </button>
+                                <button type="submit" class="btn btn-primary" disabled="@isSaving">
+                                    @if (isSaving)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2"></span>
+                                    }
+                                    <i class="fa fa-save"></i> @(isEditMode ? "Update" : "Create") Veterinary
+                                </button>
+                            </div>
+                        </ValidatedForm>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- View Details Modal -->
+    @if (showViewModal && viewingVeterinary != null)
+    {
+        <ModalHelper OnClose="CloseViewModal" ModalId="view-modal" />
+        <div id="view-modal" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">
+                            <i class="fa fa-hospital"></i> Veterinary Details
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" @onclick="CloseViewModal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card mb-3">
+                                    <div class="card-header bg-light">
+                                        <strong>Basic Information</strong>
+                                    </div>
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item"><strong>Name:</strong> @viewingVeterinary.VeterinaryName</li>
+                                        <li class="list-group-item"><strong>Location:</strong> @viewingVeterinary.CityTown</li>
+                                        <li class="list-group-item"><strong>Country:</strong> @viewingVeterinary.Country</li>
+                                        <li class="list-group-item"><strong>Phone:</strong> @viewingVeterinary.PhoneNumber</li>
+                                        <li class="list-group-item"><strong>Address:</strong> @viewingVeterinary.Address</li>
+                                        @if (!string.IsNullOrEmpty(viewingVeterinary.OpeningTimes))
+                                        {
+                                            <li class="list-group-item"><strong>Opening Times:</strong> @viewingVeterinary.OpeningTimes</li>
+                                        }
+                                    </ul>
+                                </div>
+                                @if (!string.IsNullOrEmpty(viewingVeterinary.Website))
+                                {
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <strong><i class="fa fa-globe me-2"></i>Website:</strong>
+                                            <a href="@viewingVeterinary.Website" target="_blank" rel="noopener noreferrer">
+                                                @viewingVeterinary.Website <i class="fa fa-external-link-alt fa-xs"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header bg-light">
+                                        <strong><i class="fa fa-map me-2"></i>Google Maps Location</strong>
+                                    </div>
+                                    <div class="card-body">
+                                        <a href="@viewingVeterinary.GoogleMapsLocation" target="_blank" rel="noopener noreferrer" class="btn btn-success w-100">
+                                            <i class="fa fa-directions me-2"></i>Open in Google Maps
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CloseViewModal">
+                            <i class="fa fa-times"></i> Close
+                        </button>
+                        <button type="button" class="btn btn-primary" @onclick="() => ShowEditModal(viewingVeterinary)">
+                            <i class="fa fa-edit"></i> Edit Veterinary
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Delete Confirmation Modal -->
+    @if (showDeleteModal && deletingVeterinary != null)
+    {
+        <ModalHelper OnClose="CloseDeleteModal" ModalId="delete-modal" />
+        <div id="delete-modal" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title">
+                            <i class="fa fa-exclamation-triangle"></i> Confirm Delete
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" @onclick="CloseDeleteModal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete the following veterinary?</p>
+                        <div class="alert alert-warning">
+                            <strong>Name:</strong> @deletingVeterinary.VeterinaryName<br />
+                            <strong>Location:</strong> @deletingVeterinary.CityTown
+                        </div>
+                        <p class="text-danger"><strong>This action cannot be undone!</strong></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CloseDeleteModal">
+                            <i class="fa fa-times"></i> Cancel
+                        </button>
+                        <button type="button" class="btn btn-danger" @onclick="ConfirmDelete" disabled="@isDeleting">
+                            @if (isDeleting)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2"></span>
+                            }
+                            <i class="fa fa-trash"></i> Delete Veterinary
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    // Serialization-safe DTO class
+    private class VeterinaryDto
+    {
+        public required string VeterinaryName { get; set; }
+        public required string CityTown { get; set; }
+        public required string GoogleMapsLocation { get; set; }
+        public string? PhoneNumber { get; set; }
+        public string? Address { get; set; }
+        public string? Country { get; set; }
+        public string? Website { get; set; }
+        public string? OpeningTimes { get; set; }
+        public DateTimeOffset? LastUpdated { get; set; }
+        public ETag OriginalETag { get; set; }
+    }
+
+    private List<VeterinaryDto>? veterinaries;
+    private List<VeterinaryDto>? filteredVeterinaries;
+    private List<string>? availableCountries;
+    private bool isLoading = true;
+    private string? successMessage;
+    private string? errorMessage;
+    
+    // Modal states
+    private bool showModal = false;
+    private bool showViewModal = false;
+    private bool showDeleteModal = false;
+    private bool isEditMode = false;
+    private bool isSaving = false;
+    private bool isDeleting = false;
+    
+    // Edit/Create state
+    private Veterinary? editingVeterinary;
+    private VeterinaryDto? viewingVeterinary;
+    private VeterinaryDto? deletingVeterinary;
+    
+    // Filter states
+    private string searchTerm = string.Empty;
+    private string? selectedCountry;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadVeterinaries();
+    }
+
+    private async Task LoadVeterinaries()
+    {
+        isLoading = true;
+        try
+        {
+            var allVeterinaries = await VeterinaryService.GetAllVeterinariesAsync();
+            veterinaries = new List<VeterinaryDto>();
+
+            foreach (var vet in allVeterinaries)
+            {
+                veterinaries.Add(new VeterinaryDto
+                {
+                    VeterinaryName = vet.PartitionKey,
+                    CityTown = vet.RowKey,
+                    GoogleMapsLocation = vet.GoogleMapsLocation,
+                    PhoneNumber = vet.PhoneNumber,
+                    Address = vet.Address,
+                    Country = vet.Country,
+                    Website = vet.Website,
+                    OpeningTimes = vet.OpeningTimes,
+                    LastUpdated = vet.Timestamp,
+                    OriginalETag = vet.ETag
+                });
+            }
+
+            // Extract unique countries for filter
+            availableCountries = veterinaries
+                .Where(v => !string.IsNullOrEmpty(v.Country))
+                .Select(v => v.Country!)
+                .Distinct()
+                .OrderBy(c => c)
+                .ToList();
+            
+            filteredVeterinaries = null;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Failed to load veterinaries: " + ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void FilterVeterinaries()
+    {
+        ApplyFilters();
+    }
+
+    private void FilterByCountry(ChangeEventArgs e)
+    {
+        selectedCountry = e.Value?.ToString();
+        ApplyFilters();
+    }
+
+    private void ApplyFilters()
+    {
+        if (veterinaries == null) return;
+
+        var filtered = veterinaries.AsEnumerable();
+
+        // Search filter
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            filtered = filtered.Where(x => 
+                x.VeterinaryName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                x.CityTown.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                (x.Country?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (x.PhoneNumber?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false));
+        }
+
+        // Country filter
+        if (!string.IsNullOrEmpty(selectedCountry))
+        {
+            filtered = filtered.Where(x => x.Country == selectedCountry);
+        }
+
+        filteredVeterinaries = filtered.ToList();
+    }
+
+    private void ShowCreateModal()
+    {
+        var defaultCountry = Configuration["DefaultCountryValue"] ?? string.Empty;
+
+        editingVeterinary = new Veterinary
+        {
+            PartitionKey = string.Empty,
+            RowKey = string.Empty,
+            GoogleMapsLocation = string.Empty,
+            Country = defaultCountry
+        };
+        isEditMode = false;
+        showModal = true;
+        ClearMessages();
+    }
+
+    private void ShowEditModal(VeterinaryDto vetDto)
+    {
+        editingVeterinary = new Veterinary
+        {
+            PartitionKey = vetDto.VeterinaryName,
+            RowKey = vetDto.CityTown,
+            GoogleMapsLocation = vetDto.GoogleMapsLocation,
+            PhoneNumber = vetDto.PhoneNumber,
+            Address = vetDto.Address,
+            Country = vetDto.Country,
+            Website = vetDto.Website,
+            OpeningTimes = vetDto.OpeningTimes,
+            ETag = vetDto.OriginalETag
+        };
+        isEditMode = true;
+        showModal = true;
+        showViewModal = false;
+        ClearMessages();
+    }
+
+    private void ShowViewModal(VeterinaryDto vetDto)
+    {
+        viewingVeterinary = vetDto;
+        showViewModal = true;
+        ClearMessages();
+    }
+
+    private void ShowDeleteConfirmation(VeterinaryDto vetDto)
+    {
+        deletingVeterinary = vetDto;
+        showDeleteModal = true;
+        ClearMessages();
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
+        editingVeterinary = null;
+    }
+
+    private void CloseViewModal()
+    {
+        showViewModal = false;
+        viewingVeterinary = null;
+    }
+
+    private void CloseDeleteModal()
+    {
+        showDeleteModal = false;
+        deletingVeterinary = null;
+    }
+
+    private void ClearMessages()
+    {
+        successMessage = null;
+        errorMessage = null;
+    }
+
+    private async Task SaveVeterinary()
+    {
+        if (editingVeterinary == null) return;
+
+        isSaving = true;
+        ClearMessages();
+        
+        try
+        {
+            if (isEditMode)
+            {
+                await VeterinaryService.UpdateVeterinaryAsync(editingVeterinary);
+                successMessage = $"Veterinary {editingVeterinary.PartitionKey} updated successfully";
+            }
+            else
+            {
+                await VeterinaryService.AddVeterinaryAsync(editingVeterinary);
+                successMessage = $"Veterinary {editingVeterinary.PartitionKey} created successfully";
+            }
+            
+            CloseModal();
+            await LoadVeterinaries();
+            ApplyFilters();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to save veterinary: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private async Task ConfirmDelete()
+    {
+        if (deletingVeterinary == null || veterinaries == null) return;
+
+        isDeleting = true;
+        try
+        {
+            await VeterinaryService.DeleteVeterinaryAsync(deletingVeterinary.VeterinaryName, deletingVeterinary.CityTown);
+            
+            successMessage = $"Veterinary {deletingVeterinary.VeterinaryName} deleted successfully";
+            CloseDeleteModal();
+            await LoadVeterinaries();
+            ApplyFilters();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to delete veterinary: {ex.Message}";
+        }
+        finally
+        {
+            isDeleting = false;
+        }
+    }
+}

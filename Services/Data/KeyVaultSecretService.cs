@@ -126,27 +126,28 @@ namespace PetAdoption.Services.Data
         }
 
         /// <summary>
-        /// Retrieves all authentication secrets from Azure Key Vault
-        /// This is a convenience method for retrieving all OAuth provider credentials
+        /// Retrieves all application secrets from Azure Key Vault
+        /// Includes OAuth provider credentials and third-party API keys
         /// </summary>
-        /// <returns>AuthenticationSecrets object containing all provider credentials</returns>
-        public async Task<AuthenticationSecrets> GetAuthenticationSecretsAsync()
+        /// <returns>ApplicationSecrets object containing all application secrets</returns>
+        public async Task<ApplicationSecrets> GetApplicationSecretsAsync()
         {
-            _logger.LogInformation("Retrieving authentication secrets from Key Vault...");
+            _logger.LogInformation("Retrieving application secrets from Key Vault...");
 
-            var secrets = new AuthenticationSecrets
+            var secrets = new ApplicationSecrets
             {
                 GoogleClientId = await GetSecretAsync("GoogleClientIdSecret"),
                 GoogleClientSecret = await GetSecretAsync("GoogleClientSecretSecret"),
                 MicrosoftClientId = await GetSecretAsync("MicrosoftClientIdSecret"),
-                MicrosoftClientSecret = await GetSecretAsync("MicrosoftClientSecretSecret")
+                MicrosoftClientSecret = await GetSecretAsync("MicrosoftClientSecretSecret"),
+                GoogleMapsApiKey = await GetSecretAsync("GoogleMapsApiKeySecret")
                 //AppleClientId = await GetSecretAsync("AppleClientIdSecret"),
                 //AppleTeamId = await GetSecretAsync("AppleTeamIdSecret"),
                 //AppleKeyId = await GetSecretAsync("AppleKeyIdSecret"),
                 //ApplePrivateKey = await GetSecretAsync("ApplePrivateKeySecret")
             };
 
-            _logger.LogInformation("Authentication secrets retrieved successfully");
+            _logger.LogInformation("Application secrets retrieved successfully");
 
             return secrets;
         }
@@ -166,22 +167,22 @@ namespace PetAdoption.Services.Data
         }
 
         /// <summary>
-        /// Static method to retrieve authentication secrets without DI
+        /// Static method to retrieve application secrets without DI
         /// Useful for startup configuration scenarios where DI is not yet available
         /// </summary>
         /// <param name="configuration">Application configuration</param>
-        /// <returns>AuthenticationSecrets object</returns>
-        public static async Task<AuthenticationSecrets> RetrieveAuthenticationSecretsAsync(IConfiguration configuration)
+        /// <returns>ApplicationSecrets object</returns>
+        public static async Task<ApplicationSecrets> RetrieveApplicationSecretsAsync(IConfiguration configuration)
         {
             using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
             var logger = loggerFactory.CreateLogger<KeyVaultSecretService>();
 
-            logger.LogInformation("Retrieving authentication secrets from Key Vault...");
+            logger.LogInformation("Retrieving application secrets from Key Vault...");
 
             var keyVaultService = new KeyVaultSecretService(configuration, logger);
-            var secrets = await keyVaultService.GetAuthenticationSecretsAsync();
+            var secrets = await keyVaultService.GetApplicationSecretsAsync();
 
-            logger.LogInformation("Authentication secrets retrieved successfully");
+            logger.LogInformation("Application secrets retrieved successfully");
 
             return secrets;
         }

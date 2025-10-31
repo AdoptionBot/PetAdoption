@@ -83,6 +83,7 @@ namespace PetAdoption.Services.Data.Extensions
             services.AddScoped<IPetService, PetService>();
             services.AddScoped<IAdoptionApplicationService, AdoptionApplicationService>();
             services.AddScoped<IAdoptionProcessService, AdoptionProcessService>();
+            services.AddScoped<IVeterinaryService, VeterinaryService>();
 
             return services;
         }

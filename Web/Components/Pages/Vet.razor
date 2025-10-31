@@ -1,14 +1,24 @@
 @page "/vet"
+@using PetAdoption.Services.Interfaces
+@using PetAdoption.Data.TableStorage
+@inject IVeterinaryService VeterinaryService
+@inject IConfiguration Configuration
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
 
-<PageTitle>Veterinarian - Madeira Pet Adoption</PageTitle>
+<PageTitle>Veterinarians - Madeira Pet Adoption</PageTitle>
 
 <section class="hero-wrap hero-wrap-2" style="background-image: url('images/bg_2.jpg');" data-stellar-background-ratio="0.5">
     <div class="overlay"></div>
     <div class="container">
         <div class="row no-gutters slider-text align-items-end">
             <div class="col-md-9 ftco-animate pb-5">
-                <p class="breadcrumbs mb-2"><span class="mr-2"><a href="/">Home <i class="ion-ios-arrow-forward"></i></a></span> <span>Veterinarian <i class="ion-ios-arrow-forward"></i></span></p>
-                <h1 class="mb-0 bread">Veterinarian Services</h1>
+                <p class="breadcrumbs mb-2">
+                    <span class="mr-2"><a href="/">Home <i class="ion-ios-arrow-forward"></i></a></span> 
+                    <span>Veterinarians <i class="ion-ios-arrow-forward"></i></span>
+                </p>
+                <h1 class="mb-0 bread">Veterinary Services in Madeira</h1>
             </div>
         </div>
     </div>
@@ -16,11 +26,289 @@
 
 <section class="ftco-section">
     <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <h2>Professional Veterinary Care</h2>
-                <p>Content coming soon...</p>
+        @if (isLoading)
+        {
+            <div class="row">
+                <div class="col-md-12 text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Loading veterinary clinics...</p>
+                </div>
+            </div>
+        }
+        else if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="alert alert-danger">
+                        <i class="fa fa-exclamation-triangle"></i> @errorMessage
+                    </div>
+                </div>
+            </div>
+        }
+        else if (veterinaries == null || !veterinaries.Any())
+        {
+            <div class="row">
+                <div class="col-md-12 text-center py-5">
+                    <div class="alert alert-info d-inline-block">
+                        <i class="fa fa-info-circle"></i> No veterinary clinics found at the moment.
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <h2 class="mb-4">Professional Veterinary Care</h2>
+                    <p class="lead">Find trusted veterinary clinics across Madeira to care for your beloved pets.</p>
+                </div>
+            </div>
+
+            @foreach (var veterinary in veterinaries)
+            {
+                <div class="row mb-4 veterinary-card" @onclick="() => ShowDetails(veterinary)" style="cursor: pointer;">
+                    <div class="col-md-12">
+                        <div class="card shadow-sm hover-shadow transition">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-md-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="vet-icon me-3">
+                                                <i class="fa fa-hospital fa-3x text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="mb-1">@veterinary.PartitionKey</h4>
+                                                <p class="text-muted mb-0">
+                                                    <i class="fa fa-map-marker-alt me-1"></i> @veterinary.RowKey
+                                                    @if (!string.IsNullOrEmpty(veterinary.Country))
+                                                    {
+                                                        <text>, @veterinary.Country</text>
+                                                    }
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        @if (!string.IsNullOrEmpty(veterinary.PhoneNumber))
+                                        {
+                                            <p class="mb-2">
+                                                <i class="fa fa-phone me-2 text-success"></i>
+                                                <a href="tel:@veterinary.PhoneNumber" class="text-decoration-none" @onclick:stopPropagation="true">
+                                                    @veterinary.PhoneNumber
+                                                </a>
+                                            </p>
+                                        }
+                                        @if (!string.IsNullOrEmpty(veterinary.Address))
+                                        {
+                                            <p class="mb-0 text-muted small">
+                                                <i class="fa fa-location-dot me-2"></i>@veterinary.Address
+                                            </p>
+                                        }
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                        @if (!string.IsNullOrEmpty(veterinary.OpeningTimes))
+                                        {
+                                            <p class="mb-2">
+                                                <i class="fa fa-clock me-2 text-info"></i>
+                                                <span class="small">@veterinary.OpeningTimes</span>
+                                            </p>
+                                        }
+                                        <button class="btn btn-primary btn-sm" @onclick:stopPropagation="true" @onclick="() => ShowDetails(veterinary)">
+                                            <i class="fa fa-info-circle me-1"></i> View Details
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</section>
+
+@if (showDetailsModal && selectedVeterinary != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="fa fa-hospital me-2"></i>@selectedVeterinary.PartitionKey
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="CloseDetails" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3"><i class="fa fa-info-circle me-2"></i>Contact Information</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <strong><i class="fa fa-map-marker-alt me-2 text-danger"></i>Location:</strong> 
+                                    @selectedVeterinary.RowKey, @selectedVeterinary.Country
+                                </li>
+                                @if (!string.IsNullOrEmpty(selectedVeterinary.Address))
+                                {
+                                    <li class="mb-2">
+                                        <strong><i class="fa fa-location-dot me-2 text-secondary"></i>Address:</strong> 
+                                        @selectedVeterinary.Address
+                                    </li>
+                                }
+                                @if (!string.IsNullOrEmpty(selectedVeterinary.PhoneNumber))
+                                {
+                                    <li class="mb-2">
+                                        <strong><i class="fa fa-phone me-2 text-success"></i>Phone:</strong> 
+                                        <a href="tel:@selectedVeterinary.PhoneNumber" class="text-decoration-none">
+                                            @selectedVeterinary.PhoneNumber
+                                        </a>
+                                    </li>
+                                }
+                                @if (!string.IsNullOrEmpty(selectedVeterinary.Website))
+                                {
+                                    <li class="mb-2">
+                                        <strong><i class="fa fa-globe me-2 text-primary"></i>Website:</strong> 
+                                        <a href="@selectedVeterinary.Website" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
+                                            Visit Website <i class="fa fa-external-link-alt fa-xs"></i>
+                                        </a>
+                                    </li>
+                                }
+                                @if (!string.IsNullOrEmpty(selectedVeterinary.OpeningTimes))
+                                {
+                                    <li class="mb-2">
+                                        <strong><i class="fa fa-clock me-2 text-info"></i>Opening Times:</strong> 
+                                        @selectedVeterinary.OpeningTimes
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3"><i class="fa fa-map me-2"></i>Location Map</h6>
+                            @if (!string.IsNullOrEmpty(selectedVeterinary.GoogleMapsLocation))
+                            {
+                                <div class="ratio ratio-4x3">
+                                    <iframe src="@GetEmbedUrl(selectedVeterinary.GoogleMapsLocation)" 
+                                            style="border:0;" 
+                                            allowfullscreen="" 
+                                            loading="lazy" 
+                                            referrerpolicy="no-referrer-when-downgrade">
+                                    </iframe>
+                                </div>
+                                <div class="mt-3">
+                                    <a href="@selectedVeterinary.GoogleMapsLocation" 
+                                       target="_blank" 
+                                       rel="noopener noreferrer" 
+                                       class="btn btn-success btn-sm w-100">
+                                        <i class="fa fa-directions me-2"></i>Get Directions
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseDetails">
+                        <i class="fa fa-times me-1"></i> Close
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-</section>
+}
+
+<style>
+    .hover-shadow {
+        transition: all 0.3s ease;
+    }
+
+    .hover-shadow:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        transform: translateY(-2px);
+    }
+
+    .veterinary-card {
+        transition: all 0.2s ease;
+    }
+
+    .vet-icon {
+        opacity: 0.8;
+    }
+</style>
+
+@code {
+    private List<Veterinary>? veterinaries;
+    private Veterinary? selectedVeterinary;
+    private bool isLoading = true;
+    private bool showDetailsModal = false;
+    private string? errorMessage;
+    private string googleMapsApiKey = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Retrieve the Google Maps API key from configuration
+        googleMapsApiKey = Configuration["GoogleMapsApiKey"] ?? string.Empty;
+        
+        await LoadVeterinaries();
+    }
+
+    private async Task LoadVeterinaries()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            var allVeterinaries = await VeterinaryService.GetAllVeterinariesAsync();
+            veterinaries = allVeterinaries.OrderBy(v => v.RowKey).ToList();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load veterinary clinics: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ShowDetails(Veterinary veterinary)
+    {
+        selectedVeterinary = veterinary;
+        showDetailsModal = true;
+    }
+
+    private void CloseDetails()
+    {
+        showDetailsModal = false;
+        selectedVeterinary = null;
+    }
+
+    private string GetEmbedUrl(string googleMapsUrl)
+    {
+        // Check if API key is available
+        if (string.IsNullOrEmpty(googleMapsApiKey))
+        {
+            return string.Empty;
+        }
+
+        // Convert Google Maps URL to embed URL
+        if (googleMapsUrl.Contains("@"))
+        {
+            var coordsStart = googleMapsUrl.IndexOf("@") + 1;
+            var coordsEnd = googleMapsUrl.IndexOf(",", coordsStart + 10);
+            if (coordsEnd > coordsStart)
+            {
+                var coords = googleMapsUrl.Substring(coordsStart, coordsEnd - coordsStart);
+                var parts = coords.Split(',');
+                if (parts.Length >= 2)
+                {
+                    return $"https://www.google.com/maps/embed/v1/place?key={googleMapsApiKey}&q={parts[0]},{parts[1]}&zoom=15";
+                }
+            }
+        }
+        
+        // Fallback: use place search
+        return $"https://www.google.com/maps/embed/v1/search?key={googleMapsApiKey}&q={Uri.EscapeDataString(selectedVeterinary?.PartitionKey + " " + selectedVeterinary?.RowKey)}";
+    }
+}
