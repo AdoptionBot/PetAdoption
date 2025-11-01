@@ -179,7 +179,7 @@
                         else if (extractionComplete)
                         {
                             <div class="alert alert-success">
-                                <i class="fa fa-check-circle"></i> 
+                                <i class="fa fa-check-circle"></i>
                                 Information extracted successfully! Review and save below.
                             </div>
 
@@ -191,13 +191,35 @@
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <p><strong>Name:</strong> @editingVeterinary?.PartitionKey</p>
-                                            <p><strong>City/Town:</strong> @editingVeterinary?.RowKey</p>
-                                            <p><strong>Country:</strong> @editingVeterinary?.Country</p>
+                                            <p class="mb-2"><strong>Name:</strong> <span class="text-primary">@editingVeterinary?.PartitionKey</span></p>
+                                            <p class="mb-2"><strong>City/Town:</strong> <span class="text-primary">@editingVeterinary?.RowKey</span></p>
+                                            <p class="mb-2"><strong>Country:</strong> <span class="text-primary">@editingVeterinary?.Country</span></p>
+                                            <p class="mb-2"><strong>Address:</strong> <span class="text-secondary">@(editingVeterinary?.Address ?? "Not found")</span></p>
                                         </div>
                                         <div class="col-md-6">
-                                            <p><strong>Address:</strong> @(editingVeterinary?.Address ?? "Not found")</p>
-                                            <p><strong>Phone:</strong> @(editingVeterinary?.PhoneNumber ?? "Not found")</p>
+                                            <p class="mb-2"><strong>Phone:</strong> <span class="text-secondary">@(editingVeterinary?.PhoneNumber ?? "Not found")</span></p>
+                                            <p class="mb-2">
+                                                <strong>Website:</strong>
+                                                @if (!string.IsNullOrEmpty(editingVeterinary?.Website))
+                                                {
+                                                    <a href="@editingVeterinary.Website" target="_blank" rel="noopener noreferrer">
+                                                        @editingVeterinary.Website <i class="fa fa-external-link-alt fa-xs"></i>
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-secondary">Not found</span>
+                                                }
+                                            </p>
+                                            <p class="mb-0"><strong>Opening Times:</strong></p>
+                                            @if (!string.IsNullOrEmpty(editingVeterinary?.OpeningTimes))
+                                            {
+                                                <small class="text-secondary d-block mt-1" style="white-space: pre-line;">@editingVeterinary.OpeningTimes</small>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-secondary"><small>Not found</small></span>
+                                            }
                                         </div>
                                     </div>
                                 </div>
