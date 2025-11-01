@@ -76,9 +76,12 @@
                                     <div class="col-md-4">
                                         <div class="d-flex align-items-center">
                                             <div class="vet-icon me-3">
-                                                @if (!string.IsNullOrEmpty(veterinary.PhotoReference))
+                                                @{
+                                                    var photoUrl = GetPhotoUrlOrNull(veterinary.PhotoReference);
+                                                }
+                                                @if (photoUrl != null)
                                                 {
-                                                    <img src="@GetPhotoUrl(veterinary.PhotoReference)"
+                                                    <img src="@photoUrl"
                                                          alt="@veterinary.PartitionKey"
                                                          class="rounded"
                                                          style="width: 80px; height: 80px; object-fit: cover;"
@@ -295,14 +298,13 @@
         selectedVeterinary = null;
     }
 
-    private string GetPhotoUrl(string photoReference)
+    private string? GetPhotoUrlOrNull(string? photoReference)
     {
         if (string.IsNullOrEmpty(googleApiKey) || string.IsNullOrEmpty(photoReference))
         {
-            return string.Empty;
+            return null;
         }
 
-        // Google Places Photo API with maxwidth for thumbnail
         return $"https://maps.googleapis.com/maps/api/place/photo?maxwidth=200&photo_reference={photoReference}&key={googleApiKey}";
     }
 
