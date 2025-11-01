@@ -501,6 +501,7 @@
         public string? Country { get; set; }
         public string? Website { get; set; }
         public string? OpeningTimes { get; set; }
+        public string? PhotoReference { get; set; }
         public DateTimeOffset? LastUpdated { get; set; }
         public ETag OriginalETag { get; set; }
     }
@@ -560,6 +561,7 @@
                     Country = vet.Country,
                     Website = vet.Website,
                     OpeningTimes = vet.OpeningTimes,
+                    PhotoReference = vet.PhotoReference,
                     LastUpdated = vet.Timestamp,
                     OriginalETag = vet.ETag
                 });
@@ -673,7 +675,8 @@
                 Address = placeDetails.FormattedAddress,
                 PhoneNumber = placeDetails.PhoneNumber,
                 Website = placeDetails.Website,
-                OpeningTimes = openingTimes
+                OpeningTimes = openingTimes,
+                PhotoReference = placeDetails.PhotoReference
             };
 
             extractionComplete = true;

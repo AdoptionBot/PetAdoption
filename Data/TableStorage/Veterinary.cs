@@ -42,12 +42,15 @@ namespace PetAdoption.Data.TableStorage
         [StringLength(500, ErrorMessage = "Opening times cannot exceed 500 characters.")]
         public string? OpeningTimes { get; set; }
 
+        [StringLength(500, ErrorMessage = "Photo reference cannot exceed 500 characters.")]
+        public string? PhotoReference { get; set; }
+
         // Parameterless constructor for deserialization
         public Veterinary() { }
 
         public Veterinary(string veterinaryName, string cityTown, string googleMapsLocation, 
             string? phoneNumber = null, string? address = null, string? country = null, 
-            string? website = null, string? openingTimes = null)
+            string? website = null, string? openingTimes = null, string? photoReference = null)
         {
             PartitionKey = veterinaryName;
             RowKey = cityTown;
@@ -57,6 +60,7 @@ namespace PetAdoption.Data.TableStorage
             Country = country;
             Website = website;
             OpeningTimes = openingTimes;
+            PhotoReference = photoReference;
         }
     }
 }

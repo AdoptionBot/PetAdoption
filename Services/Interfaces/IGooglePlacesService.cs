@@ -28,6 +28,7 @@ public class GooglePlaceDetails
     public OpeningHours? OpeningHours { get; set; }
     public string? Vicinity { get; set; }
     public List<string> Types { get; set; } = new();
+    public string? PhotoReference { get; set; }
 }
 
 public class Location

@@ -76,7 +76,18 @@
                                     <div class="col-md-4">
                                         <div class="d-flex align-items-center">
                                             <div class="vet-icon me-3">
-                                                <i class="fa fa-hospital fa-3x text-primary"></i>
+                                                @if (!string.IsNullOrEmpty(veterinary.PhotoReference))
+                                                {
+                                                    <img src="@GetPhotoUrl(veterinary.PhotoReference)"
+                                                         alt="@veterinary.PartitionKey"
+                                                         class="rounded"
+                                                         style="width: 80px; height: 80px; object-fit: cover;"
+                                                         onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fa fa-hospital fa-3x text-primary\'></i>';" />
+                                                }
+                                                else
+                                                {
+                                                    <i class="fa fa-hospital fa-3x text-primary"></i>
+                                                }
                                             </div>
                                             <div>
                                                 <h4 class="mb-1">@veterinary.PartitionKey</h4>
@@ -282,6 +293,17 @@
     {
         showDetailsModal = false;
         selectedVeterinary = null;
+    }
+
+    private string GetPhotoUrl(string photoReference)
+    {
+        if (string.IsNullOrEmpty(googleApiKey) || string.IsNullOrEmpty(photoReference))
+        {
+            return string.Empty;
+        }
+
+        // Google Places Photo API with maxwidth for thumbnail
+        return $"https://maps.googleapis.com/maps/api/place/photo?maxwidth=200&photo_reference={photoReference}&key={googleApiKey}";
     }
 
     private string GetEmbedUrl(string googleMapsUrl)

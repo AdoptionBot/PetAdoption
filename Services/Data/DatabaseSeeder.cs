@@ -119,7 +119,8 @@ namespace PetAdoption.Services.Data
                     "Rua da Levada de São João, 9000-191 Funchal",
                     "Portugal",
                     "https://www.clinicaveterinariamadeira.com",
-                    "Mon-Fri: 9:00-19:00, Sat: 9:00-13:00"
+                    "Mon-Fri: 9:00-19:00, Sat: 9:00-13:00",
+                    null  // No photo reference for seeded entries
                 ),
                 new Veterinary(
                     "Hospital Veterinário do Funchal",
@@ -129,7 +130,8 @@ namespace PetAdoption.Services.Data
                     "Estrada Monumental, 9000-098 Funchal",
                     "Portugal",
                     null,
-                    "24/7 Emergency Service"
+                    "24/7 Emergency Service",
+                    null  // No photo reference for seeded entries
                 ),
                 new Veterinary(
                     "Veterinária Ponta do Sol",
@@ -139,7 +141,8 @@ namespace PetAdoption.Services.Data
                     "Rua Dr. João Augusto Teixeira, 9360-219 Ponta do Sol",
                     "Portugal",
                     null,
-                    "Mon-Fri: 9:00-18:00"
+                    "Mon-Fri: 9:00-18:00",
+                    null  // No photo reference for seeded entries
                 ),
                 new Veterinary(
                     "Veterinária São Vicente",
@@ -149,7 +152,8 @@ namespace PetAdoption.Services.Data
                     "Sítio da Feiteira, 9240-225 São Vicente",
                     "Portugal",
                     null,
-                    "Mon-Fri: 9:00-17:00"
+                    "Mon-Fri: 9:00-17:00",
+                    null  // No photo reference for seeded entries
                 )
             };
         }

@@ -146,7 +146,7 @@ public class GooglePlacesService : IGooglePlacesService
             var httpClient = _httpClientFactory.CreateClient();
             
             // Request comprehensive fields from Places API
-            var fields = "place_id,name,formatted_address,formatted_phone_number,international_phone_number,website,geometry,opening_hours,types,vicinity,business_status";
+            var fields = "place_id,name,formatted_address,formatted_phone_number,international_phone_number,website,geometry,opening_hours,types,vicinity,business_status,photos";
             var url = $"{PlacesApiBaseUrl}/details/json?place_id={Uri.EscapeDataString(placeId)}&fields={fields}&key={_apiKey}";
             
             _logger.LogInformation("Calling Place Details API for Place ID: {PlaceId}", placeId);
@@ -578,6 +578,17 @@ public class GooglePlacesService : IGooglePlacesService
 
     private GooglePlaceDetails MapToGooglePlaceDetails(PlaceDetailsResult result)
     {
+        // Log photo information
+        if (result.Photos != null && result.Photos.Any())
+        {
+            _logger.LogInformation("? Found {Count} photos. First photo reference: {PhotoRef}", 
+                result.Photos.Count, result.Photos.First().PhotoReference);
+        }
+        else
+        {
+            _logger.LogWarning("? No photos found for this place");
+        }
+
         return new GooglePlaceDetails
         {
             PlaceId = result.PlaceId ?? string.Empty,
@@ -596,7 +607,8 @@ public class GooglePlacesService : IGooglePlacesService
             {
                 OpenNow = result.OpeningHours.OpenNow,
                 WeekdayText = result.OpeningHours.WeekdayText
-            } : null
+            } : null,
+            PhotoReference = result.Photos?.FirstOrDefault()?.PhotoReference
         };
     }
 
@@ -648,6 +660,21 @@ public class GooglePlacesService : IGooglePlacesService
         
         [JsonPropertyName("business_status")]
         public string? BusinessStatus { get; set; }
+        
+        [JsonPropertyName("photos")]
+        public List<PhotoResult>? Photos { get; set; }
+    }
+
+    private class PhotoResult
+    {
+        [JsonPropertyName("photo_reference")]
+        public string? PhotoReference { get; set; }
+        
+        [JsonPropertyName("height")]
+        public int Height { get; set; }
+        
+        [JsonPropertyName("width")]
+        public int Width { get; set; }
     }
 
     private class GeometryResult
