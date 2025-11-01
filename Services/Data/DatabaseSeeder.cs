@@ -160,16 +160,6 @@ namespace PetAdoption.Services.Data
                 "https://maps.app.goo.gl/jptg7sXHpiGPnQDbA",
                 "https://maps.app.goo.gl/axhkzYqb7p5jFm277",
                 "https://maps.app.goo.gl/yzuXGaxqPUroyAmS7"
-
-
-
-
-
-
-
-
-
-
             };
 
             var veterinaries = new List<Veterinary>();
