@@ -2,7 +2,6 @@ using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
 using PetAdoption.Services.Data.Models;
 
 namespace PetAdoption.Services.Data
@@ -140,11 +139,7 @@ namespace PetAdoption.Services.Data
                 GoogleClientSecret = await GetSecretAsync("GoogleClientSecretSecret"),
                 MicrosoftClientId = await GetSecretAsync("MicrosoftClientIdSecret"),
                 MicrosoftClientSecret = await GetSecretAsync("MicrosoftClientSecretSecret"),
-                GoogleMapsApiKey = await GetSecretAsync("GoogleMapsApiKeySecret")
-                //AppleClientId = await GetSecretAsync("AppleClientIdSecret"),
-                //AppleTeamId = await GetSecretAsync("AppleTeamIdSecret"),
-                //AppleKeyId = await GetSecretAsync("AppleKeyIdSecret"),
-                //ApplePrivateKey = await GetSecretAsync("ApplePrivateKeySecret")
+                GoogleApiKey = await GetSecretAsync("GoogleApiKeySecret")
             };
 
             _logger.LogInformation("Application secrets retrieved successfully");

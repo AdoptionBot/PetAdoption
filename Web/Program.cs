@@ -16,6 +16,9 @@ namespace PetAdoption.Web
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
 
+            // Register HttpClient for dependency injection
+            builder.Services.AddHttpClient();
+
             // Add controllers for authentication endpoints
             builder.Services.AddControllers();
             
@@ -26,8 +29,9 @@ namespace PetAdoption.Web
             // Retrieve application secrets from Key Vault
             var appSecrets = await KeyVaultSecretService.RetrieveApplicationSecretsAsync(builder.Configuration);
 
-            // Store Google Maps API Key in configuration for easy access throughout the app
-            builder.Configuration["GoogleMapsApiKey"] = appSecrets.GoogleMapsApiKey;
+            // Store unified Google API Key in configuration for easy access throughout the app
+            // This key works for Maps Embed, Maps JavaScript, Geocoding, Places (New), and Places APIs
+            builder.Configuration["GoogleApiKey"] = appSecrets.GoogleApiKey;
 
             // Register all Azure services (KeyVault, TableStorage, BlobStorage, Business Services)
             await builder.Services.AddAllAzureServicesAsync(builder.Configuration);
@@ -78,7 +82,7 @@ namespace PetAdoption.Web
             // Configure SignalR with sensible defaults for Blazor Server
             builder.Services.AddSignalR(options =>
             {
-                options.MaximumReceiveMessageSize = 10 * 1024 * 1024; // 10MB (reasonable for most scenarios)
+                options.MaximumReceiveMessageSize = 10 * 1024 * 1024; // 10MB
                 options.ClientTimeoutInterval = TimeSpan.FromSeconds(60);
                 options.KeepAliveInterval = TimeSpan.FromSeconds(15);
             });

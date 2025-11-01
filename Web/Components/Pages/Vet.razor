@@ -242,12 +242,12 @@
     private bool isLoading = true;
     private bool showDetailsModal = false;
     private string? errorMessage;
-    private string googleMapsApiKey = string.Empty;
+    private string googleApiKey = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
-        // Retrieve the Google Maps API key from configuration
-        googleMapsApiKey = Configuration["GoogleMapsApiKey"] ?? string.Empty;
+        // Retrieve the unified Google API key from configuration
+        googleApiKey = Configuration["GoogleApiKey"] ?? string.Empty;
         
         await LoadVeterinaries();
     }
@@ -287,28 +287,34 @@
     private string GetEmbedUrl(string googleMapsUrl)
     {
         // Check if API key is available
-        if (string.IsNullOrEmpty(googleMapsApiKey))
+        if (string.IsNullOrEmpty(googleApiKey))
         {
             return string.Empty;
         }
 
-        // Convert Google Maps URL to embed URL
-        if (googleMapsUrl.Contains("@"))
+        // Check if URL is a shortened URL (should not be used)
+        if (googleMapsUrl.Contains("goo.gl") || googleMapsUrl.Contains("maps.app.goo.gl"))
         {
-            var coordsStart = googleMapsUrl.IndexOf("@") + 1;
-            var coordsEnd = googleMapsUrl.IndexOf(",", coordsStart + 10);
-            if (coordsEnd > coordsStart)
-            {
-                var coords = googleMapsUrl.Substring(coordsStart, coordsEnd - coordsStart);
-                var parts = coords.Split(',');
-                if (parts.Length >= 2)
-                {
-                    return $"https://www.google.com/maps/embed/v1/place?key={googleMapsApiKey}&q={parts[0]},{parts[1]}&zoom=15";
-                }
-            }
+            // Log warning and fallback to search
+            Console.WriteLine($"Warning: Shortened URL detected: {googleMapsUrl}. Using fallback search.");
+            return $"https://www.google.com/maps/embed/v1/search?key={googleApiKey}&q={Uri.EscapeDataString(selectedVeterinary?.PartitionKey + " " + selectedVeterinary?.RowKey + " " + selectedVeterinary?.Address)}";
         }
-        
-        // Fallback: use place search
-        return $"https://www.google.com/maps/embed/v1/search?key={googleMapsApiKey}&q={Uri.EscapeDataString(selectedVeterinary?.PartitionKey + " " + selectedVeterinary?.RowKey)}";
+
+        // Try to extract coordinates from URL (format: @lat,lng or place/lat,lng)
+        var coordsMatch = System.Text.RegularExpressions.Regex.Match(
+            googleMapsUrl, 
+            @"[@/](-?\d+\.?\d*),(-?\d+\.?\d*)"
+        );
+
+        if (coordsMatch.Success && coordsMatch.Groups.Count >= 3)
+        {
+            var lat = coordsMatch.Groups[1].Value;
+            var lng = coordsMatch.Groups[2].Value;
+            return $"https://www.google.com/maps/embed/v1/place?key={googleApiKey}&q={lat},{lng}&zoom=15";
+        }
+
+        // Fallback: use place search with all available info
+        var searchQuery = $"{selectedVeterinary?.PartitionKey} {selectedVeterinary?.RowKey} {selectedVeterinary?.Address} {selectedVeterinary?.Country}".Trim();
+        return $"https://www.google.com/maps/embed/v1/search?key={googleApiKey}&q={Uri.EscapeDataString(searchQuery)}";
     }
 }

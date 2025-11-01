@@ -4,9 +4,12 @@
 @using PetAdoption.Data.TableStorage
 @using PetAdoption.Web.Components.Shared
 @using Azure
+@using System.Text.RegularExpressions
 @attribute [Authorize(Policy = "AdminOnly")]
 @inject IVeterinaryService VeterinaryService
+@inject IGooglePlacesService GooglePlacesService
 @inject IConfiguration Configuration
+@inject IHttpClientFactory HttpClientFactory
 @rendermode InteractiveServer
 
 <PageTitle>Manage Veterinarians - Admin</PageTitle>
@@ -145,8 +148,117 @@
         </div>
     </div>
 
-    <!-- Create/Edit Modal -->
-    @if (showModal)
+    <!-- Create Modal (Simplified - Google Maps Link Only) -->
+    @if (showModal && !isEditMode)
+    {
+        <ModalHelper OnClose="CloseModal" ModalId="create-modal" />
+        <div id="create-modal" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">
+                            <i class="fa fa-plus-circle"></i> Add New Veterinary
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" @onclick="CloseModal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-info">
+                            <i class="fa fa-info-circle"></i> 
+                            <strong>Quick Add:</strong> Just paste the Google Maps link and we'll extract all the information automatically!
+                        </div>
+
+                        @if (isExtracting)
+                        {
+                            <div class="text-center py-4">
+                                <div class="spinner-border text-primary mb-3" role="status">
+                                    <span class="visually-hidden">Extracting...</span>
+                                </div>
+                                <p class="text-muted">Extracting veterinary information from Google Maps...</p>
+                            </div>
+                        }
+                        else if (extractionComplete)
+                        {
+                            <div class="alert alert-success">
+                                <i class="fa fa-check-circle"></i> 
+                                Information extracted successfully! Review and save below.
+                            </div>
+
+                            <!-- Preview extracted data -->
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="fa fa-eye"></i> Extracted Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>Name:</strong> @editingVeterinary?.PartitionKey</p>
+                                            <p><strong>City/Town:</strong> @editingVeterinary?.RowKey</p>
+                                            <p><strong>Country:</strong> @editingVeterinary?.Country</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>Address:</strong> @(editingVeterinary?.Address ?? "Not found")</p>
+                                            <p><strong>Phone:</strong> @(editingVeterinary?.PhoneNumber ?? "Not found")</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="mb-3">
+                                <label class="form-label">Google Maps Link <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa fa-map-marker-alt"></i></span>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           placeholder="https://www.google.com/maps/place/..." 
+                                           @bind="googleMapsLink"
+                                           @bind:event="oninput" />
+                                </div>
+                                <small class="form-text text-muted">
+                                    Paste the full Google Maps URL (e.g., from Share ? Copy link)
+                                </small>
+                            </div>
+
+                            <div class="d-grid">
+                                <button type="button" 
+                                        class="btn btn-primary" 
+                                        @onclick="ExtractVeterinaryInfo"
+                                        disabled="@(string.IsNullOrWhiteSpace(googleMapsLink))">
+                                    <i class="fa fa-magic"></i> Extract Information
+                                </button>
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(extractionError))
+                        {
+                            <div class="alert alert-warning mt-3">
+                                <i class="fa fa-exclamation-triangle"></i> @extractionError
+                            </div>
+                        }
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CloseModal">
+                            <i class="fa fa-times"></i> Cancel
+                        </button>
+                        @if (extractionComplete)
+                        {
+                            <button type="button" class="btn btn-primary" @onclick="SaveExtractedVeterinary" disabled="@isSaving">
+                                @if (isSaving)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2"></span>
+                                }
+                                <i class="fa fa-save"></i> Create Veterinary
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Edit Modal (Full Form) -->
+    @if (showModal && isEditMode)
     {
         <ModalHelper OnClose="CloseModal" ModalId="edit-modal" />
         <div id="edit-modal" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
@@ -154,8 +266,7 @@
                 <div class="modal-content">
                     <div class="modal-header bg-primary text-white">
                         <h5 class="modal-title">
-                            <i class="fa fa-@(isEditMode ? "edit" : "plus-circle")"></i>
-                            @(isEditMode ? "Edit Veterinary" : "Create New Veterinary")
+                            <i class="fa fa-edit"></i> Edit Veterinary
                         </h5>
                         <button type="button" class="btn-close btn-close-white" @onclick="CloseModal" aria-label="Close"></button>
                     </div>
@@ -171,47 +282,21 @@
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">
-                                                Veterinary Name
-                                                @if (!isEditMode)
-                                                {
-                                                    <span class="text-danger">*</span>
-                                                }
-                                            </label>
-                                            @if (isEditMode)
-                                            {
-                                                <input type="text" class="form-control" value="@editingVeterinary!.PartitionKey" disabled />
-                                            }
-                                            else
-                                            {
-                                                <InputText @bind-Value="editingVeterinary!.PartitionKey" class="form-control" placeholder="Enter veterinary name" />
-                                                <ValidationMessage For="@(() => editingVeterinary!.PartitionKey)" class="text-danger" />
-                                            }
+                                            <label class="form-label">Veterinary Name (PartitionKey)</label>
+                                            <input type="text" class="form-control" value="@editingVeterinary!.PartitionKey" disabled />
+                                            <small class="text-muted">Cannot be changed (used as primary key)</small>
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">
-                                                City/Town
-                                                @if (!isEditMode)
-                                                {
-                                                    <span class="text-danger">*</span>
-                                                }
-                                            </label>
-                                            @if (isEditMode)
-                                            {
-                                                <input type="text" class="form-control" value="@editingVeterinary!.RowKey" disabled />
-                                            }
-                                            else
-                                            {
-                                                <InputText @bind-Value="editingVeterinary!.RowKey" class="form-control" placeholder="Enter city/town" />
-                                                <ValidationMessage For="@(() => editingVeterinary!.RowKey)" class="text-danger" />
-                                            }
+                                            <label class="form-label">City/Town (RowKey)</label>
+                                            <input type="text" class="form-control" value="@editingVeterinary!.RowKey" disabled />
+                                            <small class="text-muted">Cannot be changed (used as primary key)</small>
                                         </div>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">Google Maps Location <span class="text-danger">*</span></label>
                                         <InputText @bind-Value="editingVeterinary!.GoogleMapsLocation" class="form-control" 
                                                    placeholder="https://maps.google.com/..." />
-                                        <small class="form-text text-muted">Paste the full Google Maps URL</small>
+                                        <small class="form-text text-muted">Full Google Maps URL</small>
                                         <ValidationMessage For="@(() => editingVeterinary!.GoogleMapsLocation)" class="text-danger" />
                                     </div>
                                     <div class="row">
@@ -262,7 +347,7 @@
                                     {
                                         <span class="spinner-border spinner-border-sm me-2"></span>
                                     }
-                                    <i class="fa fa-save"></i> @(isEditMode ? "Update" : "Create") Veterinary
+                                    <i class="fa fa-save"></i> Update Veterinary
                                 </button>
                             </div>
                         </ValidatedForm>
@@ -404,7 +489,7 @@
     private bool isLoading = true;
     private string? successMessage;
     private string? errorMessage;
-    
+
     // Modal states
     private bool showModal = false;
     private bool showViewModal = false;
@@ -412,15 +497,21 @@
     private bool isEditMode = false;
     private bool isSaving = false;
     private bool isDeleting = false;
-    
+
     // Edit/Create state
     private Veterinary? editingVeterinary;
     private VeterinaryDto? viewingVeterinary;
     private VeterinaryDto? deletingVeterinary;
-    
+
     // Filter states
     private string searchTerm = string.Empty;
     private string? selectedCountry;
+
+    // Quick add states
+    private string googleMapsLink = string.Empty;
+    private bool isExtracting = false;
+    private bool extractionComplete = false;
+    private string? extractionError;
 
     protected override async Task OnInitializedAsync()
     {
@@ -452,14 +543,13 @@
                 });
             }
 
-            // Extract unique countries for filter
             availableCountries = veterinaries
                 .Where(v => !string.IsNullOrEmpty(v.Country))
                 .Select(v => v.Country!)
                 .Distinct()
                 .OrderBy(c => c)
                 .ToList();
-            
+
             filteredVeterinaries = null;
         }
         catch (Exception ex)
@@ -489,17 +579,15 @@
 
         var filtered = veterinaries.AsEnumerable();
 
-        // Search filter
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            filtered = filtered.Where(x => 
+            filtered = filtered.Where(x =>
                 x.VeterinaryName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
                 x.CityTown.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
                 (x.Country?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
                 (x.PhoneNumber?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false));
         }
 
-        // Country filter
         if (!string.IsNullOrEmpty(selectedCountry))
         {
             filtered = filtered.Where(x => x.Country == selectedCountry);
@@ -510,18 +598,158 @@
 
     private void ShowCreateModal()
     {
-        var defaultCountry = Configuration["DefaultCountryValue"] ?? string.Empty;
-
-        editingVeterinary = new Veterinary
-        {
-            PartitionKey = string.Empty,
-            RowKey = string.Empty,
-            GoogleMapsLocation = string.Empty,
-            Country = defaultCountry
-        };
+        googleMapsLink = string.Empty;
+        isExtracting = false;
+        extractionComplete = false;
+        extractionError = null;
+        editingVeterinary = null;
         isEditMode = false;
         showModal = true;
         ClearMessages();
+    }
+
+    private async Task ExtractVeterinaryInfo()
+    {
+        if (string.IsNullOrWhiteSpace(googleMapsLink))
+        {
+            extractionError = "Please provide a Google Maps link.";
+            return;
+        }
+
+        isExtracting = true;
+        extractionError = null;
+        StateHasChanged();
+
+        try
+        {
+            // Use Google Places API to extract place details
+            var placeDetails = await GooglePlacesService.GetPlaceDetailsFromUrlAsync(googleMapsLink);
+
+            if (placeDetails == null)
+            {
+                extractionError = "Could not extract place information from the URL. Please verify the link and try again.";
+                isExtracting = false;
+                return;
+            }
+
+            // Extract city from address
+            var city = ExtractCityFromAddress(placeDetails.FormattedAddress) ?? "Unknown";
+
+            // Get default country from configuration
+            var defaultCountry = Configuration["DefaultCountryValue"] ?? "Portugal";
+
+            // Format opening hours
+            var openingTimes = FormatOpeningHours(placeDetails.OpeningHours?.WeekdayText);
+
+            // Create veterinary entry with extracted info
+            editingVeterinary = new Veterinary
+            {
+                PartitionKey = CleanVeterinaryName(placeDetails.Name),
+                RowKey = city,
+                GoogleMapsLocation = googleMapsLink.Trim(), // Store original link
+                Country = defaultCountry,
+                Address = placeDetails.FormattedAddress,
+                PhoneNumber = placeDetails.PhoneNumber,
+                Website = placeDetails.Website,
+                OpeningTimes = openingTimes
+            };
+
+            extractionComplete = true;
+        }
+        catch (Exception ex)
+        {
+            extractionError = $"Error extracting information: {ex.Message}";
+        }
+        finally
+        {
+            isExtracting = false;
+            StateHasChanged();
+        }
+    }
+
+    private string CleanVeterinaryName(string name)
+    {
+        // Remove common suffixes/prefixes if needed
+        name = name.Trim();
+
+        // Ensure it's within the character limit
+        if (name.Length > 100)
+        {
+            name = name.Substring(0, 100);
+        }
+
+        return name;
+    }
+
+    private string? ExtractCityFromAddress(string? address)
+    {
+        if (string.IsNullOrEmpty(address)) return null;
+
+        // Common Madeira cities
+        var cityPatterns = new[]
+        {
+            "Funchal", "Câmara de Lobos", "Ribeira Brava", "Machico",
+            "Santa Cruz", "Calheta", "Ponta do Sol", "São Vicente",
+            "Santana", "Porto Moniz", "Ponta Delgada", "Porto Santo"
+        };
+
+        foreach (var city in cityPatterns)
+        {
+            if (address.Contains(city, StringComparison.OrdinalIgnoreCase))
+            {
+                return city;
+            }
+        }
+
+        // Fallback: try to extract from address format "Street, City, Postal Code, Country"
+        var parts = address.Split(',');
+        if (parts.Length >= 2)
+        {
+            var potentialCity = parts[1].Trim();
+            if (potentialCity.Length >= 2 && potentialCity.Length <= 50)
+            {
+                return potentialCity;
+            }
+        }
+
+        return "Funchal"; // Default
+    }
+
+    private string? FormatOpeningHours(List<string>? weekdayText)
+    {
+        if (weekdayText == null || !weekdayText.Any())
+        {
+            return null;
+        }
+
+        // Join with line breaks or commas for better readability
+        return string.Join(", ", weekdayText.Take(7));
+    }
+
+    private async Task SaveExtractedVeterinary()
+    {
+        if (editingVeterinary == null) return;
+
+        isSaving = true;
+        ClearMessages();
+
+        try
+        {
+            await VeterinaryService.AddVeterinaryAsync(editingVeterinary);
+            successMessage = $"Veterinary {editingVeterinary.PartitionKey} created successfully";
+
+            CloseModal();
+            await LoadVeterinaries();
+            ApplyFilters();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to create veterinary: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false;
+        }
     }
 
     private void ShowEditModal(VeterinaryDto vetDto)
@@ -541,6 +769,7 @@
         isEditMode = true;
         showModal = true;
         showViewModal = false;
+        extractionComplete = false;
         ClearMessages();
     }
 
@@ -562,6 +791,10 @@
     {
         showModal = false;
         editingVeterinary = null;
+        googleMapsLink = string.Empty;
+        isExtracting = false;
+        extractionComplete = false;
+        extractionError = null;
     }
 
     private void CloseViewModal()
@@ -588,20 +821,12 @@
 
         isSaving = true;
         ClearMessages();
-        
+
         try
         {
-            if (isEditMode)
-            {
-                await VeterinaryService.UpdateVeterinaryAsync(editingVeterinary);
-                successMessage = $"Veterinary {editingVeterinary.PartitionKey} updated successfully";
-            }
-            else
-            {
-                await VeterinaryService.AddVeterinaryAsync(editingVeterinary);
-                successMessage = $"Veterinary {editingVeterinary.PartitionKey} created successfully";
-            }
-            
+            await VeterinaryService.UpdateVeterinaryAsync(editingVeterinary);
+            successMessage = $"Veterinary {editingVeterinary.PartitionKey} updated successfully";
+
             CloseModal();
             await LoadVeterinaries();
             ApplyFilters();
@@ -624,7 +849,7 @@
         try
         {
             await VeterinaryService.DeleteVeterinaryAsync(deletingVeterinary.VeterinaryName, deletingVeterinary.CityTown);
-            
+
             successMessage = $"Veterinary {deletingVeterinary.VeterinaryName} deleted successfully";
             CloseDeleteModal();
             await LoadVeterinaries();

@@ -82,6 +82,10 @@
                                            @onclick='() => HandleNavigationClick("/admin/shelters")' @onclick:preventDefault="true">
                                             <span class="fas fa-home me-1"></span> Manage Shelters
                                         </a>
+                                        <a class="dropdown-item @GetDisabledClass()" href="/admin/veterinarians" 
+                                           @onclick='() => HandleNavigationClick("/admin/veterinarians")' @onclick:preventDefault="true">
+                                            <span class="fas fa-hospital me-1"></span> Manage Veterinarians
+                                        </a>
                                     </div>
                                 </li>
                             </Authorized>

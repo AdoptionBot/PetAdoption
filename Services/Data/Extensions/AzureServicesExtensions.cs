@@ -84,6 +84,7 @@ namespace PetAdoption.Services.Data.Extensions
             services.AddScoped<IAdoptionApplicationService, AdoptionApplicationService>();
             services.AddScoped<IAdoptionProcessService, AdoptionProcessService>();
             services.AddScoped<IVeterinaryService, VeterinaryService>();
+            services.AddScoped<IGooglePlacesService, GooglePlacesService>();
 
             return services;
         }
