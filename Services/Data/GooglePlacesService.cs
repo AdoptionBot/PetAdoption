@@ -23,7 +23,6 @@ public class GooglePlacesService : IGooglePlacesService
         _httpClientFactory = httpClientFactory;
         _logger = logger;
         
-        // Get unified Google API key from configuration
         _apiKey = configuration["GoogleApiKey"] 
             ?? throw new InvalidOperationException("Google API key not found in configuration. Ensure GoogleApiKey is set.");
     }
@@ -34,40 +33,39 @@ public class GooglePlacesService : IGooglePlacesService
         {
             _logger.LogInformation("Starting extraction for URL: {Url}", googleMapsUrl);
 
-            // Step 1: Expand shortened URL if needed
+            // Step 1: Expand shortened URL
             var expandedUrl = await ExpandShortenedUrlAsync(googleMapsUrl);
-            _logger.LogInformation("Expanded URL: {ExpandedUrl}", expandedUrl);
+            _logger.LogInformation("Successfully expanded to: {ExpandedUrl}", expandedUrl);
             
-            // Step 2: Extract Place ID from URL (try multiple patterns)
+            // Step 2: Extract Place ID from the expanded URL (with hex format support)
             var placeId = ExtractPlaceIdFromUrl(expandedUrl);
             
             if (!string.IsNullOrEmpty(placeId))
             {
-                _logger.LogInformation("Extracted Place ID: {PlaceId}", placeId);
+                _logger.LogInformation("? Extracted Place ID: {PlaceId}", placeId);
+                
+                // Step 3: Get full details using Place Details API
                 var details = await GetPlaceDetailsByIdAsync(placeId);
                 if (details != null)
                 {
+                    _logger.LogInformation("? Successfully retrieved full place details");
                     return details;
                 }
-            }
-            
-            // Step 3: Try extracting place name and searching
-            var placeName = ExtractPlaceNameFromUrl(expandedUrl);
-            if (!string.IsNullOrEmpty(placeName))
-            {
-                _logger.LogInformation("Extracted place name: {PlaceName}", placeName);
-                var details = await FindPlaceByNameAsync(placeName);
-                if (details != null)
+                else
                 {
-                    return details;
+                    _logger.LogWarning("? Place Details API returned null for Place ID: {PlaceId}", placeId);
                 }
             }
+            else
+            {
+                _logger.LogWarning("? Could not extract Place ID from URL");
+            }
             
-            // Step 4: Fallback - Extract coordinates and search nearby
+            // Step 4: Try using coordinates to find the place via Geocoding
             var (lat, lng) = ExtractCoordinatesFromUrl(expandedUrl);
             if (lat.HasValue && lng.HasValue)
             {
-                _logger.LogInformation("Extracted coordinates: {Lat}, {Lng}", lat, lng);
+                _logger.LogInformation("Attempting to find place using coordinates: {Lat}, {Lng}", lat, lng);
                 var details = await FindPlaceByCoordinatesAsync(lat.Value, lng.Value);
                 if (details != null)
                 {
@@ -75,12 +73,36 @@ public class GooglePlacesService : IGooglePlacesService
                 }
             }
             
-            _logger.LogWarning("Could not extract place information from URL: {Url}", googleMapsUrl);
+            // Step 5: Fallback - create basic result from URL data
+            var placeName = ExtractPlaceNameFromUrl(expandedUrl);
+            
+            if (!string.IsNullOrEmpty(placeName))
+            {
+                _logger.LogWarning("Falling back to basic extraction from URL data");
+                
+                return new GooglePlaceDetails
+                {
+                    PlaceId = placeId ?? string.Empty,
+                    Name = placeName,
+                    FormattedAddress = "Address extraction failed - please add manually",
+                    PhoneNumber = null,
+                    Website = null,
+                    Location = lat.HasValue && lng.HasValue ? new Location
+                    {
+                        Latitude = lat.Value,
+                        Longitude = lng.Value
+                    } : null,
+                    OpeningHours = null,
+                    Types = new List<string> { "veterinary_care" }
+                };
+            }
+            
+            _logger.LogError("Failed to extract any usable information from URL: {Url}", googleMapsUrl);
             return null;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting place details from URL: {Url}", googleMapsUrl);
+            _logger.LogError(ex, "Exception in GetPlaceDetailsFromUrlAsync for URL: {Url}", googleMapsUrl);
             return null;
         }
     }
@@ -91,40 +113,130 @@ public class GooglePlacesService : IGooglePlacesService
         {
             var httpClient = _httpClientFactory.CreateClient();
             
-            var fields = "place_id,name,formatted_address,formatted_phone_number,international_phone_number," +
-                        "website,geometry,vicinity,opening_hours,types";
+            // Request ALL available fields (don't restrict)
+            var url = $"{PlacesApiBaseUrl}/details/json?place_id={placeId}&key={_apiKey}";
             
-            var url = $"{PlacesApiBaseUrl}/details/json?place_id={placeId}&fields={fields}&key={_apiKey}";
-            
-            _logger.LogInformation("Fetching place details for Place ID: {PlaceId}", placeId);
+            _logger.LogInformation("Calling Place Details API for Place ID: {PlaceId}", placeId);
             
             var response = await httpClient.GetAsync(url);
-            response.EnsureSuccessStatusCode();
+            var responseBody = await response.Content.ReadAsStringAsync();
+            
+            _logger.LogDebug("API Response Status: {StatusCode}", response.StatusCode);
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError("HTTP {StatusCode}: {Body}", response.StatusCode, 
+                    responseBody.Length > 200 ? responseBody.Substring(0, 200) : responseBody);
+                return null;
+            }
             
             var jsonResponse = await response.Content.ReadFromJsonAsync<PlaceDetailsResponse>();
             
-            if (jsonResponse?.Status == "OK" && jsonResponse.Result != null)
+            if (jsonResponse == null)
             {
-                _logger.LogInformation("Successfully retrieved place details for: {Name}", jsonResponse.Result.Name);
-                return MapToGooglePlaceDetails(jsonResponse.Result);
+                _logger.LogError("Failed to deserialize API response");
+                return null;
             }
             
-            if (jsonResponse?.Status == "REQUEST_DENIED")
+            _logger.LogInformation("API Status: {Status}", jsonResponse.Status);
+            
+            if (jsonResponse.Status == "OK" && jsonResponse.Result != null)
             {
-                _logger.LogError("Google Places API request denied. Status: {Status}, Error: {ErrorMessage}. Check your API key and enabled APIs.", 
-                    jsonResponse?.Status, jsonResponse?.ErrorMessage);
+                var result = jsonResponse.Result;
+                
+                // Log what we actually received
+                _logger.LogInformation("? Place Details Retrieved:");
+                _logger.LogInformation("  - Name: {Name}", result.Name);
+                _logger.LogInformation("  - Address: {Address}", result.FormattedAddress);
+                _logger.LogInformation("  - Phone (formatted): {Phone}", result.FormattedPhoneNumber ?? "N/A");
+                _logger.LogInformation("  - Phone (international): {Phone}", result.InternationalPhoneNumber ?? "N/A");
+                _logger.LogInformation("  - Website: {Website}", result.Website ?? "N/A");
+                _logger.LogInformation("  - Has Opening Hours: {HasHours}", result.OpeningHours != null);
+                
+                return MapToGooglePlaceDetails(result);
+            }
+            
+            if (jsonResponse.Status == "REQUEST_DENIED")
+            {
+                _logger.LogError("? REQUEST_DENIED: {Error}. Check API key restrictions!", 
+                    jsonResponse.ErrorMessage);
+            }
+            else if (jsonResponse.Status == "INVALID_REQUEST")
+            {
+                _logger.LogError("? INVALID_REQUEST: {Error}. Place ID might be invalid: {PlaceId}", 
+                    jsonResponse.ErrorMessage, placeId);
+            }
+            else if (jsonResponse.Status == "NOT_FOUND")
+            {
+                _logger.LogWarning("? NOT_FOUND: Place ID {PlaceId} not found in Google's database", placeId);
             }
             else
             {
-                _logger.LogWarning("Place not found or API error. Status: {Status}, Error: {ErrorMessage}", 
-                    jsonResponse?.Status, jsonResponse?.ErrorMessage);
+                _logger.LogWarning("API returned status: {Status} with message: {Message}", 
+                    jsonResponse.Status, jsonResponse.ErrorMessage);
             }
             
             return null;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error fetching place details for Place ID: {PlaceId}", placeId);
+            _logger.LogError(ex, "Exception in GetPlaceDetailsByIdAsync for Place ID: {PlaceId}", placeId);
+            return null;
+        }
+    }
+
+    private async Task<GooglePlaceDetails?> FindPlaceByCoordinatesAsync(double latitude, double longitude)
+    {
+        try
+        {
+            // Use Geocoding API to reverse geocode and get a Place ID
+            var httpClient = _httpClientFactory.CreateClient();
+            
+            var url = $"https://maps.googleapis.com/maps/api/geocode/json?" +
+                     $"latlng={latitude.ToString(CultureInfo.InvariantCulture)},{longitude.ToString(CultureInfo.InvariantCulture)}" +
+                     $"&result_type=veterinary_care|point_of_interest|establishment" +
+                     $"&key={_apiKey}";
+            
+            _logger.LogInformation("Using Geocoding API to find place at coordinates");
+            
+            var response = await httpClient.GetAsync(url);
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Geocoding API returned status: {StatusCode}", response.StatusCode);
+                return null;
+            }
+            
+            var jsonResponse = await response.Content.ReadFromJsonAsync<GeocodingResponse>();
+            
+            if (jsonResponse?.Status == "OK" && jsonResponse.Results?.Any() == true)
+            {
+                // Find the first result that has a Place ID
+                foreach (var result in jsonResponse.Results)
+                {
+                    if (!string.IsNullOrEmpty(result.PlaceId))
+                    {
+                        _logger.LogInformation("Found Place ID via Geocoding: {PlaceId}", result.PlaceId);
+                        
+                        // Now get full details using the Place ID
+                        var details = await GetPlaceDetailsByIdAsync(result.PlaceId);
+                        if (details != null)
+                        {
+                            return details;
+                        }
+                    }
+                }
+            }
+            else if (jsonResponse?.Status == "REQUEST_DENIED")
+            {
+                _logger.LogError("Geocoding API request denied. Ensure Geocoding API is enabled in Google Cloud Console.");
+            }
+            
+            return null;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Could not find place by coordinates (non-critical)");
             return null;
         }
     }
@@ -138,9 +250,8 @@ public class GooglePlacesService : IGooglePlacesService
 
         try
         {
-            _logger.LogInformation("Expanding shortened URL: {Url}", url);
+            _logger.LogInformation("Expanding shortened URL...");
             
-            // Create a handler that DOESN'T follow redirects automatically
             var handler = new HttpClientHandler
             {
                 AllowAutoRedirect = false
@@ -148,24 +259,17 @@ public class GooglePlacesService : IGooglePlacesService
             
             using var client = new HttpClient(handler);
             client.Timeout = TimeSpan.FromSeconds(15);
-            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
             
             var currentUrl = url;
             var redirectCount = 0;
             const int maxRedirects = 10;
             
-            // Manually follow redirects to capture each step
             while (redirectCount < maxRedirects)
             {
                 var response = await client.GetAsync(currentUrl);
                 
-                // Check for redirect status codes
-                if (response.StatusCode == System.Net.HttpStatusCode.Moved ||
-                    response.StatusCode == System.Net.HttpStatusCode.MovedPermanently ||
-                    response.StatusCode == System.Net.HttpStatusCode.Found ||
-                    response.StatusCode == System.Net.HttpStatusCode.SeeOther ||
-                    response.StatusCode == System.Net.HttpStatusCode.TemporaryRedirect ||
-                    response.StatusCode == System.Net.HttpStatusCode.PermanentRedirect)
+                if ((int)response.StatusCode >= 300 && (int)response.StatusCode < 400)
                 {
                     if (response.Headers.Location != null)
                     {
@@ -173,12 +277,8 @@ public class GooglePlacesService : IGooglePlacesService
                             ? response.Headers.Location.ToString()
                             : new Uri(new Uri(currentUrl), response.Headers.Location).ToString();
                         
-                        _logger.LogDebug("Redirect {Count}: {From} -> {To}", redirectCount + 1, currentUrl, nextUrl);
-                        
-                        // Check if we've reached a Google Maps URL
                         if (nextUrl.Contains("google.com/maps"))
                         {
-                            // Clean consent URLs if present
                             if (nextUrl.Contains("consent.google.com"))
                             {
                                 var match = Regex.Match(nextUrl, @"continue=([^&]+)");
@@ -188,7 +288,6 @@ public class GooglePlacesService : IGooglePlacesService
                                 }
                             }
                             
-                            _logger.LogInformation("Successfully expanded to: {FinalUrl}", nextUrl);
                             return nextUrl;
                         }
                         
@@ -202,22 +301,10 @@ public class GooglePlacesService : IGooglePlacesService
                 }
                 else if (response.IsSuccessStatusCode)
                 {
-                    // No more redirects, check if we're at a Google Maps page
                     if (currentUrl.Contains("google.com/maps"))
                     {
-                        _logger.LogInformation("Successfully expanded to: {FinalUrl}", currentUrl);
                         return currentUrl;
                     }
-                    
-                    // Try to parse HTML for JavaScript redirects
-                    var html = await response.Content.ReadAsStringAsync();
-                    var jsRedirect = ExtractJavaScriptRedirect(html);
-                    if (!string.IsNullOrEmpty(jsRedirect))
-                    {
-                        _logger.LogInformation("Found JavaScript redirect to: {JsRedirect}", jsRedirect);
-                        return jsRedirect;
-                    }
-                    
                     break;
                 }
                 else
@@ -226,100 +313,80 @@ public class GooglePlacesService : IGooglePlacesService
                 }
             }
             
-            _logger.LogWarning("Could not fully expand URL after {Count} redirects", redirectCount);
             return currentUrl;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error expanding shortened URL: {Url}", url);
+            _logger.LogError(ex, "Error expanding URL");
             return url;
         }
     }
 
-    private string? ExtractJavaScriptRedirect(string html)
-    {
-        var patterns = new[]
-        {
-            @"window\.location\.(?:replace|href)\s*=\s*[""']([^""']+)[""']",
-            @"<meta[^>]*http-equiv\s*=\s*[""']refresh[""'][^>]*content\s*=\s*[""'][^;]*;\s*url\s*=\s*([^""']+)[""']",
-            @"https://www\.google\.com/maps/[^\s""'<>]+"
-        };
-        
-        foreach (var pattern in patterns)
-        {
-            var match = Regex.Match(html, pattern, RegexOptions.IgnoreCase);
-            if (match.Success)
-            {
-                var extractedUrl = match.Groups[match.Groups.Count > 1 ? 1 : 0].Value;
-                extractedUrl = System.Net.WebUtility.HtmlDecode(extractedUrl);
-                
-                if (extractedUrl.Contains("google.com/maps"))
-                {
-                    return extractedUrl;
-                }
-            }
-        }
-        
-        return null;
-    }
-
     private string? ExtractPlaceIdFromUrl(string url)
     {
-        // Decode URL to handle encoded characters
         var decodedUrl = Uri.UnescapeDataString(url);
         
-        // Pattern 1: !1s followed by Place ID (most common in expanded URLs)
-        var match = Regex.Match(decodedUrl, @"!1s([A-Za-z0-9_-]{27,})");
+        _logger.LogDebug("Attempting to extract Place ID from URL...");
+        
+        // Pattern 1: Hex format (legacy): !1s0x[hex]:0x[hex]
+        // Example: !1s0xc605917c356351:0xe3e0dd70813c7eb2
+        var match = Regex.Match(decodedUrl, @"!1s(0x[0-9a-fA-F]+:0x[0-9a-fA-F]+)");
         if (match.Success)
         {
-            _logger.LogDebug("Place ID extracted via pattern !1s: {PlaceId}", match.Groups[1].Value);
+            var hexPlaceId = match.Groups[1].Value;
+            _logger.LogDebug("? Found hex-format Place ID: {PlaceId}", hexPlaceId);
+            
+            // Convert hex Place ID to standard format using the hex value directly
+            // Google accepts hex format directly in API calls
+            return hexPlaceId;
+        }
+        
+        // Pattern 2: Standard format: !1s[PLACE_ID] (27+ alphanumeric chars)
+        match = Regex.Match(decodedUrl, @"!1s([A-Za-z0-9_-]{27,})");
+        if (match.Success)
+        {
+            _logger.LogDebug("? Found standard Place ID: {PlaceId}", match.Groups[1].Value);
             return match.Groups[1].Value;
         }
         
-        // Pattern 2: place_id= parameter
+        // Pattern 3: place_id=[PLACE_ID]
         match = Regex.Match(decodedUrl, @"place_id=([A-Za-z0-9_-]+)");
         if (match.Success)
         {
-            _logger.LogDebug("Place ID extracted via place_id parameter: {PlaceId}", match.Groups[1].Value);
+            _logger.LogDebug("? Found Place ID via place_id parameter: {PlaceId}", match.Groups[1].Value);
             return match.Groups[1].Value;
         }
         
-        // Pattern 3: /place/name/PLACE_ID format
-        match = Regex.Match(decodedUrl, @"/place/[^/]+/([A-Za-z0-9_-]{20,})(?:[/@]|$)");
+        // Pattern 4: /place/name/[PLACE_ID]
+        match = Regex.Match(decodedUrl, @"/place/[^/]+/([A-Za-z0-9_-]{27,})");
         if (match.Success)
         {
-            _logger.LogDebug("Place ID extracted via /place/ path: {PlaceId}", match.Groups[1].Value);
+            _logger.LogDebug("? Found Place ID in path: {PlaceId}", match.Groups[1].Value);
             return match.Groups[1].Value;
         }
         
-        // Pattern 4: data= parameter with embedded Place ID
-        match = Regex.Match(decodedUrl, @"data=[^!]*!1s([A-Za-z0-9_-]{27,})");
+        // Pattern 5: ftid=[PLACE_ID]
+        match = Regex.Match(decodedUrl, @"ftid=([A-Za-z0-9_-]{27,})");
         if (match.Success)
         {
-            _logger.LogDebug("Place ID extracted via data parameter: {PlaceId}", match.Groups[1].Value);
+            _logger.LogDebug("? Found Place ID via ftid parameter: {PlaceId}", match.Groups[1].Value);
             return match.Groups[1].Value;
         }
         
-        _logger.LogDebug("No Place ID found in URL");
+        _logger.LogWarning("? Could not extract Place ID using any known pattern");
+        _logger.LogDebug("URL was: {Url}", decodedUrl.Substring(0, Math.Min(500, decodedUrl.Length)));
+        
         return null;
     }
 
     private string? ExtractPlaceNameFromUrl(string url)
     {
-        // Try to extract place name from URL
-        // Pattern: /place/Place+Name or /place/Place%20Name
         var match = Regex.Match(url, @"/place/([^/@\?#]+)");
         
         if (match.Success)
         {
-            var placeName = match.Groups[1].Value;
-            // Decode URL encoding (handles %20, %C3%AD etc.)
-            placeName = Uri.UnescapeDataString(placeName);
-            // Replace + with spaces
-            placeName = placeName.Replace("+", " ");
-            // Remove trailing slashes or special chars
-            placeName = placeName.Trim(' ', '/', '@');
-            
+            var placeName = Uri.UnescapeDataString(match.Groups[1].Value);
+            placeName = placeName.Replace("+", " ").Trim();
             _logger.LogDebug("Extracted place name: {PlaceName}", placeName);
             return placeName;
         }
@@ -329,16 +396,13 @@ public class GooglePlacesService : IGooglePlacesService
 
     private (double?, double?) ExtractCoordinatesFromUrl(string url)
     {
-        // Decode URL first
         var decodedUrl = Uri.UnescapeDataString(url);
         
-        // Patterns to match coordinates
         var patterns = new[]
         {
-            @"@(-?\d+\.?\d+),(-?\d+\.?\d+)",           // @lat,lng
-            @"ll=(-?\d+\.?\d+),(-?\d+\.?\d+)",         // ll=lat,lng
-            @"/(-?\d+\.?\d+),(-?\d+\.?\d+)",           // /lat,lng
-            @"!3d(-?\d+\.?\d+)!4d(-?\d+\.?\d+)"        // !3dlat!4dlng (common in data parameter)
+            @"@(-?\d+\.?\d+),(-?\d+\.?\d+)",
+            @"ll=(-?\d+\.?\d+),(-?\d+\.?\d+)",
+            @"!3d(-?\d+\.?\d+)!4d(-?\d+\.?\d+)"
         };
         
         foreach (var pattern in patterns)
@@ -349,7 +413,7 @@ public class GooglePlacesService : IGooglePlacesService
                 if (double.TryParse(match.Groups[1].Value, NumberStyles.Float, CultureInfo.InvariantCulture, out var lat) && 
                     double.TryParse(match.Groups[2].Value, NumberStyles.Float, CultureInfo.InvariantCulture, out var lng))
                 {
-                    _logger.LogDebug("Extracted coordinates: {Lat}, {Lng} using pattern: {Pattern}", lat, lng, pattern);
+                    _logger.LogDebug("Extracted coordinates: {Lat}, {Lng}", lat, lng);
                     return (lat, lng);
                 }
             }
@@ -358,103 +422,13 @@ public class GooglePlacesService : IGooglePlacesService
         return (null, null);
     }
 
-    private async Task<GooglePlaceDetails?> FindPlaceByNameAsync(string placeName)
-    {
-        try
-        {
-            var httpClient = _httpClientFactory.CreateClient();
-            
-            // Use Find Place From Text API to get Place ID
-            var url = $"{PlacesApiBaseUrl}/findplacefromtext/json?input={Uri.EscapeDataString(placeName)}" +
-                     $"&inputtype=textquery&fields=place_id&key={_apiKey}";
-            
-            _logger.LogInformation("Searching for place by name: {PlaceName}", placeName);
-            
-            var response = await httpClient.GetAsync(url);
-            response.EnsureSuccessStatusCode();
-            
-            var jsonResponse = await response.Content.ReadFromJsonAsync<FindPlaceResponse>();
-            
-            if (jsonResponse?.Status == "OK" && jsonResponse.Candidates?.Any() == true)
-            {
-                var placeId = jsonResponse.Candidates.First().PlaceId;
-                _logger.LogInformation("Found place by name search, Place ID: {PlaceId}", placeId);
-                
-                // Now get full details using the Place ID
-                return await GetPlaceDetailsByIdAsync(placeId);
-            }
-            
-            if (jsonResponse?.Status == "ZERO_RESULTS")
-            {
-                _logger.LogWarning("No places found for name: {PlaceName}", placeName);
-            }
-            else if (jsonResponse?.Status != "OK")
-            {
-                _logger.LogWarning("Find place API returned status: {Status}", jsonResponse?.Status);
-            }
-            
-            return null;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error finding place by name: {PlaceName}", placeName);
-            return null;
-        }
-    }
-
-    private async Task<GooglePlaceDetails?> FindPlaceByCoordinatesAsync(double latitude, double longitude)
-    {
-        try
-        {
-            var httpClient = _httpClientFactory.CreateClient();
-            
-            // Use Nearby Search API
-            var url = $"{PlacesApiBaseUrl}/nearbysearch/json?location={latitude.ToString(CultureInfo.InvariantCulture)},{longitude.ToString(CultureInfo.InvariantCulture)}" +
-                     $"&radius=50&key={_apiKey}";
-            
-            _logger.LogInformation("Searching for place by coordinates: {Lat}, {Lng}", latitude, longitude);
-            
-            var response = await httpClient.GetAsync(url);
-            response.EnsureSuccessStatusCode();
-            
-            var jsonResponse = await response.Content.ReadFromJsonAsync<NearbySearchResponse>();
-            
-            if (jsonResponse?.Status == "OK" && jsonResponse.Results?.Any() == true)
-            {
-                // Get the first (closest) result
-                var firstResult = jsonResponse.Results.First();
-                _logger.LogInformation("Found place by coordinates, Place ID: {PlaceId}, Name: {Name}", 
-                    firstResult.PlaceId, firstResult.Name);
-                
-                // **FIX: Get full details using the Place ID from the response**
-                return await GetPlaceDetailsByIdAsync(firstResult.PlaceId);
-            }
-            
-            if (jsonResponse?.Status == "ZERO_RESULTS")
-            {
-                _logger.LogWarning("No places found near coordinates: {Lat}, {Lng}", latitude, longitude);
-            }
-            else if (jsonResponse?.Status != "OK")
-            {
-                _logger.LogWarning("Nearby search API returned status: {Status}", jsonResponse?.Status);
-            }
-            
-            return null;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error finding place by coordinates: {Lat}, {Lng}", latitude, longitude);
-            return null;
-        }
-    }
-
     private GooglePlaceDetails MapToGooglePlaceDetails(PlaceDetailsResult result)
     {
         return new GooglePlaceDetails
         {
             PlaceId = result.PlaceId ?? string.Empty,
             Name = result.Name ?? string.Empty,
-            FormattedAddress = result.FormattedAddress ?? string.Empty,
+            FormattedAddress = result.FormattedAddress ?? result.Vicinity ?? "Address not available",
             PhoneNumber = result.InternationalPhoneNumber ?? result.FormattedPhoneNumber,
             Website = result.Website,
             Vicinity = result.Vicinity,
@@ -543,37 +517,25 @@ public class GooglePlacesService : IGooglePlacesService
         public List<string>? WeekdayText { get; set; }
     }
 
-    private class NearbySearchResponse
+    private class GeocodingResponse
     {
         [JsonPropertyName("results")]
-        public List<NearbySearchResult>? Results { get; set; }
+        public List<GeocodingResult>? Results { get; set; }
         
         [JsonPropertyName("status")]
         public string Status { get; set; } = string.Empty;
     }
 
-    private class NearbySearchResult
+    private class GeocodingResult
     {
         [JsonPropertyName("place_id")]
-        public string PlaceId { get; set; } = string.Empty;
+        public string? PlaceId { get; set; }
         
-        [JsonPropertyName("name")]
-        public string? Name { get; set; }
-    }
-
-    private class FindPlaceResponse
-    {
-        [JsonPropertyName("candidates")]
-        public List<FindPlaceCandidate>? Candidates { get; set; }
+        [JsonPropertyName("formatted_address")]
+        public string? FormattedAddress { get; set; }
         
-        [JsonPropertyName("status")]
-        public string Status { get; set; } = string.Empty;
-    }
-
-    private class FindPlaceCandidate
-    {
-        [JsonPropertyName("place_id")]
-        public string PlaceId { get; set; } = string.Empty;
+        [JsonPropertyName("types")]
+        public List<string>? Types { get; set; }
     }
 
     #endregion
