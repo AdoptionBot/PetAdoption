@@ -752,3 +752,42 @@
         transform: scale(1);
     }
 }
+
+/* ===================================
+   FAQ SECTION FIXES - HOME PAGE
+   =================================== */
+
+/* Fix FAQ collapsed icon to show plus instead of minus */
+.ftco-faqs [data-toggle="collapse"].collapsed .fa:before {
+  content: "\f067" !important; /* Plus icon */
+  font-family: "FontAwesome" !important;
+  font-style: normal !important;
+}
+
+/* Fix FAQ expanded icon to show minus */
+.ftco-faqs [data-toggle="collapse"]:not(.collapsed) .fa:before {
+  content: "\f068" !important; /* Minus icon */
+  font-family: "FontAwesome" !important;
+  font-style: normal !important;
+}
+
+/* Remove underline from FAQ button and icons */
+.ftco-faqs .myaccordion .btn {
+  text-decoration: none !important;
+}
+
+.ftco-faqs .myaccordion .btn:hover,
+.ftco-faqs .myaccordion .btn:focus {
+  text-decoration: none !important;
+}
+
+/* Ensure FAQ icons have no underline */
+.ftco-faqs .myaccordion .fa {
+  text-decoration: none !important;
+  display: inline-block;
+}
+
+/* Remove underline from button text */
+.ftco-faqs .myaccordion .btn p {
+  text-decoration: none !important;
+}
