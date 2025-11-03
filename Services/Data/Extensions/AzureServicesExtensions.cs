@@ -100,7 +100,8 @@ namespace PetAdoption.Services.Data.Extensions
             // Validate configuration
             var keyVaultUri = configuration["KeyVault:VaultUri"];
             var secretName = configuration["KeyVault:AzureStorageConnectionStringSecret"];
-            var containerName = configuration["Azure:BlobStorage:ContainerName"];
+            var petMediaContainer = configuration["Azure:BlobStorage:PetMediaContainer"];
+            var shelterDocumentsContainer = configuration["Azure:BlobStorage:ShelterDocumentsContainer"];
 
             if (string.IsNullOrWhiteSpace(keyVaultUri))
             {
@@ -114,10 +115,11 @@ namespace PetAdoption.Services.Data.Extensions
                     "KeyVault:AzureStorageConnectionStringSecret is not configured in appsettings.json");
             }
 
-            if (string.IsNullOrWhiteSpace(containerName))
-            {
-                containerName = "pet-media";
-            }
+            // Set defaults for container names
+            petMediaContainer = string.IsNullOrWhiteSpace(petMediaContainer) ? "pet-media" : petMediaContainer;
+            shelterDocumentsContainer = string.IsNullOrWhiteSpace(shelterDocumentsContainer) 
+                ? "shelter-documents" 
+                : shelterDocumentsContainer;
 
             // Step 1: Retrieve connection string from Key Vault (happens once at startup)
             var tempKeyVaultService = KeyVaultSecretService.CreateInstance(configuration);
@@ -129,10 +131,30 @@ namespace PetAdoption.Services.Data.Extensions
             // Step 3: Register Azure Table Storage as Singleton
             services.AddAzureTableStorageService(storageConnectionString);
 
-            // Step 4: Register Azure Blob Storage (Factory as Singleton, Service as Scoped)
-            services.AddAzureBlobStorageService(storageConnectionString, containerName);
+            // Step 4: Register Azure Blob Storage Factory as Singleton (shared client)
+            services.AddSingleton(sp =>
+            {
+                var logger = sp.GetRequiredService<ILogger<AzureBlobStorageClientFactory>>();
+                return new AzureBlobStorageClientFactory(storageConnectionString, logger);
+            });
 
-            // Step 5: Register business services as Scoped
+            // Step 5: Register default blob storage service for pet media (backward compatibility)
+            services.AddScoped<IAzureBlobStorageService>(sp =>
+            {
+                var factory = sp.GetRequiredService<AzureBlobStorageClientFactory>();
+                var logger = sp.GetRequiredService<ILogger<AzureBlobStorageService>>();
+                return new AzureBlobStorageService(factory, petMediaContainer, logger);
+            });
+
+            // Step 6: Register named blob storage service for shelter documents
+            services.AddScoped<IAzureBlobStorageService>(sp =>
+            {
+                var factory = sp.GetRequiredService<AzureBlobStorageClientFactory>();
+                var logger = sp.GetRequiredService<ILogger<AzureBlobStorageService>>();
+                return new AzureBlobStorageService(factory, shelterDocumentsContainer, logger);
+            });
+
+            // Step 7: Register business services as Scoped
             services.AddBusinessServices();
 
             return services;

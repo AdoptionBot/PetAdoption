@@ -53,6 +53,42 @@ namespace PetAdoption.Data.TableStorage
         [StringLength(256, ErrorMessage = "X URL cannot exceed 256 characters.")]
         public string? X { get; set; }
 
+        // Adoption Agreement Properties
+        [StringLength(2000, ErrorMessage = "Adoption agreement rules cannot exceed 2000 characters.")]
+        public string? AdoptionAgreementRules { get; set; }
+
+        // Document 1
+        [StringLength(100, ErrorMessage = "Document name cannot exceed 100 characters.")]
+        public string? Document1Name { get; set; }
+
+        [OptionalUrl(ErrorMessage = "Document 1 URL must be a valid URL.")]
+        [StringLength(256, ErrorMessage = "Document URL cannot exceed 256 characters.")]
+        public string? Document1Url { get; set; }
+
+        // Document 2
+        [StringLength(100, ErrorMessage = "Document name cannot exceed 100 characters.")]
+        public string? Document2Name { get; set; }
+
+        [OptionalUrl(ErrorMessage = "Document 2 URL must be a valid URL.")]
+        [StringLength(256, ErrorMessage = "Document URL cannot exceed 256 characters.")]
+        public string? Document2Url { get; set; }
+
+        // Document 3
+        [StringLength(100, ErrorMessage = "Document name cannot exceed 100 characters.")]
+        public string? Document3Name { get; set; }
+
+        [OptionalUrl(ErrorMessage = "Document 3 URL must be a valid URL.")]
+        [StringLength(256, ErrorMessage = "Document URL cannot exceed 256 characters.")]
+        public string? Document3Url { get; set; }
+
+        // Document 4
+        [StringLength(100, ErrorMessage = "Document name cannot exceed 100 characters.")]
+        public string? Document4Name { get; set; }
+
+        [OptionalUrl(ErrorMessage = "Document 4 URL must be a valid URL.")]
+        [StringLength(256, ErrorMessage = "Document URL cannot exceed 256 characters.")]
+        public string? Document4Url { get; set; }
+
         // Parameterless constructor for deserialization
         public Shelter() { }
 

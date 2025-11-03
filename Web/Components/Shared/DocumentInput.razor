@@ -1,0 +1,369 @@
+@using Microsoft.AspNetCore.Components.Forms
+@using PetAdoption.Services.Interfaces
+@using PetAdoption.Services.Data
+@inject ILogger<DocumentInput> Logger
+@inject IServiceProvider ServiceProvider
+@implements IAsyncDisposable
+
+<div class="mb-4 border-bottom pb-3">
+    <label class="form-label fw-bold">@Label</label>
+    
+    <div class="card">
+        <div class="card-body">
+            <!-- Radio button group for choosing input method -->
+            <div class="mb-3">
+                <div class="btn-group w-100" role="group">
+                    <input type="radio" class="btn-check" name="@InputName" id="@($"{InputName}_upload")"
+                           checked="@IsUploadMode" @onchange="@(() => SetInputMode(true))" />
+                    <label class="btn btn-outline-primary" for="@($"{InputName}_upload")">
+                        <i class="fas fa-upload me-1"></i> Upload File
+                    </label>
+
+                    <input type="radio" class="btn-check" name="@InputName" id="@($"{InputName}_url")"
+                           checked="@(!IsUploadMode)" @onchange="@(() => SetInputMode(false))" />
+                    <label class="btn btn-outline-primary" for="@($"{InputName}_url")">
+                        <i class="fas fa-link me-1"></i> Enter URL
+                    </label>
+                </div>
+            </div>
+
+            @if (IsUploadMode)
+            {
+                <div class="mb-2">
+                    <div class="mb-2">
+                        <label for="@InputId" class="btn btn-outline-secondary w-100 text-start position-relative">
+                            <i class="fas fa-file-upload me-2"></i>
+                            @if (selectedFile != null)
+                            {
+                                <span>@selectedFile.Name</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Choose document file...</span>
+                            }
+                            <InputFile OnChange="HandleFileSelected" 
+                                      class="position-absolute opacity-0 w-100 h-100 top-0 start-0" 
+                                      style="cursor: pointer;"
+                                      accept="@AcceptTypes" 
+                                      disabled="@IsUploading"
+                                      id="@InputId" />
+                        </label>
+                    </div>
+                    <small class="text-muted d-block">
+                        Max file size: @MaxSizeText (PDF, Word, or Text documents only)
+                    </small>
+                    
+                    @if (selectedFile != null && !IsUploading)
+                    {
+                        <div class="alert alert-info mt-2 mb-0 d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="fas fa-file-alt me-2"></i>
+                                @selectedFile.Name (@FormatFileSize(selectedFile.Size))
+                            </span>
+                            <button type="button" class="btn btn-sm btn-primary" @onclick="HandleUploadClick" disabled="@IsUploading">
+                                <i class="fas fa-cloud-upload-alt me-1"></i> Upload Now
+                            </button>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="mb-2">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-link"></i></span>
+                        <input type="url" class="form-control" 
+                               placeholder="Enter document URL (e.g., https://example.com/document.pdf)"
+                               value="@UrlInput" @oninput="HandleUrlInput" />
+                    </div>
+                    <small class="text-muted">Enter a valid URL starting with http:// or https://</small>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                <div class="alert alert-danger mt-3 mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    @ErrorMessage
+                </div>
+            }
+
+            @if (IsUploading)
+            {
+                <div class="alert alert-info d-flex align-items-center mt-3 mb-0">
+                    <div class="spinner-border spinner-border-sm me-2"></div>
+                    <div>Uploading document to Azure Blob Storage...</div>
+                </div>
+            }
+            else if (!string.IsNullOrEmpty(CurrentUrl))
+            {
+                <div class="alert alert-success d-flex align-items-center justify-content-between mt-3 mb-0">
+                    <div>
+                        <i class="fas fa-check-circle me-2"></i>
+                        Document uploaded successfully
+                    </div>
+                    <div>
+                        <a href="@CurrentUrl" target="_blank" class="btn btn-sm btn-outline-primary me-2">
+                            <i class="fas fa-external-link-alt me-1"></i> View
+                        </a>
+                        <button type="button" class="btn btn-sm btn-outline-danger" @onclick="ClearDocument">
+                            <i class="fas fa-times me-1"></i> Clear
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-2 p-2 bg-light rounded">
+                    <small class="text-muted">
+                        <i class="fas fa-file me-1"></i>
+                        Document saved: @GetFileNameFromUrl(CurrentUrl)
+                    </small>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Label { get; set; } = "";
+    [Parameter] public string? CurrentUrl { get; set; }
+    [Parameter] public EventCallback<string?> CurrentUrlChanged { get; set; }
+    [Parameter] public EventCallback<string?> OnDocumentUploaded { get; set; }
+
+    private bool IsUploadMode { get; set; } = true;
+    private bool IsUploading { get; set; }
+    private string? UrlInput { get; set; }
+    private string? ErrorMessage { get; set; }
+    private IBrowserFile? selectedFile;
+    private CancellationTokenSource? _uploadCancellation;
+    private readonly SemaphoreSlim _uploadLock = new(1, 1);
+    private IAzureBlobStorageService? _blobStorageService;
+
+    private string InputId => $"fileInput_{SanitizeForId(Label)}";
+    private string InputName => $"documentInput_{SanitizeForId(Label)}";
+    private string AcceptTypes => ".pdf,.doc,.docx,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain";
+    private string MaxSizeText => "10MB";
+    private long MaxFileSize => 10485760; // 10MB
+
+    protected override void OnInitialized()
+    {
+        // Get all IAzureBlobStorageService instances and find the one for shelter-documents
+        var services = ServiceProvider.GetServices<IAzureBlobStorageService>();
+        _blobStorageService = services.FirstOrDefault(s => s.ContainerName == "shelter-documents");
+
+        if (_blobStorageService == null)
+        {
+            // Fallback: create a new instance for shelter-documents
+            var factory = ServiceProvider.GetRequiredService<AzureBlobStorageClientFactory>();
+            var logger = ServiceProvider.GetRequiredService<ILogger<AzureBlobStorageService>>();
+            _blobStorageService = new AzureBlobStorageService(factory, "shelter-documents", logger);
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        UrlInput = CurrentUrl;
+    }
+
+    private void SetInputMode(bool isUpload)
+    {
+        IsUploadMode = isUpload;
+        ErrorMessage = null;
+        selectedFile = null;
+        
+        if (!isUpload)
+        {
+            UrlInput = CurrentUrl;
+        }
+    }
+
+    private void HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            selectedFile = e.File;
+            ErrorMessage = null;
+
+            if (selectedFile.Size > MaxFileSize)
+            {
+                ErrorMessage = $"File size ({FormatFileSize(selectedFile.Size)}) exceeds maximum allowed size of {MaxSizeText}";
+                selectedFile = null;
+                return;
+            }
+
+            // Validate file type by extension and content type
+            var fileName = selectedFile.Name.ToLowerInvariant();
+            var allowedExtensions = new[] { ".pdf", ".doc", ".docx", ".txt" };
+            var hasValidExtension = allowedExtensions.Any(ext => fileName.EndsWith(ext));
+
+            var allowedContentTypes = new[] 
+            { 
+                "application/pdf", 
+                "application/msword", 
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "text/plain"
+            };
+            var hasValidContentType = allowedContentTypes.Any(type => 
+                selectedFile.ContentType.Equals(type, StringComparison.OrdinalIgnoreCase));
+
+            if (!hasValidExtension || !hasValidContentType)
+            {
+                ErrorMessage = "Invalid file type. Allowed types: PDF (.pdf), Word (.doc, .docx), or Text (.txt)";
+                selectedFile = null;
+                return;
+            }
+
+            Logger.LogInformation("Document selected: {FileName} ({Size} bytes, {ContentType})", 
+                selectedFile.Name, selectedFile.Size, selectedFile.ContentType);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error handling file selection for {Label}", Label);
+            ErrorMessage = "Error selecting file. Please try again.";
+            selectedFile = null;
+        }
+    }
+
+    private async Task HandleUploadClick()
+    {
+        if (selectedFile == null)
+        {
+            ErrorMessage = "No file selected";
+            return;
+        }
+
+        if (_blobStorageService == null)
+        {
+            ErrorMessage = "Blob storage service not initialized";
+            return;
+        }
+
+        if (!await _uploadLock.WaitAsync(0))
+        {
+            ErrorMessage = "An upload is already in progress";
+            return;
+        }
+
+        try
+        {
+            _uploadCancellation?.Cancel();
+            _uploadCancellation = new CancellationTokenSource();
+
+            IsUploading = true;
+            ErrorMessage = null;
+            await InvokeAsync(StateHasChanged);
+
+            Logger.LogInformation("Starting document upload for {FileName}", selectedFile.Name);
+            
+            await using var stream = selectedFile.OpenReadStream(MaxFileSize);
+            
+            // Upload to shelter-documents container
+            var url = await _blobStorageService.UploadImageAsync(
+                stream,
+                selectedFile.Name,
+                selectedFile.ContentType);
+
+            Logger.LogInformation("Document upload successful. URL: {Url}", url);
+            
+            await CurrentUrlChanged.InvokeAsync(url);
+            await OnDocumentUploaded.InvokeAsync(url);
+            selectedFile = null;
+        }
+        catch (OperationCanceledException)
+        {
+            Logger.LogWarning("Upload cancelled for {FileName}", selectedFile?.Name);
+            ErrorMessage = "Upload cancelled";
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to upload document: {FileName}", selectedFile?.Name);
+            ErrorMessage = $"Upload failed: {ex.Message}";
+        }
+        finally
+        {
+            IsUploading = false;
+            _uploadCancellation?.Dispose();
+            _uploadCancellation = null;
+            _uploadLock.Release();
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task HandleUrlInput(ChangeEventArgs e)
+    {
+        UrlInput = e.Value?.ToString();
+        ErrorMessage = null;
+        
+        if (!string.IsNullOrWhiteSpace(UrlInput))
+        {
+            if (!Uri.TryCreate(UrlInput, UriKind.Absolute, out var uriResult) 
+                || (uriResult.Scheme != Uri.UriSchemeHttp && uriResult.Scheme != Uri.UriSchemeHttps))
+            {
+                ErrorMessage = "Please enter a valid URL starting with http:// or https://";
+                await CurrentUrlChanged.InvokeAsync(null);
+                return;
+            }
+        }
+        
+        await CurrentUrlChanged.InvokeAsync(UrlInput);
+    }
+
+    private Task ClearDocument()
+    {
+        CurrentUrlChanged.InvokeAsync(null);
+        UrlInput = null;
+        ErrorMessage = null;
+        selectedFile = null;
+        return Task.CompletedTask;
+    }
+
+    private static string FormatFileSize(long bytes)
+    {
+        string[] sizes = ["B", "KB", "MB", "GB"];
+        double len = bytes;
+        int order = 0;
+        
+        while (len >= 1024 && order < sizes.Length - 1)
+        {
+            order++;
+            len /= 1024;
+        }
+        
+        return $"{len:0.##} {sizes[order]}";
+    }
+
+    private static string SanitizeForId(string input)
+    {
+        return input
+            .Replace(" ", "")
+            .Replace("&", "And")
+            .Replace("1", "One")
+            .Replace("2", "Two")
+            .Replace("3", "Three")
+            .Replace("4", "Four");
+    }
+
+    private static string GetFileNameFromUrl(string? url)
+    {
+        if (string.IsNullOrEmpty(url))
+            return "Unknown";
+
+        try
+        {
+            var uri = new Uri(url);
+            var fileName = uri.Segments.Last();
+            return Uri.UnescapeDataString(fileName);
+        }
+        catch
+        {
+            return "Unknown";
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _uploadCancellation?.Cancel();
+        _uploadCancellation?.Dispose();
+        _uploadLock.Dispose();
+        await Task.CompletedTask;
+    }
+}

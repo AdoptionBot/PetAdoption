@@ -61,6 +61,10 @@
                                            @onclick='() => HandleNavigationClick("/mypets")' @onclick:preventDefault="true">
                                             <span class="fas fa-paw me-1"></span> Manage Pets
                                         </a>
+                                        <a class="dropdown-item @GetDisabledClass()" href="/adoptionagreement" 
+                                           @onclick='() => HandleNavigationClick("/adoptionagreement")' @onclick:preventDefault="true">
+                                            <span class="fas fa-file-contract me-1"></span> Adoption Agreement
+                                        </a>
                                     </div>
                                 </li>
                             </Authorized>

@@ -1,0 +1,421 @@
+@page "/adoptionagreement"
+@using Microsoft.AspNetCore.Authorization
+@using PetAdoption.Services.Interfaces
+@using PetAdoption.Data.TableStorage
+@using PetAdoption.Data.TableStorage.Enums
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
+@using PetAdoption.Web.Components.Shared
+@attribute [Authorize(Roles = "Shelter,Admin")]
+@inject IUserService UserService
+@inject IShelterService ShelterService
+@inject IAzureBlobStorageService BlobStorageService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+@inject ILogger<AdoptionAgreement> Logger
+@rendermode InteractiveServer
+@implements IAsyncDisposable
+
+<PageTitle>Adoption Agreement - Madeira Pet Adoption</PageTitle>
+
+<div class="container mt-5 mb-5">
+    <div class="row">
+        <div class="col-md-10 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="fas fa-file-contract me-2"></i>Adoption Agreement</h3>
+                </div>
+                <div class="card-body p-4">
+                    @if (isLoading)
+                    {
+                        <div class="text-center">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    }
+                    else if (currentShelter == null)
+                    {
+                        <div class="alert alert-danger">
+                            <strong>Unable to load shelter information.</strong>
+                            <p class="mb-0">You must be registered as a shelter to manage adoption agreements. Please complete your profile first.</p>
+                            <a href="/profile" class="btn btn-primary mt-2">Go to Profile</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <EditForm Model="currentShelter" OnValidSubmit="HandleValidSubmit">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary class="alert alert-danger" />
+
+                            @if (!string.IsNullOrEmpty(successMessage))
+                            {
+                                <div class="alert alert-success alert-dismissible fade show">
+                                    <i class="fas fa-check-circle me-2"></i>@successMessage
+                                    <button type="button" class="btn-close" @onclick="() => successMessage = null" aria-label="Close"></button>
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrEmpty(errorMessage))
+                            {
+                                <div class="alert alert-danger alert-dismissible fade show">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+                                    <button type="button" class="btn-close" @onclick="() => errorMessage = null" aria-label="Close"></button>
+                                </div>
+                            }
+
+                            <!-- Shelter Information (Read-only) -->
+                            <div class="mb-4">
+                                <h5 class="border-bottom pb-2"><i class="fas fa-home me-2"></i>Shelter Information</h5>
+                                <div class="alert alert-light">
+                                    <p class="mb-1"><strong>Shelter Name:</strong> @currentShelter.PartitionKey</p>
+                                    <p class="mb-0"><strong>Shelter Location:</strong> @currentShelter.RowKey</p>
+                                </div>
+                            </div>
+
+                            <!-- Adoption Agreement Rules -->
+                            <div class="mb-4">
+                                <h5 class="border-bottom pb-2"><i class="fas fa-clipboard-list me-2"></i>Adoption Agreement Rules</h5>
+                                <p class="text-muted small mb-3">
+                                    Enter the rules and requirements that adopters must agree to. This text will be displayed to potential adopters.
+                                </p>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Rules and Requirements</label>
+                                    <InputTextArea @bind-Value="currentShelter.AdoptionAgreementRules" 
+                                                   class="form-control" 
+                                                   rows="8"
+                                                   placeholder="Enter your shelter's adoption agreement rules and requirements...&#10;&#10;For example:&#10;- Must be 18 years or older&#10;- Must provide proof of residence&#10;- Must agree to annual veterinary check-ups&#10;- Must not abandon or rehome the pet without shelter approval" />
+                                    <ValidationMessage For="@(() => currentShelter.AdoptionAgreementRules)" />
+                                    <small class="text-muted">@(currentShelter.AdoptionAgreementRules?.Length ?? 0) / 2000 characters</small>
+                                </div>
+                            </div>
+
+                            <!-- Supporting Documents -->
+                            <div class="mb-4">
+                                <h5 class="border-bottom pb-2"><i class="fas fa-file-pdf me-2"></i>Supporting Documents</h5>
+                                <p class="text-muted small mb-3">
+                                    Upload official adoption agreement documents, contracts, or additional information that adopters can download and review.
+                                    Accepted formats: PDF, Word, or Text files (max 10MB each).
+                                </p>
+
+                                <!-- Document 1 -->
+                                <div class="mb-4 p-3 border rounded bg-light">
+                                    <h6 class="mb-3"><i class="fas fa-file me-2"></i>Document 1</h6>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Document Name @(HasDocumentUrl(currentShelter.Document1Url) ? "*" : "")</label>
+                                        <InputText @bind-Value="currentShelter.Document1Name" 
+                                                   class="form-control" 
+                                                   placeholder="e.g., Adoption Contract, Terms and Conditions" />
+                                        @if (HasDocumentUrl(currentShelter.Document1Url) && string.IsNullOrWhiteSpace(currentShelter.Document1Name))
+                                        {
+                                            <div class="text-danger small mt-1">Document name is required when a document is uploaded.</div>
+                                        }
+                                        <small class="text-muted">@(currentShelter.Document1Name?.Length ?? 0) / 100 characters</small>
+                                    </div>
+
+                                    <DocumentInput @key="@($"doc1_{currentShelter.PartitionKey}")" 
+                                                 Label="Document File" 
+                                                 @bind-CurrentUrl="currentShelter.Document1Url" 
+                                                 OnDocumentUploaded="TrackUploadedDocument" />
+                                </div>
+
+                                <!-- Document 2 -->
+                                <div class="mb-4 p-3 border rounded bg-light">
+                                    <h6 class="mb-3"><i class="fas fa-file me-2"></i>Document 2</h6>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Document Name @(HasDocumentUrl(currentShelter.Document2Url) ? "*" : "")</label>
+                                        <InputText @bind-Value="currentShelter.Document2Name" 
+                                                   class="form-control" 
+                                                   placeholder="e.g., Health Certificate, Vaccination Record" />
+                                        @if (HasDocumentUrl(currentShelter.Document2Url) && string.IsNullOrWhiteSpace(currentShelter.Document2Name))
+                                        {
+                                            <div class="text-danger small mt-1">Document name is required when a document is uploaded.</div>
+                                        }
+                                        <small class="text-muted">@(currentShelter.Document2Name?.Length ?? 0) / 100 characters</small>
+                                    </div>
+
+                                    <DocumentInput @key="@($"doc2_{currentShelter.PartitionKey}")" 
+                                                 Label="Document File" 
+                                                 @bind-CurrentUrl="currentShelter.Document2Url" 
+                                                 OnDocumentUploaded="TrackUploadedDocument" />
+                                </div>
+
+                                <!-- Document 3 -->
+                                <div class="mb-4 p-3 border rounded bg-light">
+                                    <h6 class="mb-3"><i class="fas fa-file me-2"></i>Document 3</h6>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Document Name @(HasDocumentUrl(currentShelter.Document3Url) ? "*" : "")</label>
+                                        <InputText @bind-Value="currentShelter.Document3Name" 
+                                                   class="form-control" 
+                                                   placeholder="e.g., Care Instructions, Behavior Guidelines" />
+                                        @if (HasDocumentUrl(currentShelter.Document3Url) && string.IsNullOrWhiteSpace(currentShelter.Document3Name))
+                                        {
+                                            <div class="text-danger small mt-1">Document name is required when a document is uploaded.</div>
+                                        }
+                                        <small class="text-muted">@(currentShelter.Document3Name?.Length ?? 0) / 100 characters</small>
+                                    </div>
+
+                                    <DocumentInput @key="@($"doc3_{currentShelter.PartitionKey}")" 
+                                                 Label="Document File" 
+                                                 @bind-CurrentUrl="currentShelter.Document3Url" 
+                                                 OnDocumentUploaded="TrackUploadedDocument" />
+                                </div>
+
+                                <!-- Document 4 -->
+                                <div class="mb-4 p-3 border rounded bg-light">
+                                    <h6 class="mb-3"><i class="fas fa-file me-2"></i>Document 4</h6>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Document Name @(HasDocumentUrl(currentShelter.Document4Url) ? "*" : "")</label>
+                                        <InputText @bind-Value="currentShelter.Document4Name" 
+                                                   class="form-control" 
+                                                   placeholder="e.g., Post-Adoption Support, Return Policy" />
+                                        @if (HasDocumentUrl(currentShelter.Document4Url) && string.IsNullOrWhiteSpace(currentShelter.Document4Name))
+                                        {
+                                            <div class="text-danger small mt-1">Document name is required when a document is uploaded.</div>
+                                        }
+                                        <small class="text-muted">@(currentShelter.Document4Name?.Length ?? 0) / 100 characters</small>
+                                    </div>
+
+                                    <DocumentInput @key="@($"doc4_{currentShelter.PartitionKey}")" 
+                                                 Label="Document File" 
+                                                 @bind-CurrentUrl="currentShelter.Document4Url" 
+                                                 OnDocumentUploaded="TrackUploadedDocument" />
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg" disabled="@isSaving">
+                                    @if (isSaving)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2"></span>
+                                    }
+                                    <i class="fas fa-save me-2"></i>Save Adoption Agreement
+                                </button>
+                            </div>
+                        </EditForm>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private Shelter? currentShelter;
+    private User? currentUser;
+    private bool isLoading = true;
+    private bool isSaving = false;
+    private bool isShelterSaved = false;
+    private string? successMessage;
+    private string? errorMessage;
+    private List<string> uploadedDocumentUrls = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                var email = user.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+                if (!string.IsNullOrEmpty(email))
+                {
+                    currentUser = await UserService.GetUserByEmailAsync(email);
+                    if (currentUser != null && 
+                        !string.IsNullOrEmpty(currentUser.ShelterName) && 
+                        !string.IsNullOrEmpty(currentUser.ShelterLocation))
+                    {
+                        currentShelter = await ShelterService.GetShelterAsync(
+                            currentUser.ShelterName, 
+                            currentUser.ShelterLocation);
+
+                        if (currentShelter == null)
+                        {
+                            errorMessage = "Shelter not found. Please ensure your shelter profile is complete.";
+                        }
+                    }
+                    else
+                    {
+                        errorMessage = "You must be associated with a shelter to manage adoption agreements.";
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to load shelter information");
+            errorMessage = "Failed to load shelter information: " + ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void TrackUploadedDocument(string? url)
+    {
+        if (!string.IsNullOrEmpty(url) && !uploadedDocumentUrls.Contains(url))
+        {
+            uploadedDocumentUrls.Add(url);
+            Logger.LogInformation("Tracked uploaded document: {Url}", url);
+        }
+    }
+
+    private bool HasDocumentUrl(string? url)
+    {
+        return !string.IsNullOrWhiteSpace(url);
+    }
+
+    private bool ValidateDocumentUrls()
+    {
+        var urlsToValidate = new[]
+        {
+            currentShelter?.Document1Url,
+            currentShelter?.Document2Url,
+            currentShelter?.Document3Url,
+            currentShelter?.Document4Url
+        };
+
+        foreach (var url in urlsToValidate)
+        {
+            if (!string.IsNullOrEmpty(url))
+            {
+                if (!Uri.TryCreate(url, UriKind.Absolute, out var uriResult) 
+                    || (uriResult.Scheme != Uri.UriSchemeHttp && uriResult.Scheme != Uri.UriSchemeHttps))
+                {
+                    errorMessage = $"Invalid URL: {url}. Please enter a valid URL starting with http:// or https://";
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private bool ValidateDocumentNames()
+    {
+        if (currentShelter == null) return true;
+
+        var validationErrors = new List<string>();
+
+        if (HasDocumentUrl(currentShelter.Document1Url) && string.IsNullOrWhiteSpace(currentShelter.Document1Name))
+        {
+            validationErrors.Add("Document 1 name is required when a document is uploaded");
+        }
+
+        if (HasDocumentUrl(currentShelter.Document2Url) && string.IsNullOrWhiteSpace(currentShelter.Document2Name))
+        {
+            validationErrors.Add("Document 2 name is required when a document is uploaded");
+        }
+
+        if (HasDocumentUrl(currentShelter.Document3Url) && string.IsNullOrWhiteSpace(currentShelter.Document3Name))
+        {
+            validationErrors.Add("Document 3 name is required when a document is uploaded");
+        }
+
+        if (HasDocumentUrl(currentShelter.Document4Url) && string.IsNullOrWhiteSpace(currentShelter.Document4Name))
+        {
+            validationErrors.Add("Document 4 name is required when a document is uploaded");
+        }
+
+        if (validationErrors.Any())
+        {
+            errorMessage = string.Join("; ", validationErrors);
+            return false;
+        }
+
+        return true;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (currentShelter == null) return;
+
+        isSaving = true;
+        successMessage = null;
+        errorMessage = null;
+
+        try
+        {
+            // Scroll to top first to show any messages
+            await JSRuntime.InvokeVoidAsync("window.scrollTo", new { top = 0, behavior = "smooth" });
+
+            // Validate document URLs
+            if (!ValidateDocumentUrls())
+            {
+                return;
+            }
+
+            // Validate document names (required when document is uploaded)
+            if (!ValidateDocumentNames())
+            {
+                return;
+            }
+
+            // Validate that required fields are set
+            var validationContext = new ValidationContext(currentShelter);
+            var validationResults = new List<ValidationResult>();
+            bool isValid = Validator.TryValidateObject(currentShelter, validationContext, validationResults, true);
+
+            if (!isValid)
+            {
+                errorMessage = "Please complete all required fields: " +
+                    string.Join(", ", validationResults.Select(r => r.ErrorMessage));
+                return;
+            }
+
+            // Update shelter
+            await ShelterService.UpdateShelterAsync(currentShelter);
+
+            isShelterSaved = true;
+            Logger.LogInformation("Adoption agreement for shelter '{ShelterName}' updated successfully", 
+                currentShelter.PartitionKey);
+
+            // Clear the uploaded document list since the shelter was saved successfully
+            uploadedDocumentUrls.Clear();
+
+            successMessage = "Adoption agreement saved successfully!";
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to save adoption agreement");
+            errorMessage = "Failed to save adoption agreement: " + ex.Message;
+            isShelterSaved = false;
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        // Clean up uploaded documents if the shelter was not saved
+        if (!isShelterSaved && uploadedDocumentUrls.Any())
+        {
+            Logger.LogInformation("Cleaning up {Count} uploaded documents that were not saved", 
+                uploadedDocumentUrls.Count);
+            
+            foreach (var url in uploadedDocumentUrls)
+            {
+                try
+                {
+                    await BlobStorageService.DeleteImageAsync(url);
+                    Logger.LogInformation("Deleted unsaved document: {Url}", url);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "Failed to delete unsaved document: {Url}", url);
+                }
+            }
+        }
+    }
+}

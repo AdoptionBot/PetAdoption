@@ -6,6 +6,11 @@ namespace PetAdoption.Services.Interfaces
     public interface IAzureBlobStorageService
     {
         /// <summary>
+        /// Gets the container name this service is configured for
+        /// </summary>
+        string ContainerName { get; }
+
+        /// <summary>
         /// Uploads an image to blob storage and returns the public URL
         /// </summary>
         /// <param name="imageStream">The image stream to upload</param>

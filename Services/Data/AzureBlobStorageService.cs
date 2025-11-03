@@ -17,6 +17,11 @@ namespace PetAdoption.Services.Data
         private readonly ILogger<AzureBlobStorageService> _logger;
 
         /// <summary>
+        /// Gets the container name this service is configured for
+        /// </summary>
+        public string ContainerName => _containerName;
+
+        /// <summary>
         /// Constructor using client factory (recommended)
         /// </summary>
         public AzureBlobStorageService(
@@ -75,10 +80,11 @@ namespace PetAdoption.Services.Data
 
                 var streamLength = imageStream.CanSeek ? imageStream.Length : -1;
                 _logger.LogInformation(
-                    "Uploading blob: {FileName} (ContentType: {ContentType}, Size: {Size} bytes)",
+                    "Uploading blob: {FileName} (ContentType: {ContentType}, Size: {Size} bytes) to container: {Container}",
                     uniqueFileName,
                     contentType,
-                    streamLength);
+                    streamLength,
+                    _containerName);
 
                 var startTime = DateTimeOffset.UtcNow;
 
@@ -94,13 +100,13 @@ namespace PetAdoption.Services.Data
                     }
                 });
 
-                _logger.LogInformation("Successfully uploaded blob: {FileName}", uniqueFileName);
+                _logger.LogInformation("Successfully uploaded blob: {FileName} to container: {Container}", uniqueFileName, _containerName);
 
                 return blobClient.Uri.ToString();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to upload image: {FileName}", fileName);
+                _logger.LogError(ex, "Failed to upload image: {FileName} to container: {Container}", fileName, _containerName);
                 throw;
             }
         }
@@ -129,16 +135,16 @@ namespace PetAdoption.Services.Data
                 
                 if (deleted.Value)
                 {
-                    _logger.LogInformation("Deleted blob: {BlobName}", blobName);
+                    _logger.LogInformation("Deleted blob: {BlobName} from container: {Container}", blobName, _containerName);
                 }
                 else
                 {
-                    _logger.LogWarning("Blob not found for deletion: {BlobName}", blobName);
+                    _logger.LogWarning("Blob not found for deletion: {BlobName} in container: {Container}", blobName, _containerName);
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to delete image: {ImageUrl}", imageUrl);
+                _logger.LogError(ex, "Failed to delete image: {ImageUrl} from container: {Container}", imageUrl, _containerName);
                 throw;
             }
         }
