@@ -386,19 +386,47 @@
                                     }
                                 }
 
+                                @* User view when shelter has accepted *@
                                 @if (isUserRole && selectedApplication.AdoptionStatus == AdoptionStatus.AcceptedByShelter)
                                 {
-                                    <div class="alert alert-info mt-4">
-                                        <h6><i class="fa fa-info-circle"></i> Action Required</h6>
-                                        <p class="mb-0 small">The shelter has accepted your application! Please review the pet's information and decide if you want to proceed with the adoption.</p>
+                                    <div class="alert alert-success mt-4 border-success">
+                                        <h6 class="text-success"><i class="fa fa-check-circle"></i> Application Accepted!</h6>
+                                        <p class="mb-2">
+                                            <strong>Great news!</strong> The shelter has accepted your adoption application for <strong>@selectedApplication.PetName</strong>!
+                                        </p>
+                                        <hr />
+                                        <h6 class="mb-2"><i class="fa fa-map-marker"></i> Next Steps:</h6>
+                                        <ol class="small mb-2 ps-3">
+                                            <li>Contact the shelter to arrange a pickup time</li>
+                                            <li>Bring a valid ID and any required documents</li>
+                                            <li>Visit the shelter to meet @selectedApplication.PetName</li>
+                                            <li>Complete the adoption process at the shelter</li>
+                                        </ol>
+                                        @if (selectedPet != null)
+                                        {
+                                            <div class="bg-white p-3 rounded mt-3 border">
+                                                <h6 class="mb-2"><i class="fa fa-home"></i> Shelter Contact Information:</h6>
+                                                <p class="mb-1 small"><strong>Name:</strong> @selectedPet.ShelterName</p>
+                                                <p class="mb-1 small"><strong>Location:</strong> @selectedPet.ShelterLocation</p>
+                                                <p class="mb-0 small text-muted">
+                                                    <i class="fa fa-info-circle"></i> Please contact the shelter directly to schedule your visit.
+                                                </p>
+                                            </div>
+                                        }
                                     </div>
                                 }
 
-                                @if (!isUserRole && selectedApplication.AdoptionStatus == AdoptionStatus.AcceptedByUser)
+                                @* Shelter view when user needs to pick up (AcceptedByShelter status) *@
+                                @if (!isUserRole && selectedApplication.AdoptionStatus == AdoptionStatus.AcceptedByShelter)
                                 {
-                                    <div class="alert alert-success mt-4">
-                                        <h6><i class="fa fa-check-circle"></i> Ready to Complete</h6>
-                                        <p class="mb-0 small">The applicant has accepted the adoption! You can now confirm the adoption is complete once the pet has been handed over to the new family.</p>
+                                    <div class="alert alert-info mt-4 border-info">
+                                        <h6 class="text-info"><i class="fa fa-clock"></i> Awaiting User Pickup</h6>
+                                        <p class="small mb-2">
+                                            You have accepted this application. The user has been notified to contact you and arrange pickup of <strong>@selectedApplication.PetName</strong>.
+                                        </p>
+                                        <p class="small mb-0">
+                                            <i class="fa fa-hand-pointer"></i> Once the user has physically picked up the pet, click the button below to mark the adoption as complete.
+                                        </p>
                                     </div>
                                 }
                                 
@@ -440,22 +468,11 @@
                         </button>
                     }
 
-                    @* User buttons - shown when status is AcceptedByShelter *@
-                    @if (isUserRole && selectedApplication.AdoptionStatus == AdoptionStatus.AcceptedByShelter && !isProcessing)
+                    @* Shelter button - shown when status is AcceptedByShelter (User has been notified, waiting for physical pickup) *@
+                    @if (!isUserRole && selectedApplication.AdoptionStatus == AdoptionStatus.AcceptedByShelter && !isProcessing)
                     {
-                        <button type="button" class="btn btn-success" @onclick="UserAcceptApplication">
-                            <i class="fa fa-heart"></i> Accept Adoption
-                        </button>
-                        <button type="button" class="btn btn-warning" @onclick="UserRejectApplication">
-                            <i class="fa fa-times-circle"></i> Decline
-                        </button>
-                    }
-
-                    @* Shelter button - shown when status is AcceptedByUser (FINAL STEP) *@
-                    @if (!isUserRole && selectedApplication.AdoptionStatus == AdoptionStatus.AcceptedByUser && !isProcessing)
-                    {
-                        <button type="button" class="btn btn-success" @onclick="ConfirmAdoptionComplete">
-                            <i class="fa fa-check-circle"></i> Adoption Successful
+                        <button type="button" class="btn btn-success btn-lg" @onclick="ConfirmPhysicalAdoption">
+                            <i class="fa fa-heart"></i> @selectedApplication.PetName Adopted
                         </button>
                     }
 
@@ -885,75 +902,7 @@
         }
     }
 
-    private async Task UserAcceptApplication()
-    {
-        if (selectedApplication == null) return;
-
-        try
-        {
-            isProcessing = true;
-            StateHasChanged();
-
-            var result = await AdoptionProcessService.UserAcceptApplicationAsync(selectedApplication);
-            
-            if (result.Success)
-            {
-                successMessage = result.Message;
-                CloseDetailsModal();
-                await LoadApplicationsAsync();
-            }
-            else
-            {
-                errorMessage = result.Message;
-            }
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "Error accepting application");
-            errorMessage = $"Failed to accept application: {ex.Message}";
-        }
-        finally
-        {
-            isProcessing = false;
-            StateHasChanged();
-        }
-    }
-
-    private async Task UserRejectApplication()
-    {
-        if (selectedApplication == null) return;
-
-        try
-        {
-            isProcessing = true;
-            StateHasChanged();
-
-            var result = await AdoptionProcessService.UserRejectApplicationAsync(selectedApplication);
-            
-            if (result.Success)
-            {
-                successMessage = result.Message;
-                CloseDetailsModal();
-                await LoadApplicationsAsync();
-            }
-            else
-            {
-                errorMessage = result.Message;
-            }
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "Error rejecting application");
-            errorMessage = $"Failed to reject application: {ex.Message}";
-        }
-        finally
-        {
-            isProcessing = false;
-            StateHasChanged();
-        }
-    }
-
-    private async Task ConfirmAdoptionComplete()
+    private async Task ConfirmPhysicalAdoption()
     {
         if (selectedApplication == null) return;
 
@@ -966,7 +915,7 @@
             
             if (result.Success)
             {
-                successMessage = result.Message;
+                successMessage = $"🎉 Congratulations! {selectedApplication.PetName} has been successfully adopted!";
                 CloseDetailsModal();
                 await LoadApplicationsAsync();
             }
@@ -977,7 +926,7 @@
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Error confirming adoption completion");
+            Logger.LogError(ex, "Error confirming physical adoption");
             errorMessage = $"Failed to confirm adoption: {ex.Message}";
         }
         finally
@@ -1017,7 +966,6 @@
             AdoptionStatus.NotAdopted => "secondary",
             AdoptionStatus.Submitted => "primary",
             AdoptionStatus.AcceptedByShelter => "info",
-            AdoptionStatus.AcceptedByUser => "success",
             AdoptionStatus.Adopted => "success",
             _ => "secondary"
         };
@@ -1030,7 +978,6 @@
             AdoptionStatus.NotAdopted => "Not Adopted",
             AdoptionStatus.Submitted => "Pending Review",
             AdoptionStatus.AcceptedByShelter => "Accepted by Shelter",
-            AdoptionStatus.AcceptedByUser => isUserRole ? "Accepted by You" : "Accepted by Applicant",
             AdoptionStatus.Adopted => "Adopted",
             _ => status.ToString()
         };

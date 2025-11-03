@@ -53,17 +53,7 @@ namespace PetAdoption.Services.Interfaces
         Task<(bool Success, string Message)> RejectApplicationAsync(AdoptionApplication application);
 
         /// <summary>
-        /// User accepts an adoption application that was accepted by shelter
-        /// </summary>
-        Task<(bool Success, string Message)> UserAcceptApplicationAsync(AdoptionApplication application);
-
-        /// <summary>
-        /// User rejects an adoption application that was accepted by shelter
-        /// </summary>
-        Task<(bool Success, string Message)> UserRejectApplicationAsync(AdoptionApplication application);
-
-        /// <summary>
-        /// Shelter confirms the adoption is complete (final step)
+        /// Shelter confirms the adoption is complete after physical pickup (final step)
         /// </summary>
         Task<(bool Success, string Message)> ConfirmAdoptionCompleteAsync(AdoptionApplication application);
     }

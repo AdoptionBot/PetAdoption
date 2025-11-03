@@ -5,7 +5,6 @@
         NotAdopted,
         Submitted,
         AcceptedByShelter,
-        AcceptedByUser,
         Adopted
     }
 }
