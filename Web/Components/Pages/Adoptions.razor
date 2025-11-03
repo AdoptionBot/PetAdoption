@@ -384,6 +384,34 @@
                                     }
                                 }
 
+                                @* User view when application is submitted (under review) *@
+                                @if (isUserRole && selectedApplication.AdoptionStatus == AdoptionStatus.Submitted)
+                                {
+                                    <div class="alert alert-primary mt-4 border-primary">
+                                        <h6 class="text-primary"><i class="fa fa-hourglass-half"></i> Application Under Review</h6>
+                                        <p class="mb-2">
+                                            <strong>Great news!</strong> Your adoption request for <strong>@selectedApplication.PetName</strong> has been successfully submitted to <strong>@(selectedPet?.ShelterName ?? "the shelter")</strong>! 🎉
+                                        </p>
+                                        <hr />
+                                        <div class="bg-white p-3 rounded mb-2">
+                                            <p class="small mb-2">
+                                                <i class="fa fa-heart text-danger"></i> 
+                                                <strong>We're rooting for you!</strong> The shelter team is carefully reviewing your application to ensure @selectedApplication.PetName finds the perfect forever home.
+                                            </p>
+                                            <p class="small mb-0">
+                                                <i class="fa fa-clock text-primary"></i> 
+                                                <strong>What happens next?</strong> The shelter will review your application and get back to you soon. Keep your fingers crossed! 🤞
+                                            </p>
+                                        </div>
+                                        <div class="text-center mt-3 mb-2">
+                                            <p class="small text-muted mb-0">
+                                                <i class="fa fa-info-circle"></i> 
+                                                You'll be notified once the shelter makes a decision. In the meantime, imagine all the wonderful moments you'll share with @selectedApplication.PetName! 💕
+                                            </p>
+                                        </div>
+                                    </div>
+                                }
+
                                 @* User view when shelter has accepted *@
                                 @if (isUserRole && selectedApplication.AdoptionStatus == AdoptionStatus.AcceptedByShelter)
                                 {
