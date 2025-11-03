@@ -7,7 +7,9 @@
 @using Azure
 @attribute [Authorize(Policy = "AdminOnly")]
 @inject IShelterService ShelterService
+@inject IGooglePlacesService GooglePlacesService
 @inject IConfiguration Configuration
+@inject IHttpClientFactory HttpClientFactory
 @rendermode InteractiveServer
 
 <PageTitle>Manage Shelters - Admin</PageTitle>
@@ -95,15 +97,15 @@
                                         <td>@shelter.Email</td>
                                         <td class="text-center">
                                             <div class="btn-group btn-group-sm" role="group">
-                                                <button class="btn btn-outline-primary action-view" title="View Details"
+                                                <button class="btn btn-outline-primary" title="View Details"
                                                         @onclick="() => ShowViewModal(shelter)">
                                                     <i class="fa fa-eye"></i>
                                                 </button>
-                                                <button class="btn btn-outline-success action-edit" title="Edit"
+                                                <button class="btn btn-outline-success" title="Edit"
                                                         @onclick="() => ShowEditModal(shelter)">
                                                     <i class="fa fa-edit"></i>
                                                 </button>
-                                                <button class="btn btn-outline-danger action-delete" title="Delete"
+                                                <button class="btn btn-outline-danger" title="Delete"
                                                         @onclick="() => ShowDeleteConfirmation(shelter)">
                                                     <i class="fa fa-trash"></i>
                                                 </button>
@@ -137,8 +139,148 @@
         </div>
     </div>
 
-    <!-- Create/Edit Modal -->
-    @if (showModal)
+    <!-- Create Modal (Simplified - Google Maps Link Only) -->
+    @if (showModal && !isEditMode)
+    {
+        <ModalHelper OnClose="CloseModal" ModalId="create-modal" />
+        <div id="create-modal" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">
+                            <i class="fa fa-plus-circle"></i> Add New Shelter
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" @onclick="CloseModal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-info">
+                            <i class="fa fa-info-circle"></i> 
+                            <strong>Quick Add:</strong> Paste a Google Maps link to auto-fill information, or skip to fill manually.
+                        </div>
+
+                        @if (isExtracting)
+                        {
+                            <div class="text-center py-4">
+                                <div class="spinner-border text-primary mb-3" role="status">
+                                    <span class="visually-hidden">Extracting...</span>
+                                </div>
+                                <p class="text-muted">Extracting shelter information from Google Maps...</p>
+                            </div>
+                        }
+                        else if (extractionComplete)
+                        {
+                            <div class="alert alert-success">
+                                <i class="fa fa-check-circle"></i>
+                                Information extracted successfully! Review and save below.
+                            </div>
+
+                            <!-- Preview extracted data -->
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="fa fa-eye"></i> Extracted Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p class="mb-2"><strong>Name:</strong> <span class="text-primary">@editingShelter?.PartitionKey</span></p>
+                                            <p class="mb-2"><strong>City/Town:</strong> <span class="text-primary">@editingShelter?.RowKey</span></p>
+                                            <p class="mb-2"><strong>Country:</strong> <span class="text-primary">@editingShelter?.Country</span></p>
+                                            <p class="mb-2"><strong>Address:</strong> <span class="text-secondary">@(editingShelter?.Address ?? "Not found")</span></p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p class="mb-2"><strong>Phone:</strong> <span class="text-secondary">@(editingShelter?.PhoneNumber ?? "Not found")</span></p>
+                                            <p class="mb-2">
+                                                <strong>Website:</strong>
+                                                @if (!string.IsNullOrEmpty(editingShelter?.Website))
+                                                {
+                                                    <a href="@editingShelter.Website" target="_blank" rel="noopener noreferrer">
+                                                        @editingShelter.Website <i class="fa fa-external-link-alt fa-xs"></i>
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-secondary">Not found</span>
+                                                }
+                                            </p>
+                                            <p class="mb-0"><strong>Opening Times:</strong></p>
+                                            @if (!string.IsNullOrEmpty(editingShelter?.OpeningTimes))
+                                            {
+                                                <small class="text-secondary d-block mt-1" style="white-space: pre-line;">@editingShelter.OpeningTimes</small>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-secondary"><small>Not found</small></span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="mb-3">
+                                <label class="form-label">Google Maps Link (Optional)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa fa-map-marker-alt"></i></span>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           placeholder="https://www.google.com/maps/place/..." 
+                                           @bind="googleMapsLink"
+                                           @bind:event="oninput" />
+                                </div>
+                                <small class="form-text text-muted">
+                                    Paste the full Google Maps URL (e.g., from Share ? Copy link)
+                                </small>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="d-grid">
+                                        <button type="button" 
+                                                class="btn btn-primary" 
+                                                @onclick="ExtractShelterInfo"
+                                                disabled="@(string.IsNullOrWhiteSpace(googleMapsLink))">
+                                            <i class="fa fa-magic"></i> Extract Information
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-grid">
+                                        <button type="button" 
+                                                class="btn btn-outline-primary" 
+                                                @onclick="SkipToManualEntry">
+                                            <i class="fa fa-keyboard"></i> Skip & Enter Manually
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(extractionError))
+                        {
+                            <div class="alert alert-warning mt-3">
+                                <i class="fa fa-exclamation-triangle"></i> @extractionError
+                            </div>
+                        }
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CloseModal">
+                            <i class="fa fa-times"></i> Cancel
+                        </button>
+                        @if (extractionComplete)
+                        {
+                            <button type="button" class="btn btn-primary" @onclick="ProceedToEdit" disabled="@isSaving">
+                                <i class="fa fa-arrow-right"></i> Continue to Edit
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Edit Modal (Full Form) -->
+    @if (showModal && isEditMode)
     {
         <ModalHelper OnClose="CloseModal" ModalId="edit-modal" />
         <div id="edit-modal" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
@@ -146,8 +288,7 @@
                 <div class="modal-content">
                     <div class="modal-header bg-primary text-white">
                         <h5 class="modal-title">
-                            <i class="fa fa-@(isEditMode ? "edit" : "plus-circle")"></i>
-                            @(isEditMode ? "Edit Shelter" : "Create New Shelter")
+                            <i class="fa fa-edit"></i> @(isCreatingNew ? "Create Shelter" : "Edit Shelter")
                         </h5>
                         <button type="button" class="btn-close btn-close-white" @onclick="CloseModal" aria-label="Close"></button>
                     </div>
@@ -165,14 +306,15 @@
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">
                                                 Shelter Name
-                                                @if (!isEditMode)
+                                                @if (isCreatingNew)
                                                 {
                                                     <span class="text-danger">*</span>
                                                 }
                                             </label>
-                                            @if (isEditMode)
+                                            @if (!isCreatingNew)
                                             {
                                                 <input type="text" class="form-control" value="@editingShelter!.PartitionKey" disabled />
+                                                <small class="text-muted">Cannot be changed (used as primary key)</small>
                                             }
                                             else
                                             {
@@ -183,14 +325,15 @@
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">
                                                 City/Town
-                                                @if (!isEditMode)
+                                                @if (isCreatingNew)
                                                 {
                                                     <span class="text-danger">*</span>
                                                 }
                                             </label>
-                                            @if (isEditMode)
+                                            @if (!isCreatingNew)
                                             {
                                                 <input type="text" class="form-control" value="@editingShelter!.RowKey" disabled />
+                                                <small class="text-muted">Cannot be changed (used as primary key)</small>
                                             }
                                             else
                                             {
@@ -198,6 +341,13 @@
                                                 <ValidationMessage For="@(() => editingShelter!.RowKey)" class="text-danger" />
                                             }
                                         </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Google Maps Location</label>
+                                        <InputText @bind-Value="editingShelter!.GoogleMapsLocation" class="form-control" 
+                                                   placeholder="https://maps.google.com/..." />
+                                        <small class="form-text text-muted">Full Google Maps URL</small>
+                                        <ValidationMessage For="@(() => editingShelter!.GoogleMapsLocation)" class="text-danger" />
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
@@ -223,6 +373,12 @@
                                         <InputTextArea @bind-Value="editingShelter!.Address" class="form-control" rows="2" 
                                                        placeholder="Street address, city, state, zip" />
                                         <ValidationMessage For="@(() => editingShelter!.Address)" class="text-danger" />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Opening Times</label>
+                                        <InputTextArea @bind-Value="editingShelter!.OpeningTimes" class="form-control" rows="2" 
+                                                       placeholder="Mon-Fri: 9:00-18:00, Sat: 9:00-13:00" />
+                                        <ValidationMessage For="@(() => editingShelter!.OpeningTimes)" class="text-danger" />
                                     </div>
                                 </div>
                             </div>
@@ -287,7 +443,7 @@
                                     {
                                         <span class="spinner-border spinner-border-sm me-2"></span>
                                     }
-                                    <i class="fa fa-save"></i> @(isEditMode ? "Update" : "Create") Shelter
+                                    <i class="fa fa-save"></i> @(isCreatingNew ? "Create" : "Update") Shelter
                                 </button>
                             </div>
                         </ValidatedForm>
@@ -324,107 +480,108 @@
                                         <li class="list-group-item"><strong>Phone:</strong> @viewingShelter.PhoneNumber</li>
                                         <li class="list-group-item"><strong>Email:</strong> @viewingShelter.Email</li>
                                         <li class="list-group-item"><strong>Address:</strong> @viewingShelter.Address</li>
+                                        @if (!string.IsNullOrEmpty(viewingShelter.OpeningTimes))
+                                        {
+                                            <li class="list-group-item"><strong>Opening Times:</strong> @viewingShelter.OpeningTimes</li>
+                                        }
                                     </ul>
                                 </div>
+                                @if (!string.IsNullOrEmpty(viewingShelter.GoogleMapsLocation))
+                                {
+                                    <div class="card">
+                                        <div class="card-header bg-light">
+                                            <strong><i class="fa fa-map me-2"></i>Google Maps Location</strong>
+                                        </div>
+                                        <div class="card-body">
+                                            <a href="@viewingShelter.GoogleMapsLocation" target="_blank" rel="noopener noreferrer" class="btn btn-success w-100">
+                                                <i class="fa fa-directions me-2"></i>Open in Google Maps
+                                            </a>
+                                        </div>
+                                    </div>
+                                }
                             </div>
                             <div class="col-md-6">
                                 <div class="card mb-3">
                                     <div class="card-header bg-light">
-                                        <strong>Additional Information</strong>
+                                        <strong><i class="fa fa-share-alt"></i> Social Media & Website</strong>
                                     </div>
-                                    <ul class="list-group list-group-flush">
-                                        @if (viewingShelter.LastUpdated.HasValue)
+                                    <div class="card-body">
+                                        @if (!string.IsNullOrEmpty(viewingShelter.Website) || 
+                                             !string.IsNullOrEmpty(viewingShelter.Facebook) || 
+                                             !string.IsNullOrEmpty(viewingShelter.Instagram) || 
+                                             !string.IsNullOrEmpty(viewingShelter.X))
                                         {
-                                            <li class="list-group-item">
-                                                <strong>Last Updated:</strong> @viewingShelter.LastUpdated.Value.ToString("g")
-                                            </li>
+                                            @if (!string.IsNullOrEmpty(viewingShelter.Website))
+                                            {
+                                                <div class="mb-3">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="flex-shrink-0" style="width: 32px;">
+                                                            <i class="fa fa-globe fa-lg text-primary"></i>
+                                                        </div>
+                                                        <div class="flex-grow-1 ms-3">
+                                                            <small class="text-muted d-block mb-1">Website</small>
+                                                            <a href="@viewingShelter.Website" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-break">
+                                                                @viewingShelter.Website <i class="fa fa-external-link-alt fa-xs ms-1"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                            @if (!string.IsNullOrEmpty(viewingShelter.Facebook))
+                                            {
+                                                <div class="mb-3">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="flex-shrink-0" style="width: 32px;">
+                                                            <i class="fa-brands fa-facebook fa-lg text-primary"></i>
+                                                        </div>
+                                                        <div class="flex-grow-1 ms-3">
+                                                            <small class="text-muted d-block mb-1">Facebook</small>
+                                                            <a href="@viewingShelter.Facebook" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-break">
+                                                                @viewingShelter.Facebook <i class="fa fa-external-link-alt fa-xs ms-1"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                            @if (!string.IsNullOrEmpty(viewingShelter.Instagram))
+                                            {
+                                                <div class="mb-3">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="flex-shrink-0" style="width: 32px;">
+                                                            <i class="fa-brands fa-instagram fa-lg text-danger"></i>
+                                                        </div>
+                                                        <div class="flex-grow-1 ms-3">
+                                                            <small class="text-muted d-block mb-1">Instagram</small>
+                                                            <a href="@viewingShelter.Instagram" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-break">
+                                                                @viewingShelter.Instagram <i class="fa fa-external-link-alt fa-xs ms-1"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                            @if (!string.IsNullOrEmpty(viewingShelter.X))
+                                            {
+                                                <div class="mb-3">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="flex-shrink-0" style="width: 32px;">
+                                                            <i class="fa-brands fa-x-twitter fa-lg text-dark"></i>
+                                                        </div>
+                                                        <div class="flex-grow-1 ms-3">
+                                                            <small class="text-muted d-block mb-1">X (Twitter)</small>
+                                                            <a href="@viewingShelter.X" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-break">
+                                                                @viewingShelter.X <i class="fa fa-external-link-alt fa-xs ms-1"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
                                         }
-                                    </ul>
+                                        else
+                                        {
+                                            <p class="text-muted mb-0"><i class="fa fa-info-circle"></i> No social media links available</p>
+                                        }
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <strong><i class="fa fa-share-alt"></i> Social Media & Website</strong>
-                            </div>
-                            <div class="card-body">
-                                @if (!string.IsNullOrEmpty(viewingShelter.Website) || 
-                                     !string.IsNullOrEmpty(viewingShelter.Facebook) || 
-                                     !string.IsNullOrEmpty(viewingShelter.Instagram) || 
-                                     !string.IsNullOrEmpty(viewingShelter.X))
-                                {
-                                    <div class="row">
-                                        @if (!string.IsNullOrEmpty(viewingShelter.Website))
-                                        {
-                                            <div class="col-md-6 mb-3">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="flex-shrink-0" style="width: 32px;">
-                                                        <i class="fa fa-globe fa-lg text-primary"></i>
-                                                    </div>
-                                                    <div class="flex-grow-1 ms-3">
-                                                        <small class="text-muted d-block mb-1">Website</small>
-                                                        <a href="@viewingShelter.Website" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-break">
-                                                            @viewingShelter.Website <i class="fa fa-external-link-alt fa-xs ms-1"></i>
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        }
-                                        @if (!string.IsNullOrEmpty(viewingShelter.Facebook))
-                                        {
-                                            <div class="col-md-6 mb-3">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="flex-shrink-0" style="width: 32px;">
-                                                        <i class="fa-brands fa-facebook fa-lg text-primary"></i>
-                                                    </div>
-                                                    <div class="flex-grow-1 ms-3">
-                                                        <small class="text-muted d-block mb-1">Facebook</small>
-                                                        <a href="@viewingShelter.Facebook" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-break">
-                                                            @viewingShelter.Facebook <i class="fa fa-external-link-alt fa-xs ms-1"></i>
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        }
-                                        @if (!string.IsNullOrEmpty(viewingShelter.Instagram))
-                                        {
-                                            <div class="col-md-6 mb-3">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="flex-shrink-0" style="width: 32px;">
-                                                        <i class="fa-brands fa-instagram fa-lg text-danger"></i>
-                                                    </div>
-                                                    <div class="flex-grow-1 ms-3">
-                                                        <small class="text-muted d-block mb-1">Instagram</small>
-                                                        <a href="@viewingShelter.Instagram" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-break">
-                                                            @viewingShelter.Instagram <i class="fa fa-external-link-alt fa-xs ms-1"></i>
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        }
-                                        @if (!string.IsNullOrEmpty(viewingShelter.X))
-                                        {
-                                            <div class="col-md-6 mb-3">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="flex-shrink-0" style="width: 32px;">
-                                                        <i class="fa-brands fa-x-twitter fa-lg text-dark"></i>
-                                                    </div>
-                                                    <div class="flex-grow-1 ms-3">
-                                                        <small class="text-muted d-block mb-1">X (Twitter)</small>
-                                                        <a href="@viewingShelter.X" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-break">
-                                                            @viewingShelter.X <i class="fa fa-external-link-alt fa-xs ms-1"></i>
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        }
-                                    </div>
-                                }
-                                else
-                                {
-                                    <p class="text-muted mb-0"><i class="fa fa-info-circle"></i> No social media links available</p>
-                                }
                             </div>
                         </div>
                     </div>
@@ -494,6 +651,8 @@
         public string? Facebook { get; set; }
         public string? Instagram { get; set; }
         public string? X { get; set; }
+        public string? GoogleMapsLocation { get; set; }
+        public string? OpeningTimes { get; set; }
         public DateTimeOffset? LastUpdated { get; set; }
         public ETag OriginalETag { get; set; }
     }
@@ -510,6 +669,7 @@
     private bool showViewModal = false;
     private bool showDeleteModal = false;
     private bool isEditMode = false;
+    private bool isCreatingNew = false;
     private bool isSaving = false;
     private bool isDeleting = false;
     
@@ -521,6 +681,12 @@
     // Filter states
     private string searchTerm = string.Empty;
     private string? selectedCountry;
+
+    // Quick add states
+    private string googleMapsLink = string.Empty;
+    private bool isExtracting = false;
+    private bool extractionComplete = false;
+    private string? extractionError;
 
     protected override async Task OnInitializedAsync()
     {
@@ -549,6 +715,8 @@
                     Facebook = shelter.Facebook,
                     Instagram = shelter.Instagram,
                     X = shelter.X,
+                    GoogleMapsLocation = shelter.GoogleMapsLocation,
+                    OpeningTimes = shelter.OpeningTimes,
                     LastUpdated = shelter.Timestamp,
                     OriginalETag = shelter.ETag
                 });
@@ -608,7 +776,80 @@
 
     private void ShowCreateModal()
     {
-        var defaultCountry = Configuration["DefaultCountryValue"] ?? string.Empty;
+        googleMapsLink = string.Empty;
+        isExtracting = false;
+        extractionComplete = false;
+        extractionError = null;
+        editingShelter = null;
+        isEditMode = false;
+        isCreatingNew = false;
+        showModal = true;
+        ClearMessages();
+    }
+
+    private async Task ExtractShelterInfo()
+    {
+        if (string.IsNullOrWhiteSpace(googleMapsLink))
+        {
+            extractionError = "Please provide a Google Maps link.";
+            return;
+        }
+
+        isExtracting = true;
+        extractionError = null;
+        StateHasChanged();
+
+        try
+        {
+            // Use Google Places API to extract place details
+            var placeDetails = await GooglePlacesService.GetPlaceDetailsFromUrlAsync(googleMapsLink);
+
+            if (placeDetails == null)
+            {
+                extractionError = "Could not extract place information from the URL. Please verify the link and try again.";
+                isExtracting = false;
+                return;
+            }
+
+            // Extract city from address
+            var city = ExtractCityFromAddress(placeDetails.FormattedAddress) ?? "Unknown";
+
+            // Get default country from configuration
+            var defaultCountry = Configuration["DefaultCountryValue"] ?? "Portugal";
+
+            // Format opening hours
+            var openingTimes = FormatOpeningHours(placeDetails.OpeningHours?.WeekdayText);
+
+            // Create shelter entry with extracted info (email required, so use placeholder)
+            editingShelter = new Shelter
+            {
+                PartitionKey = CleanShelterName(placeDetails.Name),
+                RowKey = city,
+                GoogleMapsLocation = googleMapsLink.Trim(), // Store original link
+                Country = defaultCountry,
+                Address = placeDetails.FormattedAddress ?? string.Empty,
+                PhoneNumber = placeDetails.PhoneNumber ?? string.Empty,
+                Email = string.Empty, // Must be filled manually
+                Website = placeDetails.Website,
+                OpeningTimes = openingTimes
+            };
+
+            extractionComplete = true;
+        }
+        catch (Exception ex)
+        {
+            extractionError = $"Error extracting information: {ex.Message}";
+        }
+        finally
+        {
+            isExtracting = false;
+            StateHasChanged();
+        }
+    }
+
+    private void SkipToManualEntry()
+    {
+        var defaultCountry = Configuration["DefaultCountryValue"] ?? "Portugal";
 
         editingShelter = new Shelter
         {
@@ -619,9 +860,76 @@
             Address = string.Empty,
             Email = string.Empty
         };
-        isEditMode = false;
-        showModal = true;
-        ClearMessages();
+        
+        isEditMode = true;
+        isCreatingNew = true;
+        extractionComplete = false;
+    }
+
+    private void ProceedToEdit()
+    {
+        isEditMode = true;
+        isCreatingNew = true;
+        extractionComplete = false;
+    }
+
+    private string CleanShelterName(string name)
+    {
+        // Remove common suffixes/prefixes if needed
+        name = name.Trim();
+
+        // Ensure it's within the character limit
+        if (name.Length > 50)
+        {
+            name = name.Substring(0, 50);
+        }
+
+        return name;
+    }
+
+    private string? ExtractCityFromAddress(string? address)
+    {
+        if (string.IsNullOrEmpty(address)) return null;
+
+        // Common Madeira cities
+        var cityPatterns = new[]
+        {
+            "Funchal", "Câmara de Lobos", "Ribeira Brava", "Machico",
+            "Santa Cruz", "Calheta", "Ponta do Sol", "São Vicente",
+            "Santana", "Porto Moniz", "Ponta Delgada", "Porto Santo"
+        };
+
+        foreach (var city in cityPatterns)
+        {
+            if (address.Contains(city, StringComparison.OrdinalIgnoreCase))
+            {
+                return city;
+            }
+        }
+
+        // Fallback: try to extract from address format "Street, City, Postal Code, Country"
+        var parts = address.Split(',');
+        if (parts.Length >= 2)
+        {
+            var potentialCity = parts[1].Trim();
+            if (potentialCity.Length >= 2 && potentialCity.Length <= 50)
+            {
+                return potentialCity;
+            }
+        }
+
+        return "Funchal"; // Default
+    }
+
+    private string? FormatOpeningHours(List<string>? weekdayText)
+    {
+        if (weekdayText == null || !weekdayText.Any())
+        {
+            return null;
+        }
+
+        // Join with line breaks or commas for better readability
+        return string.Join(", ", weekdayText.Take(7));
     }
 
     private void ShowEditModal(ShelterDto shelterDto)
@@ -638,11 +946,15 @@
             Facebook = shelterDto.Facebook,
             Instagram = shelterDto.Instagram,
             X = shelterDto.X,
+            GoogleMapsLocation = shelterDto.GoogleMapsLocation,
+            OpeningTimes = shelterDto.OpeningTimes,
             ETag = shelterDto.OriginalETag
         };
         isEditMode = true;
+        isCreatingNew = false;
         showModal = true;
         showViewModal = false;
+        extractionComplete = false;
         ClearMessages();
     }
 
@@ -664,6 +976,11 @@
     {
         showModal = false;
         editingShelter = null;
+        googleMapsLink = string.Empty;
+        isExtracting = false;
+        extractionComplete = false;
+        extractionError = null;
+        isCreatingNew = false;
     }
 
     private void CloseViewModal()
@@ -693,15 +1010,15 @@
         
         try
         {
-            if (isEditMode)
-            {
-                await ShelterService.UpdateShelterAsync(editingShelter);
-                successMessage = $"Shelter {editingShelter.PartitionKey} updated successfully";
-            }
-            else
+            if (isCreatingNew)
             {
                 await ShelterService.AddShelterAsync(editingShelter);
                 successMessage = $"Shelter {editingShelter.PartitionKey} created successfully";
+            }
+            else
+            {
+                await ShelterService.UpdateShelterAsync(editingShelter);
+                successMessage = $"Shelter {editingShelter.PartitionKey} updated successfully";
             }
             
             CloseModal();

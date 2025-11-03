@@ -99,6 +99,20 @@
                                 </div>
 
                                 <div class="mb-3">
+                                    <label class="form-label">Google Maps Location (Optional)</label>
+                                    <InputText @bind-Value="currentShelter.GoogleMapsLocation" class="form-control" placeholder="https://maps.google.com/..." />
+                                    <small class="form-text text-muted">Paste the full Google Maps URL</small>
+                                    <ValidationMessage For="@(() => currentShelter.GoogleMapsLocation)" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Opening Times (Optional)</label>
+                                    <InputTextArea @bind-Value="currentShelter.OpeningTimes" class="form-control" rows="2" 
+                                                   placeholder="Mon-Fri: 9:00-18:00, Sat: 9:00-13:00" />
+                                    <ValidationMessage For="@(() => currentShelter.OpeningTimes)" />
+                                </div>
+
+                                <div class="mb-3">
                                     <label class="form-label">Website (Optional)</label>
                                     <InputText @bind-Value="currentShelter.Website" class="form-control" />
                                     <ValidationMessage For="@(() => currentShelter.Website)" />
