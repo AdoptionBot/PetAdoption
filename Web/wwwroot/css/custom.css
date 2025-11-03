@@ -715,3 +715,40 @@
         transform: rotate(720deg);
     }
 }
+
+/* ===================================
+   ADOPTION REQUEST PAGE SPECIFIC STYLES
+   =================================== */
+
+/* Document link styles for adoption request page */
+.adoption-document-link {
+    border: 1px solid #dee2e6 !important;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.adoption-document-link:hover {
+    background-color: #e7f5e9 !important;
+    border-color: #198754 !important;
+    color: #000 !important;
+}
+
+.adoption-document-link:hover .text-muted {
+    color: #198754 !important;
+}
+
+/* Heartbeat animation for adoption request success modal */
+.adoption-animated-heartbeat {
+    animation: adoption-heartbeat 1.5s infinite;
+}
+
+@keyframes adoption-heartbeat {
+    0%, 100% {
+        transform: scale(1);
+    }
+    10%, 30% {
+        transform: scale(1.1);
+    }
+    20%, 40% {
+        transform: scale(1);
+    }
+}

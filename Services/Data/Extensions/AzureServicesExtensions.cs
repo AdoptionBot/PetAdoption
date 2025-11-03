@@ -121,9 +121,17 @@ namespace PetAdoption.Services.Data.Extensions
                 ? "shelter-documents" 
                 : shelterDocumentsContainer;
 
-            // Step 1: Retrieve connection string from Key Vault (happens once at startup)
+            // Step 1: Retrieve secrets from Key Vault (happens once at startup)
             var tempKeyVaultService = KeyVaultSecretService.CreateInstance(configuration);
             var storageConnectionString = await tempKeyVaultService.GetStorageConnectionStringAsync();
+
+            // Retrieve Font Awesome Kit URL from Key Vault
+            var fontAwesomeKitUrl = await tempKeyVaultService.GetSecretAsync(
+                "FontAwesomeKitUrlSecret", 
+                "https://kit.fontawesome.com/f03b6c9128.js"); // Fallback to default if secret not found
+            
+            // Store Font Awesome Kit URL in configuration for access throughout the app
+            configuration["FontAwesomeKitUrl"] = fontAwesomeKitUrl;
 
             // Step 2: Register KeyVaultSecretService as Singleton
             services.AddSingleton<KeyVaultSecretService>();
