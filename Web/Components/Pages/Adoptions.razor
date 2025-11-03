@@ -152,9 +152,8 @@
                                             @if (!string.IsNullOrEmpty(pet.Image1Url))
                                             {
                                                 <img src="@pet.Image1Url" 
-                                                     class="card-img-top mb-3 rounded @(isAdopted ? "adopted-image" : "")" 
+                                                     class="card-img-top mb-3 rounded adoption-pet-image @(isAdopted ? "adopted-image" : "")" 
                                                      alt="@pet.PartitionKey"
-                                                     style="height: 200px; object-fit: cover;"
                                                      onerror="this.src='/images/placeholder-pet.jpg';" />
                                                 @if (isAdopted)
                                                 {
@@ -301,9 +300,8 @@
                                         @if (!string.IsNullOrEmpty(selectedPet.Image1Url))
                                         {
                                             <img src="@selectedPet.Image1Url" 
-                                                 class="img-fluid rounded mb-3 @(isAdoptedModal ? "adopted-image-modal" : "")" 
+                                                 class="img-fluid rounded mb-3 modal-pet-image @(isAdoptedModal ? "adopted-image-modal" : "")" 
                                                  alt="@selectedPet.PartitionKey"
-                                                 style="max-height: 300px; width: 100%; object-fit: cover;"
                                                  onerror="this.src='/images/placeholder-pet.jpg';" />
                                             @if (isAdoptedModal)
                                             {
@@ -848,8 +846,9 @@
             if (result.Success)
             {
                 successMessage = result.Message;
-                CloseDetailsModal();
-                await LoadApplicationsAsync();
+                
+                // Refresh the modal data instead of closing
+                await RefreshModalData();
             }
             else
             {
@@ -916,8 +915,9 @@
             if (result.Success)
             {
                 successMessage = $"🎉 Congratulations! {selectedApplication.PetName} has been successfully adopted!";
-                CloseDetailsModal();
-                await LoadApplicationsAsync();
+                
+                // Refresh the modal data instead of closing
+                await RefreshModalData();
             }
             else
             {
@@ -933,6 +933,47 @@
         {
             isProcessing = false;
             StateHasChanged();
+        }
+    }
+
+    private async Task RefreshModalData()
+    {
+        if (selectedApplication == null) return;
+
+        try
+        {
+            // Reload the application list
+            await LoadApplicationsAsync();
+
+            // Find the updated application in the refreshed list
+            var updatedApplication = applications.FirstOrDefault(a => 
+                a.PartitionKey == selectedApplication.PartitionKey && 
+                a.RowKey == selectedApplication.RowKey);
+
+            if (updatedApplication != null)
+            {
+                // Update the selected application with the latest data
+                selectedApplication = updatedApplication;
+                
+                // Update the selected pet if it exists in the dictionary
+                if (applicationPets.ContainsKey(updatedApplication))
+                {
+                    selectedPet = applicationPets[updatedApplication];
+                }
+
+                // Update the selected applicant if it exists in the dictionary
+                if (!isUserRole && applicationUsers.ContainsKey(updatedApplication))
+                {
+                    selectedApplicant = applicationUsers[updatedApplication];
+                }
+            }
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error refreshing modal data");
+            errorMessage = $"Failed to refresh data: {ex.Message}";
         }
     }
 
