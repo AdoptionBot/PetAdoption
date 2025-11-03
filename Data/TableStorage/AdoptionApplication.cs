@@ -9,21 +9,19 @@ namespace PetAdoption.Data.TableStorage
     public class AdoptionApplication : ITableEntity
     {
         // ITableEntity required properties
-        [Required(ErrorMessage = "User email is required.")]
-        [EmailAddress(ErrorMessage = "User email must be a valid email address.")]
+        // PartitionKey: Date when application was created (yyyy-MM-dd) for efficient querying by date
         public string PartitionKey { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Pet birth date is required.")]
-        [ValidBirthDate]
+        // RowKey: Unique timestamp when application was created (yyyy-MM-ddTHH:mm:ss.fffffffZ)
         public string RowKey { get; set; } = string.Empty;
 
         public DateTimeOffset? Timestamp { get; set; }
         public ETag ETag { get; set; }
 
-        // Custom properties
+        // Custom properties - These are the actual data fields
         [Required(ErrorMessage = "User email is required.")]
         [EmailAddress(ErrorMessage = "User email must be a valid email address.")]
-        public string Email { get; set; } = string.Empty;
+        public string UserEmail { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "User name is required.")]
         [StringLength(50, MinimumLength = 3, ErrorMessage = "User name must be between 3 and 50 characters.")]
@@ -32,6 +30,9 @@ namespace PetAdoption.Data.TableStorage
         [Required(ErrorMessage = "Pet name is required.")]
         [StringLength(50, MinimumLength = 3, ErrorMessage = "Pet name must be between 3 and 50 characters.")]
         public string PetName { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Pet birth date is required.")]
+        public string PetBirthDateString { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Pet birth date is required.")]
         [ValidBirthDate]
@@ -52,13 +53,21 @@ namespace PetAdoption.Data.TableStorage
         public AdoptionApplication(
             string userName, string userEmail, string petName, DateTime petBirthDate, string? notes)
         {
-            PartitionKey = userEmail;
-            RowKey = petBirthDate.ToString("yyyy-MM-dd");
-            Email = userEmail;
+            var now = DateTime.UtcNow;
+            
+            // Set PartitionKey to date (for efficient date-based queries)
+            PartitionKey = now.ToString("yyyy-MM-dd");
+            
+            // Set RowKey to full timestamp with ticks for uniqueness
+            RowKey = now.ToString("yyyy-MM-ddTHH:mm:ss.fffffffZ");
+
+            // Set actual data properties
+            UserEmail = userEmail;
             UserName = userName;
             PetName = petName;
             PetBirthDate = DateTime.SpecifyKind(petBirthDate, DateTimeKind.Utc);
-            DateSubmitted = DateTime.UtcNow;
+            PetBirthDateString = petBirthDate.ToString("yyyy-MM-dd");
+            DateSubmitted = now;
             AdoptionStatus = AdoptionStatus.Submitted;
             Notes = notes;
         }

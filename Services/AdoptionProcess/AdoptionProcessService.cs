@@ -68,7 +68,7 @@ namespace PetAdoption.Services.AdoptionProcess
                 // Ensure the DateTime is UTC
                 var utcBirthDate = DateTime.SpecifyKind(parsedBirthDate, DateTimeKind.Utc);
 
-                // Create adoption application
+                // Create adoption application with new structure
                 var application = new AdoptionApplication(
                     userName,
                     userEmail,
@@ -101,8 +101,11 @@ namespace PetAdoption.Services.AdoptionProcess
         {
             try
             {
-                // Get the pet
-                var pet = await GetPetForApplicationAsync(application);
+                // Get the pet using the new property structure
+                var pet = await _petService.GetPetAsync(
+                    application.PetName, 
+                    application.PetBirthDateString);
+                    
                 if (pet == null)
                 {
                     return (false, "Pet not found.");
@@ -124,7 +127,7 @@ namespace PetAdoption.Services.AdoptionProcess
 
                 _logger.LogInformation(
                     "Adoption application accepted by shelter: User {UserEmail} for Pet {PetName}",
-                    application.Email, application.PetName);
+                    application.UserEmail, application.PetName);
 
                 return (true, $"Application for {application.PetName} has been accepted!");
             }
@@ -141,8 +144,11 @@ namespace PetAdoption.Services.AdoptionProcess
         {
             try
             {
-                // Get the pet
-                var pet = await GetPetForApplicationAsync(application);
+                // Get the pet using the new property structure
+                var pet = await _petService.GetPetAsync(
+                    application.PetName, 
+                    application.PetBirthDateString);
+                    
                 if (pet == null)
                 {
                     return (false, "Pet not found.");
@@ -158,14 +164,14 @@ namespace PetAdoption.Services.AdoptionProcess
                 pet.AdoptionStatus = AdoptionStatus.NotAdopted;
                 await _petService.UpdatePetAsync(pet);
 
-                // Delete the application
+                // Delete the application using PartitionKey and RowKey
                 await _applicationService.DeleteApplicationAsync(
                     application.PartitionKey, 
                     application.RowKey);
 
                 _logger.LogInformation(
                     "Adoption application rejected by shelter: User {UserEmail} for Pet {PetName}",
-                    application.Email, application.PetName);
+                    application.UserEmail, application.PetName);
 
                 return (true, $"Application for {application.PetName} has been rejected.");
             }
@@ -182,8 +188,11 @@ namespace PetAdoption.Services.AdoptionProcess
         {
             try
             {
-                // Get the pet
-                var pet = await GetPetForApplicationAsync(application);
+                // Get the pet using the new property structure
+                var pet = await _petService.GetPetAsync(
+                    application.PetName, 
+                    application.PetBirthDateString);
+                    
                 if (pet == null)
                 {
                     return (false, "Pet not found.");
@@ -205,7 +214,7 @@ namespace PetAdoption.Services.AdoptionProcess
 
                 _logger.LogInformation(
                     "Adoption completed: User {UserEmail} adopted Pet {PetName}",
-                    application.Email, application.PetName);
+                    application.UserEmail, application.PetName);
 
                 return (true, $"Adoption of {application.PetName} has been successfully completed! Congratulations to the new family!");
             }
@@ -222,8 +231,8 @@ namespace PetAdoption.Services.AdoptionProcess
         {
             try
             {
-                // Get all applications for this user (by email as PartitionKey)
-                return (await _applicationService.GetApplicationsByUserAsync(userEmail))
+                // Get all applications for this user using UserEmail property
+                return (await _applicationService.GetApplicationsByUserEmailAsync(userEmail))
                     .OrderByDescending(a => a.DateSubmitted)
                     .ToList();
             }
@@ -255,7 +264,7 @@ namespace PetAdoption.Services.AdoptionProcess
                 return allApplications
                     .Where(a => petIdentifiers.Any(p => 
                         p.Name == a.PetName && 
-                        p.BirthDate == a.RowKey))
+                        p.BirthDate == a.PetBirthDateString))
                     .OrderByDescending(a => a.DateSubmitted)
                     .ToList();
             }
@@ -274,7 +283,7 @@ namespace PetAdoption.Services.AdoptionProcess
             {
                 return await _petService.GetPetAsync(
                     application.PetName, 
-                    application.RowKey);
+                    application.PetBirthDateString);
             }
             catch (Exception ex)
             {
@@ -289,13 +298,13 @@ namespace PetAdoption.Services.AdoptionProcess
         {
             try
             {
-                return await _userService.GetUserByEmailAsync(application.Email);
+                return await _userService.GetUserByEmailAsync(application.UserEmail);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, 
                     "Error getting user for application: {UserEmail}", 
-                    application.Email);
+                    application.UserEmail);
                 return null;
             }
         }
@@ -311,7 +320,7 @@ namespace PetAdoption.Services.AdoptionProcess
                 
                 return userApplications.Any(a => 
                     a.PetName == petName && 
-                    a.RowKey == petBirthDate &&
+                    a.PetBirthDateString == petBirthDate &&
                     (a.AdoptionStatus == AdoptionStatus.Submitted || 
                      a.AdoptionStatus == AdoptionStatus.AcceptedByShelter));
             }

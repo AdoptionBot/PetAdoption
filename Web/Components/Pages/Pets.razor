@@ -16,14 +16,138 @@
 
 <PageTitle>Pets - Madeira Pet Adoption</PageTitle>
 
+<style>
+    .heartbeat {
+        animation: heartbeat 1.5s ease-in-out infinite;
+    }
+
+    @@keyframes heartbeat {
+        0%, 100% {
+            transform: scale(1);
+        }
+
+        25% {
+            transform: scale(1.1);
+        }
+
+        50% {
+            transform: scale(1);
+        }
+    }
+
+    .fade-in {
+        animation: fadeIn 0.8s ease-in;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .card-clickable {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        border: 2px solid transparent;
+        position: relative;
+    }
+
+        .card-clickable:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+
+    .pet-card-image {
+        height: 250px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .card-clickable:hover .pet-card-image {
+        transform: scale(1.05);
+    }
+
+    .paw-print {
+        display: inline-block;
+        animation: pawFloat 2s ease-in-out infinite;
+    }
+
+    @@keyframes pawFloat {
+        0%, 100% {
+            transform: translateY(0px);
+        }
+
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    .hero-subtitle {
+        font-size: 1.2rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        animation: fadeIn 1.2s ease-in;
+    }
+
+    .love-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: rgba(220, 53, 69, 0.9);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: bold;
+        z-index: 10;
+        box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+    }
+
+    .intro-banner {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 40px;
+        margin-bottom: 30px;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-item {
+        text-align: center;
+        padding: 20px;
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        display: block;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+</style>
+
 <div class="pets-page-wrapper">
     <section class="hero-wrap hero-wrap-2" style="background-image: url('images/bg_2.jpg');" data-stellar-background-ratio="0.5">
         <div class="overlay"></div>
         <div class="container">
             <div class="row no-gutters slider-text align-items-end">
                 <div class="col-md-9 ftco-animate pb-5">
-                    <p class="breadcrumbs mb-2"><span class="mr-2"><a href="/">Home <i class="ion-ios-arrow-forward"></i></a></span> <span>Pets <i class="ion-ios-arrow-forward"></i></span></p>
-                    <h1 class="mb-0 bread">Available Pets</h1>
+                    <p class="breadcrumbs mb-2">
+                        <span class="mr-2"><a href="/">Home <i class="ion-ios-arrow-forward"></i></a></span>
+                        <span>Pets <i class="ion-ios-arrow-forward"></i></span>
+                    </p>
+                    <h1 class="mb-0 bread">
+                        <i class="fas fa-paw paw-print me-2"></i>Available Pets
+                    </h1>
+                    <p class="hero-subtitle mt-3 text-white">
+                        <i class="fas fa-heart heartbeat text-danger me-2"></i>
+                        Every pet deserves a loving home. Find your perfect companion today!
+                    </p>
                 </div>
             </div>
         </div>
@@ -34,11 +158,15 @@
             @if (isLoading)
             {
                 <div class="row">
-                    <div class="col-md-12 text-center">
-                        <div class="spinner-border" role="status">
+                    <div class="col-md-12 text-center py-5 fade-in">
+                        <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
                             <span class="sr-only">Loading...</span>
                         </div>
-                        <p class="mt-3">Loading pets...</p>
+                        <h4 class="text-primary">Finding your perfect companion...</h4>
+                        <p class="text-muted">
+                            <i class="fas fa-paw me-2"></i>
+                            Please wait while we fetch our adorable friends
+                        </p>
                     </div>
                 </div>
             }
@@ -46,11 +174,11 @@
             {
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="alert alert-danger">
-                            <h4>Error Loading Pets</h4>
+                        <div class="alert alert-danger fade-in">
+                            <h4><i class="fas fa-exclamation-triangle me-2"></i>Oops! Something went wrong</h4>
                             <p>@errorMessage</p>
                             <button class="btn btn-primary" @onclick="RetryLoading">
-                                <i class="fas fa-refresh"></i> Retry
+                                <i class="fas fa-refresh me-2"></i>Try Again
                             </button>
                         </div>
                     </div>
@@ -59,18 +187,60 @@
             else if (!currentPagePets.Any())
             {
                 <div class="row">
-                    <div class="col-md-12 text-center">
-                        <h3>No pets available for adoption at the moment</h3>
-                        <p>Please check back later for new arrivals!</p>
+                    <div class="col-md-12 text-center py-5 fade-in">
+                        <i class="fas fa-heart-broken" style="font-size: 5rem; color: #ddd;"></i>
+                        <h3 class="mt-4 mb-3">No Pets Available Right Now</h3>
+                        <p class="text-muted mb-4">
+                            All our furry friends are currently in loving homes or waiting for their perfect match!
+                            <i class="fas fa-smile ms-2"></i>
+                        </p>
+                        <div class="alert alert-info d-inline-block">
+                            <i class="fas fa-bell me-2"></i>
+                            Check back soon - new pets are added regularly, and your perfect companion might arrive any day!
+                        </div>
                     </div>
                 </div>
             }
             else
             {
+                <!-- Heartwarming Introduction Banner -->
+                <div class="intro-banner fade-in">
+                    <div class="row">
+                        <div class="col-md-12 text-center mb-3">
+                            <h2>
+                                <i class="fas fa-heart heartbeat me-2"></i>
+                                Meet Your Future Best Friend
+                            </h2>
+                            <p class="lead mb-4">
+                                These beautiful souls are waiting for someone special - maybe that's you!
+                                Each one has a unique story and endless love to give.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 stat-item">
+                            <i class="fas fa-home fa-2x mb-2"></i>
+                            <span class="stat-number">@allPets.Count</span>
+                            <span>Pets Ready for Adoption</span>
+                        </div>
+                        <div class="col-md-4 stat-item">
+                            <i class="fas fa-heart fa-2x mb-2"></i>
+                            <span class="stat-number">100%</span>
+                            <span>Love Guaranteed</span>
+                        </div>
+                        <div class="col-md-4 stat-item">
+                            <i class="fas fa-shield-alt fa-2x mb-2"></i>
+                            <span class="stat-number">Safe</span>
+                            <span>Health Checked</span>
+                        </div>
+                    </div>
+                </div>
+
                 @if (!string.IsNullOrEmpty(successMessage))
                 {
-                    <div class="alert alert-success alert-dismissible fade show">
-                        <i class="fas fa-check-circle"></i> @successMessage
+                    <div class="alert alert-success alert-dismissible fade show fade-in">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Success!</strong> @successMessage
                         <button type="button" class="btn-close" @onclick="() => successMessage = null" aria-label="Close"></button>
                     </div>
                 }
@@ -83,7 +253,9 @@
                             <nav aria-label="Pet pagination">
                                 <ul class="pagination justify-content-center">
                                     <li class="page-item @(currentPage == 1 ? "disabled" : "")">
-                                        <a class="page-link" href="#" @onclick="() => GoToPage(currentPage - 1)" @onclick:preventDefault="true">Back</a>
+                                        <a class="page-link" href="#" @onclick="() => GoToPage(currentPage - 1)" @onclick:preventDefault="true">
+                                            <i class="fas fa-chevron-left me-1"></i>Previous
+                                        </a>
                                     </li>
                                     @for (int i = 1; i <= totalPages; i++)
                                     {
@@ -93,7 +265,9 @@
                                         </li>
                                     }
                                     <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
-                                        <a class="page-link" href="#" @onclick="() => GoToPage(currentPage + 1)" @onclick:preventDefault="true">Next</a>
+                                        <a class="page-link" href="#" @onclick="() => GoToPage(currentPage + 1)" @onclick:preventDefault="true">
+                                            Next<i class="fas fa-chevron-right ms-1"></i>
+                                        </a>
                                     </li>
                                 </ul>
                             </nav>
@@ -107,19 +281,43 @@
                     {
                         var imageUrl = GetPetImage(pet);
 
-                        <div class="col-md-4 mb-4">
+                        <div class="col-md-4 mb-4 fade-in">
                             <div class="card card-clickable" @onclick="() => ViewPet(pet)">
-                                <img src="@imageUrl"
-                                     class="card-img-top pet-card-image"
-                                     alt="@pet.PartitionKey"
-                                     onerror="this.src='/images/placeholder-pet.jpg';" />
+                                <div class="position-relative" style="overflow: hidden;">
+                                    <img src="@imageUrl"
+                                         class="card-img-top pet-card-image"
+                                         alt="@pet.PartitionKey"
+                                         onerror="this.src='/images/placeholder-pet.jpg';" />
+                                    <div class="love-badge">
+                                        <i class="fas fa-heart heartbeat me-1"></i>Adopt Me
+                                    </div>
+                                </div>
                                 <div class="card-body">
-                                    <h5 class="card-title">@pet.PartitionKey</h5>
+                                    <h5 class="card-title">
+                                        <i class="fas fa-paw text-primary me-2"></i>@pet.PartitionKey
+                                    </h5>
                                     <p class="card-text">
-                                        <strong>Species:</strong> @pet.Species<br />
-                                        <strong>Age:</strong> @GetPetAge(pet.RowKey)<br />
-                                        <strong>Gender:</strong> @pet.Gender
+                                        <span class="badge bg-info mb-2">
+                                            <i class="fas fa-@(pet.Species == Species.Dog ? "dog" : "cat") me-1"></i>@pet.Species
+                                        </span>
+                                        <br />
+                                        <small class="text-muted">
+                                            <i class="fas fa-birthday-cake me-1"></i><strong>Age:</strong> @GetPetAge(pet.RowKey)
+                                        </small>
+                                        <br />
+                                        <small class="text-muted">
+                                            <i class="fas fa-@(pet.Gender == Gender.Male ? "mars" : "venus") me-1"></i><strong>Gender:</strong> @pet.Gender
+                                        </small>
+                                        <br />
+                                        <small class="text-muted">
+                                            <i class="fas fa-home me-1"></i><strong>Shelter:</strong> @pet.ShelterName
+                                        </small>
                                     </p>
+                                    <div class="text-center mt-3">
+                                        <small class="text-primary">
+                                            <i class="fas fa-hand-pointer me-2"></i>Click to learn more
+                                        </small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -134,7 +332,9 @@
                             <nav aria-label="Pet pagination">
                                 <ul class="pagination justify-content-center">
                                     <li class="page-item @(currentPage == 1 ? "disabled" : "")">
-                                        <a class="page-link" href="#" @onclick="() => GoToPage(currentPage - 1)" @onclick:preventDefault="true">Back</a>
+                                        <a class="page-link" href="#" @onclick="() => GoToPage(currentPage - 1)" @onclick:preventDefault="true">
+                                            <i class="fas fa-chevron-left me-1"></i>Previous
+                                        </a>
                                     </li>
                                     @for (int i = 1; i <= totalPages; i++)
                                     {
@@ -144,7 +344,9 @@
                                         </li>
                                     }
                                     <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
-                                        <a class="page-link" href="#" @onclick="() => GoToPage(currentPage + 1)" @onclick:preventDefault="true">Next</a>
+                                        <a class="page-link" href="#" @onclick="() => GoToPage(currentPage + 1)" @onclick:preventDefault="true">
+                                            Next<i class="fas fa-chevron-right ms-1"></i>
+                                        </a>
                                     </li>
                                 </ul>
                             </nav>
@@ -156,8 +358,13 @@
                 <div class="row mt-3">
                     <div class="col-md-12 text-center">
                         <p class="text-muted">
-                            Showing @((currentPage - 1) * pageSize + 1) to @Math.Min(currentPage * pageSize, allPets.Count) of @allPets.Count pets available for adoption
+                            <i class="fas fa-paw text-primary me-2"></i>
+                            Showing <strong>@((currentPage - 1) * pageSize + 1)</strong> to <strong>@Math.Min(currentPage * pageSize, allPets.Count)</strong> of <strong>@allPets.Count</strong> beautiful pets
                         </p>
+                        <div class="alert alert-light d-inline-block mt-3">
+                            <i class="fas fa-lightbulb text-warning me-2"></i>
+                            <strong>Tip:</strong> Each pet has been health-checked and is ready to bring joy to your home!
+                        </div>
                     </div>
                 </div>
             }
@@ -171,138 +378,208 @@
         <div id="pet-detail-modal" class="modal fade show d-block modal-backdrop-custom" tabindex="-1">
             <div class="modal-dialog modal-xl modal-dialog-scrollable">
                 <div class="modal-content">
-                    <div class="modal-header">
+                    <div class="modal-header bg-primary text-white">
                         <h5 class="modal-title">
-                            <i class="fas fa-paw"></i> @selectedPet.PartitionKey
+                            <i class="fas fa-paw heartbeat me-2"></i> Meet @selectedPet.PartitionKey
+                            <span class="badge bg-light text-primary ms-2">@selectedPet.Species</span>
                         </h5>
-                        <button type="button" class="btn-close" @onclick="CloseModal" aria-label="Close"></button>
+                        <button type="button" class="btn-close btn-close-white" @onclick="CloseModal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
+                        <!-- Heartwarming Introduction -->
+                        <div class="alert alert-info fade-in mb-4">
+                            <h5><i class="fas fa-heart text-danger heartbeat me-2"></i>About @selectedPet.PartitionKey</h5>
+                            <p class="mb-0">
+                                <strong>@selectedPet.PartitionKey</strong> is a wonderful <strong>@GetPetAge(selectedPet.RowKey)</strong> old
+                                @selectedPet.Species.ToString().ToLower() looking for a loving forever home. This special friend is ready to bring
+                                endless joy, companionship, and unconditional love into your life!
+                            </p>
+                        </div>
+
                         <div class="row">
                             <!-- Images Column -->
                             <div class="col-md-6">
-                                <h6 class="border-bottom pb-2">Images & Video</h6>
+                                <h6 class="border-bottom pb-2">
+                                    <i class="fas fa-images me-2"></i>Gallery
+                                </h6>
                                 <div class="row g-2 mb-3">
                                     @if (!string.IsNullOrEmpty(selectedPet.Image1Url))
                                     {
                                         <div class="col-6">
-                                            <img src="@selectedPet.Image1Url" class="img-fluid rounded" alt="Image 1" />
+                                            <img src="@selectedPet.Image1Url" class="img-fluid rounded shadow-sm" alt="Image 1" style="height: 200px; width: 100%; object-fit: cover;" />
                                         </div>
                                     }
                                     @if (!string.IsNullOrEmpty(selectedPet.Image2Url))
                                     {
                                         <div class="col-6">
-                                            <img src="@selectedPet.Image2Url" class="img-fluid rounded" alt="Image 2" />
+                                            <img src="@selectedPet.Image2Url" class="img-fluid rounded shadow-sm" alt="Image 2" style="height: 200px; width: 100%; object-fit: cover;" />
                                         </div>
                                     }
                                     @if (!string.IsNullOrEmpty(selectedPet.Image3Url))
                                     {
                                         <div class="col-6">
-                                            <img src="@selectedPet.Image3Url" class="img-fluid rounded" alt="Image 3" />
+                                            <img src="@selectedPet.Image3Url" class="img-fluid rounded shadow-sm" alt="Image 3" style="height: 200px; width: 100%; object-fit: cover;" />
                                         </div>
                                     }
                                     @if (!string.IsNullOrEmpty(selectedPet.Image4Url))
                                     {
                                         <div class="col-6">
-                                            <img src="@selectedPet.Image4Url" class="img-fluid rounded" alt="Image 4" />
+                                            <img src="@selectedPet.Image4Url" class="img-fluid rounded shadow-sm" alt="Image 4" style="height: 200px; width: 100%; object-fit: cover;" />
                                         </div>
                                     }
                                 </div>
                                 @if (!string.IsNullOrEmpty(selectedPet.Video1Url))
                                 {
                                     <div class="mb-3">
-                                        <video src="@selectedPet.Video1Url" class="w-100 rounded" controls></video>
+                                        <h6 class="border-bottom pb-2">
+                                            <i class="fas fa-video me-2"></i>Video
+                                        </h6>
+                                        <video src="@selectedPet.Video1Url" class="w-100 rounded shadow-sm" controls></video>
                                     </div>
                                 }
                             </div>
 
                             <!-- Details Column -->
                             <div class="col-md-6">
-                                <h6 class="border-bottom pb-2">Basic Information</h6>
-                                <table class="table table-sm">
+                                <h6 class="border-bottom pb-2">
+                                    <i class="fas fa-info-circle me-2"></i>Basic Information
+                                </h6>
+                                <table class="table table-sm table-hover">
                                     <tr>
-                                        <th style="width: 40%;">Name:</th>
-                                        <td>@selectedPet.PartitionKey</td>
+                                        <th style="width: 40%;"><i class="fas fa-signature me-2 text-primary"></i>Name:</th>
+                                        <td><strong>@selectedPet.PartitionKey</strong></td>
                                     </tr>
                                     <tr>
-                                        <th>Birth Date:</th>
+                                        <th><i class="fas fa-calendar me-2 text-info"></i>Birth Date:</th>
                                         <td>@DateTime.Parse(selectedPet.RowKey).ToLongDateString()</td>
                                     </tr>
                                     <tr>
-                                        <th>Age:</th>
-                                        <td>@GetPetAge(selectedPet.RowKey)</td>
+                                        <th><i class="fas fa-birthday-cake me-2 text-warning"></i>Age:</th>
+                                        <td><span class="badge bg-warning">@GetPetAge(selectedPet.RowKey)</span></td>
                                     </tr>
                                     <tr>
-                                        <th>Species:</th>
+                                        <th><i class="fas fa-paw me-2 text-success"></i>Species:</th>
                                         <td>@selectedPet.Species</td>
                                     </tr>
                                     <tr>
-                                        <th>Breed:</th>
-                                        <td>@(selectedPet.Breed ?? "Not specified")</td>
+                                        <th><i class="fas fa-dog me-2 text-primary"></i>Breed:</th>
+                                        <td>@(selectedPet.Breed ?? "Mixed / Not specified")</td>
                                     </tr>
                                     <tr>
-                                        <th>Colour:</th>
+                                        <th><i class="fas fa-palette me-2 text-info"></i>Colour:</th>
                                         <td>@(selectedPet.Colour ?? "Not specified")</td>
                                     </tr>
                                     <tr>
-                                        <th>Gender:</th>
+                                        <th><i class="fas fa-@(selectedPet.Gender == Gender.Male ? "mars" : "venus") me-2 @(selectedPet.Gender == Gender.Male ? "text-primary" : "text-danger")"></i>Gender:</th>
                                         <td>@selectedPet.Gender</td>
                                     </tr>
                                     <tr>
-                                        <th>Size:</th>
+                                        <th><i class="fas fa-ruler-vertical me-2 text-secondary"></i>Size:</th>
                                         <td><span class="badge bg-@GetSizeBadgeColor(selectedPet.Size)">@selectedPet.Size</span></td>
                                     </tr>
                                     <tr>
-                                        <th>Shelter:</th>
+                                        <th><i class="fas fa-home me-2 text-success"></i>Shelter:</th>
                                         <td>@selectedPet.ShelterName, @selectedPet.ShelterLocation</td>
                                     </tr>
                                 </table>
 
-                                <h6 class="border-bottom pb-2 mt-4">About @selectedPet.PartitionKey</h6>
-                                <p>@selectedPet.About</p>
+                                <h6 class="border-bottom pb-2 mt-4">
+                                    <i class="fas fa-book-open me-2"></i>@selectedPet.PartitionKey's Story
+                                </h6>
+                                <div class="alert alert-light">
+                                    <p class="mb-0">@selectedPet.About</p>
+                                </div>
 
-                                <h6 class="border-bottom pb-2 mt-4">Medical Information</h6>
+                                <h6 class="border-bottom pb-2 mt-4">
+                                    <i class="fas fa-heartbeat me-2"></i>Medical Information
+                                </h6>
                                 <table class="table table-sm">
                                     <tr>
-                                        <th style="width: 40%;">Vaccinations:</th>
-                                        <td>@GetVaccinationsDisplay(selectedPet.Vaccinations)</td>
+                                        <th style="width: 40%;"><i class="fas fa-syringe me-2 text-info"></i>Vaccinations:</th>
+                                        <td>
+                                            <span class="badge bg-success">@GetVaccinationsDisplay(selectedPet.Vaccinations)</span>
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <th>Neutered/Spayed:</th>
-                                        <td>@(selectedPet.Neutered ? "Yes" : "No")</td>
+                                        <th><i class="fas fa-check-circle me-2 text-success"></i>Neutered/Spayed:</th>
+                                        <td>
+                                            @if (selectedPet.Neutered)
+                                            {
+                                                <span class="badge bg-success"><i class="fas fa-check me-1"></i>Yes</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary"><i class="fas fa-times me-1"></i>No</span>
+                                            }
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <th>Dewormed:</th>
-                                        <td>@(selectedPet.Dewormed ? "Yes" : "No")</td>
+                                        <th><i class="fas fa-pills me-2 text-warning"></i>Dewormed:</th>
+                                        <td>
+                                            @if (selectedPet.Dewormed)
+                                            {
+                                                <span class="badge bg-success"><i class="fas fa-check me-1"></i>Yes</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary"><i class="fas fa-times me-1"></i>No</span>
+                                            }
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <th>Microchipped:</th>
-                                        <td>@(selectedPet.Chipped ? "Yes" : "No")</td>
+                                        <th><i class="fas fa-microchip me-2 text-primary"></i>Microchipped:</th>
+                                        <td>
+                                            @if (selectedPet.Chipped)
+                                            {
+                                                <span class="badge bg-success"><i class="fas fa-check me-1"></i>Yes</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary"><i class="fas fa-times me-1"></i>No</span>
+                                            }
+                                        </td>
                                     </tr>
                                     @if (!string.IsNullOrEmpty(selectedPet.MedicalTreatments))
                                     {
                                         <tr>
-                                            <th>Medical Treatments:</th>
+                                            <th><i class="fas fa-notes-medical me-2 text-info"></i>Medical Treatments:</th>
                                             <td>@selectedPet.MedicalTreatments</td>
                                         </tr>
                                     }
                                     @if (!string.IsNullOrEmpty(selectedPet.KnownMedicalIssues))
                                     {
                                         <tr>
-                                            <th>Known Medical Issues:</th>
+                                            <th><i class="fas fa-exclamation-triangle me-2 text-warning"></i>Known Medical Issues:</th>
                                             <td class="text-danger">@selectedPet.KnownMedicalIssues</td>
                                         </tr>
                                     }
                                 </table>
                             </div>
                         </div>
+
+                        <!-- Call to Action -->
+                        <div class="alert alert-success mt-4 fade-in">
+                            <h5><i class="fas fa-heart heartbeat text-danger me-2"></i>Ready to Change a Life?</h5>
+                            <p class="mb-0">
+                                <strong>@selectedPet.PartitionKey</strong> is waiting for someone special. By adopting, you're not just giving
+                                a pet a home - you're gaining a loyal friend who will love you unconditionally. Take the first step today!
+                            </p>
+                        </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" @onclick="CloseModal">Close</button>
+                        <button type="button" class="btn btn-secondary" @onclick="CloseModal">
+                            <i class="fas fa-times me-2"></i>Close
+                        </button>
                         @if (isUserAuthenticated && currentUserRole == UserRole.User)
                         {
-                            <button type="button" class="btn btn-success" @onclick="() => ShowAdoptionRequestModal(selectedPet)">
-                                <i class="fas fa-heart"></i> Request Adoption
+                            <button type="button" class="btn btn-success btn-lg" @onclick="() => ShowAdoptionRequestModal(selectedPet)">
+                                <i class="fas fa-heart me-2 heartbeat"></i>Adopt @selectedPet.PartitionKey
+                            </button>
+                        }
+                        else if (!isUserAuthenticated)
+                        {
+                            <button type="button" class="btn btn-info" @onclick='() => Navigation.NavigateTo("/Account/Login")'>
+                                <i class="fas fa-sign-in-alt me-2"></i>Login to Adopt
                             </button>
                         }
                     </div>
@@ -320,7 +597,7 @@
                 <div class="modal-content">
                     <div class="modal-header bg-success text-white">
                         <h5 class="modal-title">
-                            <i class="fas fa-heart"></i> Adoption Request Information
+                            <i class="fas fa-heart heartbeat me-2"></i> Start Your Adoption Journey
                         </h5>
                         <button type="button" class="btn-close btn-close-white" @onclick="CloseAdoptionModal" aria-label="Close"></button>
                     </div>
@@ -331,62 +608,70 @@
                                 <div class="spinner-border text-success" role="status">
                                     <span class="sr-only">Checking...</span>
                                 </div>
-                                <p class="mt-3">Checking adoption requirements...</p>
+                                <p class="mt-3">Verifying adoption requirements...</p>
                             </div>
                         }
                         else if (!string.IsNullOrEmpty(adoptionCheckMessage))
                         {
                             <div class="alert alert-warning">
-                                <i class="fas fa-exclamation-circle"></i>
+                                <i class="fas fa-exclamation-circle me-2"></i>
                                 @adoptionCheckMessage
                             </div>
                         }
                         else
                         {
-                            <div class="text-center mb-4">
-                                <i class="fas fa-heart fa-4x text-danger mb-3"></i>
-                                <h5>Ready to Give @petForAdoption.PartitionKey a Forever Home?</h5>
-                                <p class="text-muted">Before you proceed, please review the important information below.</p>
+                            <div class="text-center mb-4 fade-in">
+                                <div class="mb-3">
+                                    <i class="fas fa-heart fa-4x text-danger heartbeat"></i>
+                                </div>
+                                <h4>Ready to Give @petForAdoption.PartitionKey a Forever Home?</h4>
+                                <p class="text-muted">You're about to make a life-changing decision - for both of you!</p>
                             </div>
-                            
+
                             <div class="alert alert-info">
-                                <h6><i class="fas fa-info-circle"></i> Pet Information</h6>
+                                <h6><i class="fas fa-paw me-2"></i>Pet Information</h6>
                                 <hr />
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <p class="mb-1"><strong>Pet:</strong> @petForAdoption.PartitionKey</p>
-                                        <p class="mb-1"><strong>Species:</strong> @petForAdoption.Species</p>
-                                        <p class="mb-0"><strong>Age:</strong> @GetPetAge(petForAdoption.RowKey)</p>
+                                        <p class="mb-1"><i class="fas fa-signature me-2 text-primary"></i><strong>Pet:</strong> @petForAdoption.PartitionKey</p>
+                                        <p class="mb-1"><i class="fas fa-dog me-2 text-success"></i><strong>Species:</strong> @petForAdoption.Species</p>
+                                        <p class="mb-0"><i class="fas fa-birthday-cake me-2 text-warning"></i><strong>Age:</strong> @GetPetAge(petForAdoption.RowKey)</p>
                                     </div>
                                     <div class="col-md-6">
-                                        <p class="mb-1"><strong>Shelter:</strong> @petForAdoption.ShelterName</p>
-                                        <p class="mb-0"><strong>Location:</strong> @petForAdoption.ShelterLocation</p>
+                                        <p class="mb-1"><i class="fas fa-home me-2 text-info"></i><strong>Shelter:</strong> @petForAdoption.ShelterName</p>
+                                        <p class="mb-0"><i class="fas fa-map-marker-alt me-2 text-danger"></i><strong>Location:</strong> @petForAdoption.ShelterLocation</p>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="alert alert-warning">
-                                <h6><i class="fas fa-file-contract"></i> Next Steps</h6>
+                                <h6><i class="fas fa-file-contract me-2"></i>Next Steps</h6>
                                 <p class="mb-0">
-                                    You will be taken to review the <strong>Adoption Agreement</strong> from 
-                                    <strong>@petForAdoption.ShelterName</strong>. Please read it carefully before proceeding with your adoption request.
+                                    You'll be taken to review the <strong>Adoption Agreement</strong> from
+                                    <strong>@petForAdoption.ShelterName</strong>. Please read it carefully - it ensures the best care for your new friend!
                                 </p>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">
-                                    <i class="fas fa-comment"></i> Additional Notes (Optional)
+                                    <i class="fas fa-comment-dots me-2"></i>Tell us about yourself (Optional)
                                 </label>
-                                <textarea class="form-control" rows="3" @bind="adoptionNotes" 
-                                          placeholder="Tell the shelter why you'd be a great parent for @petForAdoption.PartitionKey..."></textarea>
-                                <small class="text-muted">These notes will be included with your adoption request.</small>
+                                <textarea class="form-control" rows="4" @bind="adoptionNotes"
+                                          placeholder="Why would you be a great parent for @petForAdoption.PartitionKey? Share your experience with pets, your living situation, or what made you fall in love with this special friend..."></textarea>
+                                <small class="text-muted">
+                                    <i class="fas fa-lightbulb text-warning me-1"></i>
+                                    This helps the shelter understand why you're the perfect match!
+                                </small>
                             </div>
 
                             <div class="bg-light p-3 rounded">
+                                <p class="small mb-2">
+                                    <i class="fas fa-heart text-danger me-2"></i>
+                                    <strong>Remember:</strong> Adopting a pet is a lifelong commitment filled with joy, companionship, and unconditional love.
+                                </p>
                                 <p class="small mb-0">
-                                    <i class="fas fa-shield-alt text-success"></i>
-                                    <strong>Important:</strong> By continuing, you acknowledge that you will need to review and accept 
-                                    the shelter's adoption agreement terms before your request can be submitted.
+                                    <i class="fas fa-shield-alt text-success me-2"></i>
+                                    By continuing, you'll review the adoption agreement to ensure @petForAdoption.PartitionKey gets the best care possible.
                                 </p>
                             </div>
                         }
@@ -395,10 +680,10 @@
                         @if (string.IsNullOrEmpty(adoptionCheckMessage) && !isCheckingApplication)
                         {
                             <button type="button" class="btn btn-secondary" @onclick="CloseAdoptionModal">
-                                <i class="fas fa-times"></i> Cancel
+                                <i class="fas fa-times me-2"></i>Cancel
                             </button>
-                            <button type="button" class="btn btn-success" @onclick="ContinueToAdoptionRequest">
-                                <i class="fas fa-arrow-right"></i> Continue Request
+                            <button type="button" class="btn btn-success btn-lg" @onclick="ContinueToAdoptionRequest">
+                                <i class="fas fa-heart me-2 heartbeat"></i>Continue to Adoption
                             </button>
                         }
                         else
@@ -420,7 +705,7 @@
     private bool isLoading = true;
     private string? errorMessage;
     private string? successMessage;
-    
+
     private int currentPage = 1;
     private const int pageSize = 12;
     private int totalPages = 1;
@@ -442,13 +727,13 @@
     {
         await CheckUserAuthentication();
         await LoadPetsAsync();
-        
+
         // Check for success message from query parameters
         var uri = new Uri(Navigation.Uri);
         var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
         if (query["adopted"] == "true")
         {
-            successMessage = "Your adoption request has been submitted successfully!";
+            successMessage = "?? Your adoption request has been submitted successfully! The shelter will contact you soon.";
         }
     }
 
@@ -516,24 +801,24 @@
         {
             isLoading = true;
             errorMessage = null;
-            
+
             var pets = await PetService.GetAllPetsAsync();
             var petsList = pets.ToList();
-            
+
             // Filter only pets with AdoptionStatus = NotAdopted
             allPets = petsList.Where(p => p.AdoptionStatus == AdoptionStatus.NotAdopted)
                               .OrderByDescending(p => p.Timestamp)
                               .ToList();
-            
+
             totalPages = (int)Math.Ceiling((double)allPets.Count / pageSize);
             if (totalPages < 1) totalPages = 1;
-            
+
             UpdateCurrentPagePets();
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error loading pets");
-            errorMessage = $"Failed to load pets: {ex.Message}";
+            errorMessage = $"We couldn't load our furry friends right now. Please try again in a moment.";
             allPets = new List<Pet>();
             currentPagePets = new List<Pet>();
         }
@@ -569,7 +854,7 @@
 
     private string GetPetImage(Pet pet)
     {
-        if (!string.IsNullOrWhiteSpace(pet.Image1Url) && 
+        if (!string.IsNullOrWhiteSpace(pet.Image1Url) &&
             Uri.TryCreate(pet.Image1Url, UriKind.Absolute, out var uri) &&
             (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
         {
@@ -590,7 +875,7 @@
 
         if (years > 0)
         {
-            return months > 0 ? $"{years} year{(years > 1 ? "s" : "")} {months} month{(months > 1 ? "s" : "")}" 
+            return months > 0 ? $"{years} year{(years > 1 ? "s" : "")} {months} month{(months > 1 ? "s" : "")}"
                               : $"{years} year{(years > 1 ? "s" : "")}";
         }
         else if (months > 0)
@@ -623,7 +908,7 @@
         showDetailModal = false;
         adoptionNotes = string.Empty;
         adoptionCheckMessage = null;
-        
+
         // Check if user already has a pending application for this pet
         isCheckingApplication = true;
         StateHasChanged();
@@ -639,14 +924,14 @@
 
                 if (hasPending)
                 {
-                    adoptionCheckMessage = $"You already have a pending adoption request for {pet.PartitionKey}. Please check your adoptions page for the status.";
+                    adoptionCheckMessage = $"You already have a pending adoption request for {pet.PartitionKey}. Please check your adoptions page for updates! ??";
                 }
             }
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error checking pending applications");
-            adoptionCheckMessage = "Unable to verify your adoption status. Please try again.";
+            adoptionCheckMessage = "We couldn't verify your adoption status right now. Please try again in a moment.";
         }
         finally
         {
@@ -693,7 +978,7 @@
             return "None";
 
         var vaccinationList = new List<string>();
-        
+
         foreach (Vaccinations vac in Enum.GetValues(typeof(Vaccinations)))
         {
             if (vac != Vaccinations.none && vaccinations.HasFlag(vac))

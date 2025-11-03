@@ -973,7 +973,7 @@
             // Reload the application list
             await LoadApplicationsAsync();
 
-            // Find the updated application in the refreshed list
+            // Find the updated application in the refreshed list using the new key structure
             var updatedApplication = applications.FirstOrDefault(a => 
                 a.PartitionKey == selectedApplication.PartitionKey && 
                 a.RowKey == selectedApplication.RowKey);

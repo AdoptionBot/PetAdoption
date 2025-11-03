@@ -14,9 +14,9 @@ namespace PetAdoption.Services.Data
             _tableStorageService = tableStorageService;
         }
 
-        public async Task<AdoptionApplication?> GetApplicationAsync(string userEmail, string petBirthDate)
+        public async Task<AdoptionApplication?> GetApplicationAsync(string partitionKey, string rowKey)
         {
-            return await _tableStorageService.GetEntityAsync<AdoptionApplication>(TableName, userEmail, petBirthDate);
+            return await _tableStorageService.GetEntityAsync<AdoptionApplication>(TableName, partitionKey, rowKey);
         }
 
         public async Task AddApplicationAsync(AdoptionApplication application)
@@ -29,9 +29,9 @@ namespace PetAdoption.Services.Data
             await _tableStorageService.UpsertEntityAsync(TableName, application);
         }
 
-        public async Task DeleteApplicationAsync(string userEmail, string petBirthDate)
+        public async Task DeleteApplicationAsync(string partitionKey, string rowKey)
         {
-            await _tableStorageService.DeleteEntityAsync(TableName, userEmail, petBirthDate);
+            await _tableStorageService.DeleteEntityAsync(TableName, partitionKey, rowKey);
         }
 
         public async Task<IEnumerable<AdoptionApplication>> GetAllApplicationsAsync()
@@ -39,11 +39,11 @@ namespace PetAdoption.Services.Data
             return await _tableStorageService.QueryEntitiesAsync<AdoptionApplication>(TableName);
         }
 
-        public async Task<IEnumerable<AdoptionApplication>> GetApplicationsByUserAsync(string userEmail)
+        public async Task<IEnumerable<AdoptionApplication>> GetApplicationsByUserEmailAsync(string userEmail)
         {
             return await _tableStorageService.QueryEntitiesAsync<AdoptionApplication>(
                 TableName,
-                filter: $"PartitionKey eq '{userEmail}'");
+                filter: $"UserEmail eq '{userEmail}'");
         }
 
         public async Task<IEnumerable<AdoptionApplication>> GetApplicationsByStatusAsync(AdoptionStatus status)
@@ -53,18 +53,18 @@ namespace PetAdoption.Services.Data
                 filter: $"AdoptionStatus eq '{status}'");
         }
 
-        public async Task<IEnumerable<AdoptionApplication>> GetApplicationsByPetAsync(string petName)
+        public async Task<IEnumerable<AdoptionApplication>> GetApplicationsByPetAsync(string petName, string petBirthDate)
         {
             return await _tableStorageService.QueryEntitiesAsync<AdoptionApplication>(
                 TableName,
-                filter: $"PetName eq '{petName}'");
+                filter: $"PetName eq '{petName}' and PetBirthDateString eq '{petBirthDate}'");
         }
 
         public async Task<IEnumerable<AdoptionApplication>> GetApplicationsByUserAndPetAsync(string userEmail, string petName, string petBirthDate)
         {
             return await _tableStorageService.QueryEntitiesAsync<AdoptionApplication>(
                 TableName,
-                filter: $"PartitionKey eq '{userEmail}' and PetName eq '{petName}' and RowKey eq '{petBirthDate}'");
+                filter: $"UserEmail eq '{userEmail}' and PetName eq '{petName}' and PetBirthDateString eq '{petBirthDate}'");
         }
     }
 }
