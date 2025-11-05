@@ -1,7 +1,10 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Components.Authorization
+@using PetAdoption.Data.TableStorage.Enums
 @inject IJSRuntime JS
 @inject IConfiguration Configuration
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject PetAdoption.Services.Interfaces.IUserService UserService
 
 <PageTitle>Home - Madeira Pet Adoption</PageTitle>
 
@@ -38,25 +41,56 @@
                 
                 <AuthorizeView>
                     <Authorized>
-                        <div class="hero-cta-buttons">
-                            <a href="/profile" class="btn btn-primary mr-md-3 py-3 px-5">
-                                <span class="fa fa-user mr-2"></span>My Profile
-                            </a>
-                            <a href="/pets" class="btn btn-white py-3 px-5">
-                                Browse Pets <span class="ion-ios-arrow-forward"></span>
-                            </a>
-                        </div>
-                        <p class="mt-4 text-white">
-                            <small>Welcome back, @context.User.Identity?.Name! Ready to make a difference?</small>
-                        </p>
+                        @if (currentUserRole == UserRole.User || currentUserRole == UserRole.Foster)
+                        {
+                            <div class="hero-cta-buttons">
+                                <a href="/pets" class="btn btn-primary mr-md-3 py-3 px-5">
+                                    <span class="fa fa-paw mr-2"></span>Browse Pets
+                                </a>
+                                <a href="/adoptions" class="btn btn-white py-3 px-5">
+                                    <span class="fa fa-heart mr-2"></span>My Adoptions
+                                </a>
+                            </div>
+                            <p class="mt-4 text-white">
+                                <small>Welcome back, @context.User.Identity?.Name! Ready to find your new best friend?</small>
+                            </p>
+                        }
+                        else if (currentUserRole == UserRole.Shelter)
+                        {
+                            <div class="hero-cta-buttons">
+                                <a href="/adoptions" class="btn btn-primary mr-md-3 py-3 px-5">
+                                    <span class="fa fa-clipboard-list mr-2"></span>Adoption Requests
+                                </a>
+                                <a href="/mypets" class="btn btn-white py-3 px-5">
+                                    <span class="fa fa-paw mr-2"></span>Manage My Pets
+                                </a>
+                            </div>
+                            <p class="mt-4 text-white">
+                                <small>Welcome back, @context.User.Identity?.Name! Ready to help pets find their forever homes?</small>
+                            </p>
+                        }
+                        else
+                        {
+                            <div class="hero-cta-buttons">
+                                <a href="/profile" class="btn btn-primary mr-md-3 py-3 px-5">
+                                    <span class="fa fa-user mr-2"></span>My Profile
+                                </a>
+                                <a href="/pets" class="btn btn-white py-3 px-5">
+                                    Browse Pets <span class="ion-ios-arrow-forward"></span>
+                                </a>
+                            </div>
+                            <p class="mt-4 text-white">
+                                <small>Welcome back, @context.User.Identity?.Name! Ready to make a difference?</small>
+                            </p>
+                        }
                     </Authorized>
                     <NotAuthorized>
                         <div class="hero-cta-buttons">
-                            <a href="/login" class="btn btn-primary mr-md-3 py-3 px-5">
-                                <span class="fa fa-sign-in mr-2"></span>Sign In to Get Started
+                            <a href="/pets" class="btn btn-primary mr-md-3 py-3 px-5">
+                                <span class="fa fa-paw mr-2"></span>Browse Available Pets
                             </a>
-                            <a href="/about" class="btn btn-white py-3 px-5">
-                                Learn More <span class="ion-ios-arrow-forward"></span>
+                            <a href="/login" class="btn btn-white py-3 px-5">
+                                <span class="fa fa-sign-in-alt mr-2"></span>Sign In to Adopt
                             </a>
                         </div>
                         
@@ -720,13 +754,31 @@
     private string facebookUrl = string.Empty;
     private string xUrl = string.Empty;
     private string instagramUrl = string.Empty;
+    private UserRole currentUserRole = UserRole.User;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         organizationEmail = Configuration["OrganizationEmail"] ?? String.Empty;
         facebookUrl = Configuration["FacebookUrl"] ?? String.Empty;
         xUrl = Configuration["XUrl"] ?? String.Empty;
         instagramUrl = Configuration["InstagramUrl"] ?? String.Empty;
+
+        // Get current user role
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            var email = user.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+            if (!string.IsNullOrEmpty(email))
+            {
+                var currentUser = await UserService.GetUserByEmailAsync(email);
+                if (currentUser != null)
+                {
+                    currentUserRole = currentUser.Role;
+                }
+            }
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
