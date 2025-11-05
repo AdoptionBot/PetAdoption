@@ -129,6 +129,18 @@
         display: block;
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
     }
+
+    .shelter-link {
+        color: #0d6efd;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .shelter-link:hover {
+        color: #0a58ca;
+        text-decoration: underline;
+    }
 </style>
 
 <div class="pets-page-wrapper">
@@ -479,7 +491,11 @@
                                     </tr>
                                     <tr>
                                         <th><i class="fas fa-home me-2 text-success"></i>Shelter:</th>
-                                        <td>@selectedPet.ShelterName, @selectedPet.ShelterLocation</td>
+                                        <td>
+                                            <a class="shelter-link" @onclick="() => NavigateToShelter(selectedPet.ShelterName, selectedPet.ShelterLocation)" @onclick:preventDefault="true">
+                                                <i class="fas fa-external-link-alt me-1"></i>@selectedPet.ShelterName, @selectedPet.ShelterLocation
+                                            </a>
+                                        </td>
                                     </tr>
                                 </table>
 
@@ -638,7 +654,12 @@
                                         <p class="mb-0"><i class="fas fa-birthday-cake me-2 text-warning"></i><strong>Age:</strong> @GetPetAge(petForAdoption.RowKey)</p>
                                     </div>
                                     <div class="col-md-6">
-                                        <p class="mb-1"><i class="fas fa-home me-2 text-info"></i><strong>Shelter:</strong> @petForAdoption.ShelterName</p>
+                                        <p class="mb-1">
+                                            <i class="fas fa-home me-2 text-info"></i><strong>Shelter:</strong>
+                                            <a class="shelter-link" @onclick="() => NavigateToShelter(petForAdoption.ShelterName, petForAdoption.ShelterLocation)" @onclick:preventDefault="true">
+                                                @petForAdoption.ShelterName
+                                            </a>
+                                        </p>
                                         <p class="mb-0"><i class="fas fa-map-marker-alt me-2 text-danger"></i><strong>Location:</strong> @petForAdoption.ShelterLocation</p>
                                     </div>
                                 </div>
@@ -988,5 +1009,12 @@
         }
 
         return vaccinationList.Any() ? string.Join(", ", vaccinationList) : "None";
+    }
+
+    private void NavigateToShelter(string shelterName, string shelterLocation)
+    {
+        var encodedName = Uri.EscapeDataString(shelterName);
+        var encodedLocation = Uri.EscapeDataString(shelterLocation);
+        Navigation.NavigateTo($"/shelters?name={encodedName}&location={encodedLocation}");
     }
 }
