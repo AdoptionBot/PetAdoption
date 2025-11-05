@@ -194,11 +194,11 @@
                                             <i class="fas fa-@(pet.Gender == Gender.Male ? "mars" : "venus") me-1"></i><strong>Gender:</strong> @pet.Gender
                                         </small>
                                         <br />
-                                        <p class="mb-1">
-                                            <small class="text-muted">
-                                                <i class="fas fa-home me-1"></i><strong>Shelter:</strong> @pet.ShelterName
-                                            </small>
-                                        </p>
+                                    <p class="mb-1">
+                                        <small class="text-muted">
+                                            <i class="fas fa-home me-1"></i><strong>Shelter:</strong> @pet.ShelterName
+                                        </small>
+                                    </p>
                                     </p>
                                     <div class="text-center mt-3">
                                         <small class="text-primary">
@@ -288,30 +288,51 @@
                             <div class="col-md-6">
                                 <h6 class="border-bottom pb-2">
                                     <i class="fas fa-images me-2"></i>Gallery
+                                    <small class="text-muted ms-2">(Click to enlarge)</small>
                                 </h6>
                                 <div class="row g-2 mb-3">
                                     @if (!string.IsNullOrEmpty(selectedPet.Image1Url))
                                     {
                                         <div class="col-6">
-                                            <img src="@selectedPet.Image1Url" class="img-fluid rounded shadow-sm" alt="Image 1" style="height: 200px; width: 100%; object-fit: cover;" />
+                                            <img src="@selectedPet.Image1Url"
+                                                 class="img-fluid rounded shadow-sm clickable-image"
+                                                 alt="Image 1"
+                                                 style="height: 200px; width: 100%; object-fit: cover; cursor: pointer;"
+                                                 @onclick="() => ShowImageViewer(selectedPet.Image1Url)"
+                                                 @onclick:stopPropagation="true" />
                                         </div>
                                     }
                                     @if (!string.IsNullOrEmpty(selectedPet.Image2Url))
                                     {
                                         <div class="col-6">
-                                            <img src="@selectedPet.Image2Url" class="img-fluid rounded shadow-sm" alt="Image 2" style="height: 200px; width: 100%; object-fit: cover;" />
+                                            <img src="@selectedPet.Image2Url"
+                                                 class="img-fluid rounded shadow-sm clickable-image"
+                                                 alt="Image 2"
+                                                 style="height: 200px; width: 100%; object-fit: cover; cursor: pointer;"
+                                                 @onclick="() => ShowImageViewer(selectedPet.Image2Url)"
+                                                 @onclick:stopPropagation="true" />
                                         </div>
                                     }
                                     @if (!string.IsNullOrEmpty(selectedPet.Image3Url))
                                     {
                                         <div class="col-6">
-                                            <img src="@selectedPet.Image3Url" class="img-fluid rounded shadow-sm" alt="Image 3" style="height: 200px; width: 100%; object-fit: cover;" />
+                                            <img src="@selectedPet.Image3Url"
+                                                 class="img-fluid rounded shadow-sm clickable-image"
+                                                 alt="Image 3"
+                                                 style="height: 200px; width: 100%; object-fit: cover; cursor: pointer;"
+                                                 @onclick="() => ShowImageViewer(selectedPet.Image3Url)"
+                                                 @onclick:stopPropagation="true" />
                                         </div>
                                     }
                                     @if (!string.IsNullOrEmpty(selectedPet.Image4Url))
                                     {
                                         <div class="col-6">
-                                            <img src="@selectedPet.Image4Url" class="img-fluid rounded shadow-sm" alt="Image 4" style="height: 200px; width: 100%; object-fit: cover;" />
+                                            <img src="@selectedPet.Image4Url"
+                                                 class="img-fluid rounded shadow-sm clickable-image"
+                                                 alt="Image 4"
+                                                 style="height: 200px; width: 100%; object-fit: cover; cursor: pointer;"
+                                                 @onclick="() => ShowImageViewer(selectedPet.Image4Url)"
+                                                 @onclick:stopPropagation="true" />
                                         </div>
                                     }
                                 </div>
@@ -593,7 +614,123 @@
             </div>
         </div>
     }
+
+    <!-- Image Viewer Overlay -->
+    @if (showImageViewer && !string.IsNullOrEmpty(viewerImageUrl))
+    {
+        <div class="image-viewer-overlay" @onclick="CloseImageViewer">
+            <div class="image-viewer-container">
+                <button type="button" class="image-viewer-close" @onclick="CloseImageViewer" aria-label="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+                <img src="@viewerImageUrl" alt="Pet Image" class="image-viewer-image" @onclick:stopPropagation="true" />
+                <div class="image-viewer-hint">
+                    <i class="fas fa-info-circle me-2"></i>Click anywhere outside the image to close
+                </div>
+            </div>
+        </div>
+    }
 </div>
+
+<style>
+    .clickable-image {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .clickable-image:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+        }
+
+    /* Image Viewer Overlay */
+    .image-viewer-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.95);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s ease-in-out;
+        cursor: pointer;
+    }
+
+    .image-viewer-container {
+        position: relative;
+        max-width: 95vw;
+        max-height: 95vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        cursor: default;
+    }
+
+    .image-viewer-image {
+        max-width: 100%;
+        max-height: 90vh;
+        object-fit: contain;
+        border-radius: 8px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        animation: zoomIn 0.3s ease-in-out;
+    }
+
+    .image-viewer-close {
+        position: absolute;
+        top: -50px;
+        right: 0;
+        background-color: rgba(255, 255, 255, 0.2);
+        border: 2px solid white;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        font-size: 20px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s, transform 0.2s;
+    }
+
+        .image-viewer-close:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+    .image-viewer-hint {
+        position: absolute;
+        bottom: -40px;
+        color: white;
+        font-size: 14px;
+        opacity: 0.8;
+        text-align: center;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @@keyframes zoomIn {
+        from {
+            transform: scale(0.8);
+            opacity: 0;
+        }
+
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+</style>
 
 @code {
     private List<Pet> allPets = new();
@@ -618,6 +755,10 @@
     private bool isUserAuthenticated = false;
     private UserRole currentUserRole = UserRole.User;
     private User? currentUser;
+
+    // Image viewer state
+    private bool showImageViewer = false;
+    private string? viewerImageUrl;
 
     protected override async Task OnInitializedAsync()
     {
@@ -891,5 +1032,20 @@
         }
 
         return vaccinationList.Any() ? string.Join(", ", vaccinationList) : "None";
+    }
+
+    // Image viewer methods
+    private void ShowImageViewer(string imageUrl)
+    {
+        viewerImageUrl = imageUrl;
+        showImageViewer = true;
+        StateHasChanged();
+    }
+
+    private void CloseImageViewer()
+    {
+        showImageViewer = false;
+        viewerImageUrl = null;
+        StateHasChanged();
     }
 }
