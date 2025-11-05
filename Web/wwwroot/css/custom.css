@@ -263,12 +263,119 @@
 /* Pet Card in Pets.razor - Clickable Card */
 .pets-page-wrapper .card-clickable {
     cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid transparent;
+    position: relative;
+}
+
+.pets-page-wrapper .card-clickable:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    border-color: #667eea;
 }
 
 /* Pet Card Images with specific heights */
 .pets-page-wrapper .pet-card-image {
-    height: 300px;
+    height: 250px;
     object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.pets-page-wrapper .card-clickable:hover .pet-card-image {
+    transform: scale(1.05);
+}
+
+/* Pets Page - Heartbeat Animation */
+.pets-page-wrapper .heartbeat {
+    animation: pets-heartbeat 1.5s ease-in-out infinite;
+}
+
+@keyframes pets-heartbeat {
+    0%, 100% {
+        transform: scale(1);
+    }
+    25% {
+        transform: scale(1.1);
+    }
+    50% {
+        transform: scale(1);
+    }
+}
+
+/* Pets Page - Fade In Animation */
+.pets-page-wrapper .fade-in {
+    animation: pets-fadeIn 0.8s ease-in;
+}
+
+@keyframes pets-fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Pets Page - Paw Print Float Animation */
+.pets-page-wrapper .paw-print {
+    display: inline-block;
+    animation: pets-pawFloat 2s ease-in-out infinite;
+}
+
+@keyframes pets-pawFloat {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Pets Page - Hero Subtitle */
+.pets-page-wrapper .hero-subtitle {
+    font-size: 1.2rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    animation: pets-fadeIn 1.2s ease-in;
+}
+
+/* Pets Page - Love Badge */
+.pets-page-wrapper .love-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(220, 53, 69, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    z-index: 10;
+    box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+}
+
+/* Pets Page - Intro Banner */
+.pets-page-wrapper .intro-banner {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px;
+    margin-bottom: 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Pets Page - Stat Item */
+.pets-page-wrapper .stat-item {
+    text-align: center;
+    padding: 20px;
+}
+
+.pets-page-wrapper .stat-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    display: block;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* ===================================
