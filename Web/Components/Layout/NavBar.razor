@@ -23,7 +23,7 @@
                 <li class="nav-item">
                     <a class="nav-link @GetDisabledClass()" href="/pets" @onclick='() => HandleNavigationClick("/pets")' @onclick:preventDefault="true">Pets</a>
                 </li>
-                <AuthorizeView Roles="User,Shelter,Admin">
+                <AuthorizeView Roles="User,Foster,Shelter,Admin">
                     <Authorized>
                         <li class="nav-item">
                             <a class="nav-link @GetDisabledClass()" href="/adoptions" @onclick='() => HandleNavigationClick("/adoptions")' @onclick:preventDefault="true">Adoptions</a>

@@ -4,7 +4,7 @@
 @using PetAdoption.Data.TableStorage
 @using PetAdoption.Data.TableStorage.Enums
 @using PetAdoption.Web.Components.Shared
-@attribute [Authorize(Roles = "User,Shelter,Admin")]
+@attribute [Authorize(Roles = "User,Foster,Shelter,Admin")]
 @inject IAdoptionProcessService AdoptionProcessService
 @inject IUserService UserService
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -790,7 +790,7 @@
 
                     if (currentUser != null)
                     {
-                        isUserRole = currentUser.Role == UserRole.User;
+                        isUserRole = currentUser.Role == UserRole.User || currentUser.Role == UserRole.Foster;
 
                         if (isUserRole)
                         {

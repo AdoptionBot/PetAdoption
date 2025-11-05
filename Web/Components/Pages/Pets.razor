@@ -570,7 +570,7 @@
                         <button type="button" class="btn btn-secondary" @onclick="CloseModal">
                             <i class="fas fa-times me-2"></i>Close
                         </button>
-                        @if (isUserAuthenticated && currentUserRole == UserRole.User)
+                        @if (isUserAuthenticated && (currentUserRole == UserRole.User || currentUserRole == UserRole.Foster))
                         {
                             <button type="button" class="btn btn-success btn-lg" @onclick="() => ShowAdoptionRequestModal(selectedPet)">
                                 <i class="fas fa-heart me-2 heartbeat"></i>Adopt @selectedPet.PartitionKey
