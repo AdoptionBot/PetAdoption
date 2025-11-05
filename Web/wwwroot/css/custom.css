@@ -194,6 +194,23 @@
 }
 
 /* ===================================
+   SHELTER LINK STYLES (SHARED)
+   =================================== */
+
+/* Shelter link styles - used in Pets, Adoptions, and other pages */
+.shelter-link {
+    color: #0d6efd !important;
+    text-decoration: none !important;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.shelter-link:hover {
+    color: #0a58ca !important;
+    text-decoration: underline !important;
+}
+
+/* ===================================
    PETS PAGE SPECIFIC STYLES
    =================================== */
 

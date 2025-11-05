@@ -309,9 +309,11 @@
                                             <i class="fas fa-@(pet.Gender == Gender.Male ? "mars" : "venus") me-1"></i><strong>Gender:</strong> @pet.Gender
                                         </small>
                                         <br />
-                                        <small class="text-muted">
-                                            <i class="fas fa-home me-1"></i><strong>Shelter:</strong> @pet.ShelterName
-                                        </small>
+                                        <p class="mb-1">
+                                            <small class="text-muted">
+                                                <i class="fas fa-home me-1"></i><strong>Shelter:</strong> @pet.ShelterName
+                                            </small>
+                                        </p>
                                     </p>
                                     <div class="text-center mt-3">
                                         <small class="text-primary">
@@ -479,7 +481,11 @@
                                     </tr>
                                     <tr>
                                         <th><i class="fas fa-home me-2 text-success"></i>Shelter:</th>
-                                        <td>@selectedPet.ShelterName, @selectedPet.ShelterLocation</td>
+                                        <td>
+                                            <a class="shelter-link" @onclick="() => NavigateToShelter(selectedPet.ShelterName, selectedPet.ShelterLocation)" @onclick:preventDefault="true">
+                                                @selectedPet.ShelterName, @selectedPet.ShelterLocation <i class="fas fa-external-link-alt ms-1"></i>
+                                            </a>
+                                        </td>
                                     </tr>
                                 </table>
 
@@ -638,7 +644,12 @@
                                         <p class="mb-0"><i class="fas fa-birthday-cake me-2 text-warning"></i><strong>Age:</strong> @GetPetAge(petForAdoption.RowKey)</p>
                                     </div>
                                     <div class="col-md-6">
-                                        <p class="mb-1"><i class="fas fa-home me-2 text-info"></i><strong>Shelter:</strong> @petForAdoption.ShelterName</p>
+                                        <p class="mb-1">
+                                            <i class="fas fa-home me-2 text-info"></i><strong>Shelter:</strong>
+                                            <a class="shelter-link" @onclick="() => NavigateToShelter(petForAdoption.ShelterName, petForAdoption.ShelterLocation)" @onclick:preventDefault="true">
+                                                @petForAdoption.ShelterName <i class="fas fa-external-link-alt ms-1"></i>
+                                            </a>
+                                        </p>
                                         <p class="mb-0"><i class="fas fa-map-marker-alt me-2 text-danger"></i><strong>Location:</strong> @petForAdoption.ShelterLocation</p>
                                     </div>
                                 </div>
@@ -899,6 +910,13 @@
     {
         selectedPet = null;
         showDetailModal = false;
+    }
+
+    private void NavigateToShelter(string shelterName, string shelterLocation)
+    {
+        var encodedName = Uri.EscapeDataString(shelterName);
+        var encodedLocation = Uri.EscapeDataString(shelterLocation);
+        Navigation.NavigateTo($"/shelters?name={encodedName}&location={encodedLocation}");
     }
 
     private async Task ShowAdoptionRequestModal(Pet pet)
