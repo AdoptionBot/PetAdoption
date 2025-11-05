@@ -1,0 +1,389 @@
+@page "/shelters"
+@using PetAdoption.Services.Interfaces
+@using PetAdoption.Data.TableStorage
+@inject IShelterService ShelterService
+@inject IConfiguration Configuration
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
+
+<PageTitle>Animal Shelters - Madeira Pet Adoption</PageTitle>
+
+<section class="hero-wrap hero-wrap-2" style="background-image: url('images/bg_2.jpg');" data-stellar-background-ratio="0.5">
+    <div class="overlay"></div>
+    <div class="container">
+        <div class="row no-gutters slider-text align-items-end">
+            <div class="col-md-9 ftco-animate pb-5">
+                <p class="breadcrumbs mb-2">
+                    <span class="mr-2"><a href="/">Home <i class="ion-ios-arrow-forward"></i></a></span> 
+                    <span>Shelters <i class="ion-ios-arrow-forward"></i></span>
+                </p>
+                <h1 class="mb-0 bread">Animal Shelters in Madeira</h1>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="ftco-section">
+    <div class="container">
+        @if (isLoading)
+        {
+            <div class="row">
+                <div class="col-md-12 text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Loading animal shelters...</p>
+                </div>
+            </div>
+        }
+        else if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="alert alert-danger">
+                        <i class="fa fa-exclamation-triangle"></i> @errorMessage
+                    </div>
+                </div>
+            </div>
+        }
+        else if (shelters == null || !shelters.Any())
+        {
+            <div class="row">
+                <div class="col-md-12 text-center py-5">
+                    <div class="alert alert-info d-inline-block">
+                        <i class="fa fa-info-circle"></i> No animal shelters found at the moment.
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <h2 class="mb-4">Find Your Perfect Companion</h2>
+                    <p class="lead">Connect with trusted animal shelters across Madeira and give a loving home to a pet in need.</p>
+                </div>
+            </div>
+
+            @foreach (var shelter in shelters)
+            {
+                <div class="row mb-4 shelter-card" @onclick="() => ShowDetails(shelter)" style="cursor: pointer;">
+                    <div class="col-md-12">
+                        <div class="card shadow-sm hover-shadow transition">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-md-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="shelter-icon me-3">
+                                                <i class="fa fa-home fa-3x text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="mb-1">@shelter.PartitionKey</h4>
+                                                <p class="text-muted mb-0">
+                                                    <i class="fa fa-map-marker-alt me-1"></i> @shelter.RowKey
+                                                    @if (!string.IsNullOrEmpty(shelter.Country))
+                                                    {
+                                                        <text>, @shelter.Country</text>
+                                                    }
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        @if (!string.IsNullOrEmpty(shelter.PhoneNumber))
+                                        {
+                                            <p class="mb-2">
+                                                <i class="fa fa-phone me-2 text-success"></i>
+                                                <a href="tel:@shelter.PhoneNumber" class="text-decoration-none" @onclick:stopPropagation="true">
+                                                    @shelter.PhoneNumber
+                                                </a>
+                                            </p>
+                                        }
+                                        @if (!string.IsNullOrEmpty(shelter.Email))
+                                        {
+                                            <p class="mb-2">
+                                                <i class="fa fa-envelope me-2 text-info"></i>
+                                                <a href="mailto:@shelter.Email" class="text-decoration-none" @onclick:stopPropagation="true">
+                                                    @shelter.Email
+                                                </a>
+                                            </p>
+                                        }
+                                        @if (!string.IsNullOrEmpty(shelter.Address))
+                                        {
+                                            <p class="mb-0 text-muted small">
+                                                <i class="fa fa-location-dot me-2"></i>@shelter.Address
+                                            </p>
+                                        }
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                        @if (!string.IsNullOrEmpty(shelter.OpeningTimes))
+                                        {
+                                            <p class="mb-2">
+                                                <i class="fa fa-clock me-2 text-info"></i>
+                                                <span class="small">@shelter.OpeningTimes</span>
+                                            </p>
+                                        }
+                                        <div class="mb-2">
+                                            @if (!string.IsNullOrEmpty(shelter.Facebook))
+                                            {
+                                                <a href="@shelter.Facebook" target="_blank" rel="noopener noreferrer" class="text-decoration-none me-2" @onclick:stopPropagation="true">
+                                                    <i class="fab fa-facebook fa-lg text-primary"></i>
+                                                </a>
+                                            }
+                                            @if (!string.IsNullOrEmpty(shelter.Instagram))
+                                            {
+                                                <a href="@shelter.Instagram" target="_blank" rel="noopener noreferrer" class="text-decoration-none me-2" @onclick:stopPropagation="true">
+                                                    <i class="fab fa-instagram fa-lg text-danger"></i>
+                                                </a>
+                                            }
+                                            @if (!string.IsNullOrEmpty(shelter.X))
+                                            {
+                                                <a href="@shelter.X" target="_blank" rel="noopener noreferrer" class="text-decoration-none me-2" @onclick:stopPropagation="true">
+                                                    <i class="fab fa-x-twitter fa-lg text-dark"></i>
+                                                </a>
+                                            }
+                                        </div>
+                                        <button class="btn btn-primary btn-sm" @onclick:stopPropagation="true" @onclick="() => ShowDetails(shelter)">
+                                            <i class="fa fa-info-circle me-1"></i> View Details
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</section>
+
+@if (showDetailsModal && selectedShelter != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="fa fa-home me-2"></i>@selectedShelter.PartitionKey
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="CloseDetails" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3"><i class="fa fa-info-circle me-2"></i>Contact Information</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <strong><i class="fa fa-map-marker-alt me-2 text-danger"></i>Location:</strong> 
+                                    @selectedShelter.RowKey, @selectedShelter.Country
+                                </li>
+                                @if (!string.IsNullOrEmpty(selectedShelter.Address))
+                                {
+                                    <li class="mb-2">
+                                        <strong><i class="fa fa-location-dot me-2 text-secondary"></i>Address:</strong> 
+                                        @selectedShelter.Address
+                                    </li>
+                                }
+                                @if (!string.IsNullOrEmpty(selectedShelter.PhoneNumber))
+                                {
+                                    <li class="mb-2">
+                                        <strong><i class="fa fa-phone me-2 text-success"></i>Phone:</strong> 
+                                        <a href="tel:@selectedShelter.PhoneNumber" class="text-decoration-none">
+                                            @selectedShelter.PhoneNumber
+                                        </a>
+                                    </li>
+                                }
+                                @if (!string.IsNullOrEmpty(selectedShelter.Email))
+                                {
+                                    <li class="mb-2">
+                                        <strong><i class="fa fa-envelope me-2 text-info"></i>Email:</strong> 
+                                        <a href="mailto:@selectedShelter.Email" class="text-decoration-none">
+                                            @selectedShelter.Email
+                                        </a>
+                                    </li>
+                                }
+                                @if (!string.IsNullOrEmpty(selectedShelter.Website))
+                                {
+                                    <li class="mb-2">
+                                        <strong><i class="fa fa-globe me-2 text-primary"></i>Website:</strong> 
+                                        <a href="@selectedShelter.Website" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
+                                            Visit Website <i class="fa fa-external-link-alt fa-xs"></i>
+                                        </a>
+                                    </li>
+                                }
+                                @if (!string.IsNullOrEmpty(selectedShelter.OpeningTimes))
+                                {
+                                    <li class="mb-2">
+                                        <strong><i class="fa fa-clock me-2 text-info"></i>Opening Times:</strong> 
+                                        @selectedShelter.OpeningTimes
+                                    </li>
+                                }
+                            </ul>
+                            
+                            @if (!string.IsNullOrEmpty(selectedShelter.Facebook) || !string.IsNullOrEmpty(selectedShelter.Instagram) || !string.IsNullOrEmpty(selectedShelter.X))
+                            {
+                                <h6 class="text-primary mb-3 mt-4"><i class="fa fa-share-nodes me-2"></i>Social Media</h6>
+                                <div class="d-flex gap-3">
+                                    @if (!string.IsNullOrEmpty(selectedShelter.Facebook))
+                                    {
+                                        <a href="@selectedShelter.Facebook" target="_blank" rel="noopener noreferrer" class="btn btn-outline-primary btn-sm">
+                                            <i class="fab fa-facebook me-1"></i> Facebook
+                                        </a>
+                                    }
+                                    @if (!string.IsNullOrEmpty(selectedShelter.Instagram))
+                                    {
+                                        <a href="@selectedShelter.Instagram" target="_blank" rel="noopener noreferrer" class="btn btn-outline-danger btn-sm">
+                                            <i class="fab fa-instagram me-1"></i> Instagram
+                                        </a>
+                                    }
+                                    @if (!string.IsNullOrEmpty(selectedShelter.X))
+                                    {
+                                        <a href="@selectedShelter.X" target="_blank" rel="noopener noreferrer" class="btn btn-outline-dark btn-sm">
+                                            <i class="fab fa-x-twitter me-1"></i> X
+                                        </a>
+                                    }
+                                </div>
+                            }
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3"><i class="fa fa-map me-2"></i>Location Map</h6>
+                            @if (!string.IsNullOrEmpty(selectedShelter.GoogleMapsLocation))
+                            {
+                                <div class="ratio ratio-4x3">
+                                    <iframe src="@GetEmbedUrl(selectedShelter.GoogleMapsLocation)" 
+                                            style="border:0;" 
+                                            allowfullscreen="" 
+                                            loading="lazy" 
+                                            referrerpolicy="no-referrer-when-downgrade">
+                                    </iframe>
+                                </div>
+                                <div class="mt-3">
+                                    <a href="@selectedShelter.GoogleMapsLocation" 
+                                       target="_blank" 
+                                       rel="noopener noreferrer" 
+                                       class="btn btn-success btn-sm w-100">
+                                        <i class="fa fa-directions me-2"></i>Get Directions
+                                    </a>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info">
+                                    <i class="fa fa-info-circle me-2"></i>Map location not available
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseDetails">
+                        <i class="fa fa-times me-1"></i> Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    .hover-shadow {
+        transition: all 0.3s ease;
+    }
+
+    .hover-shadow:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        transform: translateY(-2px);
+    }
+
+    .shelter-card {
+        transition: all 0.2s ease;
+    }
+
+    .shelter-icon {
+        opacity: 0.8;
+    }
+</style>
+
+@code {
+    private List<Shelter>? shelters;
+    private Shelter? selectedShelter;
+    private bool isLoading = true;
+    private bool showDetailsModal = false;
+    private string? errorMessage;
+    private string googleApiKey = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Retrieve the unified Google API key from configuration
+        googleApiKey = Configuration["GoogleApiKey"] ?? string.Empty;
+        
+        await LoadShelters();
+    }
+
+    private async Task LoadShelters()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            var allShelters = await ShelterService.GetAllSheltersAsync();
+            shelters = allShelters.OrderBy(s => s.RowKey).ToList();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load animal shelters: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ShowDetails(Shelter shelter)
+    {
+        selectedShelter = shelter;
+        showDetailsModal = true;
+    }
+
+    private void CloseDetails()
+    {
+        showDetailsModal = false;
+        selectedShelter = null;
+    }
+
+    private string GetEmbedUrl(string googleMapsUrl)
+    {
+        // Check if API key is available
+        if (string.IsNullOrEmpty(googleApiKey))
+        {
+            return string.Empty;
+        }
+
+        // Check if URL is a shortened URL (should not be used)
+        if (googleMapsUrl.Contains("goo.gl") || googleMapsUrl.Contains("maps.app.goo.gl"))
+        {
+            // Log warning and fallback to search
+            Console.WriteLine($"Warning: Shortened URL detected: {googleMapsUrl}. Using fallback search.");
+            return $"https://www.google.com/maps/embed/v1/search?key={googleApiKey}&q={Uri.EscapeDataString(selectedShelter?.PartitionKey + " " + selectedShelter?.RowKey + " " + selectedShelter?.Address)}";
+        }
+
+        // Try to extract coordinates from URL (format: @lat,lng or place/lat,lng)
+        var coordsMatch = System.Text.RegularExpressions.Regex.Match(
+            googleMapsUrl, 
+            @"[@/](-?\d+\.?\d*),(-?\d+\.?\d*)"
+        );
+
+        if (coordsMatch.Success && coordsMatch.Groups.Count >= 3)
+        {
+            var lat = coordsMatch.Groups[1].Value;
+            var lng = coordsMatch.Groups[2].Value;
+            return $"https://www.google.com/maps/embed/v1/place?key={googleApiKey}&q={lat},{lng}&zoom=15";
+        }
+
+        // Fallback: use place search with all available info
+        var searchQuery = $"{selectedShelter?.PartitionKey} {selectedShelter?.RowKey} {selectedShelter?.Address} {selectedShelter?.Country}".Trim();
+        return $"https://www.google.com/maps/embed/v1/search?key={googleApiKey}&q={Uri.EscapeDataString(searchQuery)}";
+    }
+}
