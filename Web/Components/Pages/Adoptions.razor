@@ -165,12 +165,7 @@
                                         </div>
                                         <p class="mb-1"><strong>Species:</strong> @pet.Species</p>
                                         <p class="mb-1"><strong>Age:</strong> @GetPetAge(pet.RowKey)</p>
-                                        <p class="mb-1">
-                                            <strong>Shelter:</strong> 
-                                            <a class="shelter-link" @onclick="() => NavigateToShelter(pet.ShelterName, pet.ShelterLocation)" @onclick:preventDefault="true">
-                                                @pet.ShelterName
-                                            </a>
-                                        </p>
+                                        <p class="mb-1"><strong>Shelter:</strong> @pet.ShelterName</p>
                                     }
                                     else
                                     {
@@ -346,12 +341,7 @@
                                     }
 
                                     <h6 class="border-bottom pb-2 mb-2 mt-3">Shelter</h6>
-                                    <p>
-                                        <strong>Name:</strong> 
-                                        <a class="shelter-link" @onclick="() => NavigateToShelter(selectedPet.ShelterName, selectedPet.ShelterLocation)" @onclick:preventDefault="true">
-                                            <i class="fas fa-external-link-alt me-1"></i>@selectedPet.ShelterName
-                                        </a>
-                                    </p>
+                                    <p><strong>Name:</strong> @selectedPet.ShelterName</p>
                                     <p><strong>Location:</strong> @selectedPet.ShelterLocation</p>
                                 }
                                 else
@@ -400,18 +390,7 @@
                                     <div class="alert alert-primary mt-4 border-primary">
                                         <h6 class="text-primary"><i class="fa fa-hourglass-half"></i> Application Under Review</h6>
                                         <p class="mb-2">
-                                            <strong>Great news!</strong> Your adoption request for <strong>@selectedApplication.PetName</strong> has been successfully submitted to 
-                                            @if (selectedPet != null)
-                                            {
-                                                <a class="shelter-link" @onclick="() => NavigateToShelter(selectedPet.ShelterName, selectedPet.ShelterLocation)" @onclick:preventDefault="true">
-                                                    <strong>@selectedPet.ShelterName</strong>
-                                                </a>
-                                            }
-                                            else
-                                            {
-                                                <strong>the shelter</strong>
-                                            }
-                                            ! 🎉
+                                            <strong>Great news!</strong> Your adoption request for <strong>@selectedApplication.PetName</strong> has been successfully submitted to <strong>@(selectedPet?.ShelterName ?? "the shelter")</strong>! 🎉
                                         </p>
                                         <hr />
                                         <div class="bg-white p-3 rounded mb-2">
@@ -453,12 +432,7 @@
                                         {
                                             <div class="bg-white p-3 rounded mt-3 border">
                                                 <h6 class="mb-2"><i class="fa fa-home"></i> Shelter Contact Information:</h6>
-                                                <p class="mb-1 small">
-                                                    <strong>Name:</strong> 
-                                                    <a class="shelter-link" @onclick="() => NavigateToShelter(selectedPet.ShelterName, selectedPet.ShelterLocation)" @onclick:preventDefault="true">
-                                                        @selectedPet.ShelterName
-                                                    </a>
-                                                </p>
+                                                <p class="mb-1 small"><strong>Name:</strong> @selectedPet.ShelterName</p>
                                                 <p class="mb-1 small"><strong>Location:</strong> @selectedPet.ShelterLocation</p>
                                                 <p class="mb-0 small text-muted">
                                                     <i class="fa fa-info-circle"></i> Please contact the shelter directly to schedule your visit.
@@ -548,19 +522,6 @@
 
     .modal.show.d-block {
         display: block !important;
-    }
-
-    /* Shelter Link Styles */
-    .shelter-link {
-        color: #0d6efd;
-        text-decoration: none;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .shelter-link:hover {
-        color: #0a58ca;
-        text-decoration: underline;
     }
 
     /* Adopted Card Styles */
@@ -897,13 +858,6 @@
         selectedPet = null;
         selectedApplicant = null;
         isProcessing = false;
-    }
-
-    private void NavigateToShelter(string shelterName, string shelterLocation)
-    {
-        var encodedName = Uri.EscapeDataString(shelterName);
-        var encodedLocation = Uri.EscapeDataString(shelterLocation);
-        Navigation.NavigateTo($"/shelters?name={encodedName}&location={encodedLocation}");
     }
 
     private async Task ShelterAcceptApplication()

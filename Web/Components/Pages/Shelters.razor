@@ -319,25 +319,6 @@
         googleApiKey = Configuration["GoogleApiKey"] ?? string.Empty;
         
         await LoadShelters();
-
-        // Check if navigation came with query parameters to auto-open a shelter modal
-        var uri = new Uri(Navigation.Uri);
-        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
-        var shelterName = query["name"];
-        var shelterLocation = query["location"];
-
-        if (!string.IsNullOrEmpty(shelterName) && !string.IsNullOrEmpty(shelterLocation) && shelters != null)
-        {
-            var shelter = shelters.FirstOrDefault(s => 
-                s.PartitionKey == shelterName && s.RowKey == shelterLocation);
-            
-            if (shelter != null)
-            {
-                ShowDetails(shelter);
-                // Clean up URL without the query parameters
-                Navigation.NavigateTo("/shelters", replace: true);
-            }
-        }
     }
 
     private async Task LoadShelters()
