@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Blue gradient background -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#5DADE2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3498DB;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Rounded square background -->
+  <rect width="100" height="100" fill="url(#bgGradient)" rx="18"/>
+  
+  <!-- Simple, clean paw print -->
+  <g fill="#ffffff">
+    <!-- Main pad (bottom, rounded heart shape) -->
+    <ellipse cx="50" cy="65" rx="18" ry="16"/>
+    
+    <!-- Top left toe (small oval) -->
+    <ellipse cx="32" cy="40" rx="8" ry="11" transform="rotate(-15 32 40)"/>
+    
+    <!-- Top center-left toe -->
+    <ellipse cx="43" cy="32" rx="7.5" ry="10.5"/>
+    
+    <!-- Top center-right toe -->
+    <ellipse cx="57" cy="32" rx="7.5" ry="10.5"/>
+    
+    <!-- Top right toe (small oval) -->
+    <ellipse cx="68" cy="40" rx="8" ry="11" transform="rotate(15 68 40)"/>
+  </g>
+</svg>
