@@ -2,7 +2,10 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using PetAdoption.Web.Components;
 using PetAdoption.Services.Data.Extensions;
 using PetAdoption.Services.Data;
+using PetAdoption.Services.Web;
 using PetAdoption.Services;
+using System.Globalization;
+
 
 namespace PetAdoption.Web
 {
@@ -11,6 +14,10 @@ namespace PetAdoption.Web
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            // Enable detailed logging for localization (temporary for debugging)
+            builder.Logging.AddFilter("PetAdoption.Services.Web.DynamicLocalizer", LogLevel.Information);
+            builder.Logging.AddFilter("Microsoft.Extensions.Web.Localization", LogLevel.Debug);
 
             // Add Razor Components with Interactive Server
             builder.Services.AddRazorComponents()
@@ -26,14 +33,32 @@ namespace PetAdoption.Web
             builder.Services.AddCascadingAuthenticationState();
             builder.Services.AddScoped<ProfileStateService>();
 
+            // Add Localization with correct ResourcesPath
+            builder.Services.AddLocalization(options => 
+            {
+                options.ResourcesPath = "Resources";
+            });
+            
+            // Register LocalizationService as Scoped (per circuit in Blazor Server)
+            builder.Services.AddScoped<LocalizationService>();
+            
+            // Register DynamicLocalizer as Scoped
+            builder.Services.AddScoped(typeof(DynamicLocalizer<>));
+
+            // Configure supported cultures
+            var supportedCultures = new[]
+            {
+                new CultureInfo("pt-PT"),
+                new CultureInfo("en-US")
+            };
+
             // Retrieve application secrets from Key Vault
             var appSecrets = await KeyVaultSecretService.RetrieveApplicationSecretsAsync(builder.Configuration);
 
-            // Store unified Google API Key in configuration for easy access throughout the app
-            // This key works for Maps Embed, Maps JavaScript, Geocoding, Places (New), and Places APIs
+            // Store unified Google API Key in configuration
             builder.Configuration["GoogleApiKey"] = appSecrets.GoogleApiKey;
 
-            // Register all Azure services (KeyVault, TableStorage, BlobStorage, Business Services)
+            // Register all Azure services
             await builder.Services.AddAllAzureServicesAsync(builder.Configuration);
 
             // Register database seeder
@@ -79,10 +104,10 @@ namespace PetAdoption.Web
                     policy.RequireRole("Shelter"));
             });
 
-            // Configure SignalR with sensible defaults for Blazor Server
+            // Configure SignalR
             builder.Services.AddSignalR(options =>
             {
-                options.MaximumReceiveMessageSize = 10 * 1024 * 1024; // 10MB
+                options.MaximumReceiveMessageSize = 10 * 1024 * 1024;
                 options.ClientTimeoutInterval = TimeSpan.FromSeconds(60);
                 options.KeepAliveInterval = TimeSpan.FromSeconds(15);
             });
@@ -109,6 +134,7 @@ namespace PetAdoption.Web
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            
             app.UseRouting();
             
             app.UseAuthentication();
@@ -122,9 +148,6 @@ namespace PetAdoption.Web
             app.Run();
         }
 
-        /// <summary>
-        /// Seeds the database with initial data
-        /// </summary>
         private static async Task SeedDatabaseAsync(WebApplication app)
         {
             using var scope = app.Services.CreateScope();
@@ -140,7 +163,6 @@ namespace PetAdoption.Web
             catch (Exception ex)
             {
                 logger.LogError(ex, "An error occurred while seeding the database");
-                // Don't throw - allow app to continue running
             }
         }
     }

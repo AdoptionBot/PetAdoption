@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="PageTitle" xml:space="preserve">
+    <value>My Adoptions - Madeira Pet Adoption</value>
+  </data>
+  <data name="MyAdoptionApplications" xml:space="preserve">
+    <value>My Adoption Applications</value>
+  </data>
+  <data name="AdoptionApplicationsForMyPets" xml:space="preserve">
+    <value>Adoption Applications for My Pets</value>
+  </data>
+  <data name="Home" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="Adoptions" xml:space="preserve">
+    <value>Adoptions</value>
+  </data>
+  <data name="LoadingApplications" xml:space="preserve">
+    <value>Loading adoption applications...</value>
+  </data>
+  <data name="ErrorLoadingTitle" xml:space="preserve">
+    <value>Error Loading Applications</value>
+  </data>
+  <data name="Retry" xml:space="preserve">
+    <value>Retry</value>
+  </data>
+  <data name="NoAdoptionApplications" xml:space="preserve">
+    <value>No Adoption Applications</value>
+  </data>
+  <data name="NoApplicationsMessageUser" xml:space="preserve">
+    <value>You haven't submitted any adoption applications yet.</value>
+  </data>
+  <data name="NoApplicationsMessageShelter" xml:space="preserve">
+    <value>No adoption applications have been received for your shelter's pets.</value>
+  </data>
+  <data name="BrowseAvailablePets" xml:space="preserve">
+    <value>Browse Available Pets</value>
+  </data>
+  <data name="YourAdoptionApplications" xml:space="preserve">
+    <value>Your Adoption Applications</value>
+  </data>
+  <data name="AdoptionApplicationsForYourPets" xml:space="preserve">
+    <value>Adoption Applications for Your Pets</value>
+  </data>
+  <data name="TotalApplications" xml:space="preserve">
+    <value>Total Applications</value>
+  </data>
+  <data name="SuccessfullyAdopted" xml:space="preserve">
+    <value>Successfully Adopted</value>
+  </data>
+  <data name="Adopted" xml:space="preserve">
+    <value>ADOPTED</value>
+  </data>
+  <data name="Congratulations" xml:space="preserve">
+    <value>Congratulations!</value>
+  </data>
+  <data name="NowLovingPetParent" xml:space="preserve">
+    <value>You're now a loving pet parent!</value>
+  </data>
+  <data name="PetInformation" xml:space="preserve">
+    <value>Pet Information</value>
+  </data>
+  <data name="Species" xml:space="preserve">
+    <value>Species</value>
+  </data>
+  <data name="Age" xml:space="preserve">
+    <value>Age</value>
+  </data>
+  <data name="Shelter" xml:space="preserve">
+    <value>Shelter</value>
+  </data>
+  <data name="PetInformationUnavailable" xml:space="preserve">
+    <value>Pet information unavailable</value>
+  </data>
+  <data name="Applicant" xml:space="preserve">
+    <value>Applicant</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Phone" xml:space="preserve">
+    <value>Phone</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Submitted" xml:space="preserve">
+    <value>Submitted</value>
+  </data>
+  <data name="WelcomeNewFamilyMember" xml:space="preserve">
+    <value>Welcome to your new family member!</value>
+  </data>
+  <data name="ThankYouForeverHome" xml:space="preserve">
+    <value>Thank you for giving {0} a forever home filled with love! 💕</value>
+  </data>
+  <data name="Notes" xml:space="preserve">
+    <value>Notes</value>
+  </data>
+  <data name="ViewDetails" xml:space="preserve">
+    <value>View Details</value>
+  </data>
+  <data name="ViewAdoption" xml:space="preserve">
+    <value>View Adoption</value>
+  </data>
+  <data name="PendingReview" xml:space="preserve">
+    <value>Pending Review</value>
+  </data>
+  <data name="AcceptedByShelter" xml:space="preserve">
+    <value>Accepted by Shelter</value>
+  </data>
+  <data name="AdoptedStatus" xml:space="preserve">
+    <value>Adopted</value>
+  </data>
+  <data name="SuccessfulAdoption" xml:space="preserve">
+    <value>Successful Adoption</value>
+  </data>
+  <data name="AdoptionApplicationDetails" xml:space="preserve">
+    <value>Adoption Application Details</value>
+  </data>
+  <data name="Processing" xml:space="preserve">
+    <value>Processing your request...</value>
+  </data>
+  <data name="CongratulationsNewFamilyMember" xml:space="preserve">
+    <value>🎉 Congratulations on Your New Family Member! 🎉</value>
+  </data>
+  <data name="GivenLovingHome" xml:space="preserve">
+    <value>You've given {0} a loving forever home!</value>
+  </data>
+  <data name="BeginningBeautifulJourney" xml:space="preserve">
+    <value>This is the beginning of a beautiful journey together. Thank you for choosing adoption and making a difference in {0}'s life! 💕</value>
+  </data>
+  <data name="AboutPet" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="MedicalTreatments" xml:space="preserve">
+    <value>Medical Treatments</value>
+  </data>
+  <data name="KnownMedicalIssues" xml:space="preserve">
+    <value>Known Medical Issues</value>
+  </data>
+  <data name="ShelterInfo" xml:space="preserve">
+    <value>Shelter</value>
+  </data>
+  <data name="Location" xml:space="preserve">
+    <value>Location</value>
+  </data>
+  <data name="ApplicationInformation" xml:space="preserve">
+    <value>Application Information</value>
+  </data>
+  <data name="DateSubmitted" xml:space="preserve">
+    <value>Date Submitted</value>
+  </data>
+  <data name="ApplicationNotes" xml:space="preserve">
+    <value>Application Notes</value>
+  </data>
+  <data name="ApplicantInformation" xml:space="preserve">
+    <value>Applicant Information</value>
+  </data>
+  <data name="Address" xml:space="preserve">
+    <value>Address</value>
+  </data>
+  <data name="Country" xml:space="preserve">
+    <value>Country</value>
+  </data>
+  <data name="Website" xml:space="preserve">
+    <value>Website</value>
+  </data>
+  <data name="ApplicationUnderReview" xml:space="preserve">
+    <value>Application Under Review</value>
+  </data>
+  <data name="GreatNews" xml:space="preserve">
+    <value>Great news!</value>
+  </data>
+  <data name="ApplicationSubmittedSuccess" xml:space="preserve">
+    <value>Your adoption request for {0} has been successfully submitted to</value>
+  </data>
+  <data name="RootingForYou" xml:space="preserve">
+    <value>We're rooting for you! The shelter team is carefully reviewing your application to ensure {0} finds the perfect forever home.</value>
+  </data>
+  <data name="WhatHappensNext" xml:space="preserve">
+    <value>What happens next? The shelter will review your application and get back to you soon. Keep your fingers crossed! 🤞</value>
+  </data>
+  <data name="NotifiedOnceDecision" xml:space="preserve">
+    <value>You'll be notified once the shelter makes a decision. In the meantime, imagine all the wonderful moments you'll share with {0}! 💕</value>
+  </data>
+  <data name="ApplicationAccepted" xml:space="preserve">
+    <value>Application Accepted!</value>
+  </data>
+  <data name="ShelterAcceptedApplication" xml:space="preserve">
+    <value>The shelter has accepted your adoption application for {0}!</value>
+  </data>
+  <data name="NextStepsTitle" xml:space="preserve">
+    <value>Next Steps:</value>
+  </data>
+  <data name="Step1" xml:space="preserve">
+    <value>Contact the shelter to arrange a pickup time</value>
+  </data>
+  <data name="Step2" xml:space="preserve">
+    <value>Bring a valid ID and any required documents</value>
+  </data>
+  <data name="Step3" xml:space="preserve">
+    <value>Visit the shelter to meet {0}</value>
+  </data>
+  <data name="Step4" xml:space="preserve">
+    <value>Complete the adoption process at the shelter</value>
+  </data>
+  <data name="ShelterContactInformation" xml:space="preserve">
+    <value>Shelter Contact Information:</value>
+  </data>
+  <data name="PleaseContactShelter" xml:space="preserve">
+    <value>Please contact the shelter directly to schedule your visit.</value>
+  </data>
+  <data name="AwaitingUserPickup" xml:space="preserve">
+    <value>Awaiting User Pickup</value>
+  </data>
+  <data name="AcceptedApplicationNotification" xml:space="preserve">
+    <value>You have accepted this application. The user has been notified to contact you and arrange pickup of {0}.</value>
+  </data>
+  <data name="OncePickedUp" xml:space="preserve">
+    <value>Once the user has physically picked up the pet, click the button below to mark the adoption as complete.</value>
+  </data>
+  <data name="AdoptionComplete" xml:space="preserve">
+    <value>Adoption Complete!</value>
+  </data>
+  <data name="AdoptionSuccessfullyCompleted" xml:space="preserve">
+    <value>This adoption was successfully completed.</value>
+  </data>
+  <data name="WishHappyYears" xml:space="preserve">
+    <value>We wish you and {0} many happy years together!</value>
+  </data>
+  <data name="ThankYouHelpingFind" xml:space="preserve">
+    <value>Thank you for helping {0} find their forever home!</value>
+  </data>
+  <data name="Accept" xml:space="preserve">
+    <value>Accept</value>
+  </data>
+  <data name="Reject" xml:space="preserve">
+    <value>Reject</value>
+  </data>
+  <data name="PetAdopted" xml:space="preserve">
+    <value>{0} Adopted</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="ClickOutsideToClose" xml:space="preserve">
+    <value>Click anywhere outside the image to close</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="ClickToEnlarge" xml:space="preserve">
+    <value>(Click to enlarge)</value>
+  </data>
+  <data name="NotSpecified" xml:space="preserve">
+    <value>Not specified</value>
+  </data>
+  <data name="Gender" xml:space="preserve">
+    <value>Gender</value>
+  </data>
+  <data name="Size" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="Breed" xml:space="preserve">
+    <value>Breed</value>
+  </data>
+  <data name="Colour" xml:space="preserve">
+    <value>Colour</value>
+  </data>
+  <data name="NeuteredSpayed" xml:space="preserve">
+    <value>Neutered/Castrated</value>
+  </data>
+  <data name="Dewormed" xml:space="preserve">
+    <value>Dewormed</value>
+  </data>
+  <data name="Microchipped" xml:space="preserve">
+    <value>Microshipped</value>
+  </data>
+  <data name="Vaccinations" xml:space="preserve">
+    <value>Veccinations</value>
+  </data>
+  <data name="NotAdopted" xml:space="preserve">
+    <value>Not Adopted</value>
+  </data>
+</root>

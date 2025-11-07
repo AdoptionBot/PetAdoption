@@ -1,0 +1,75 @@
+@using PetAdoption.Services.Web
+@rendermode InteractiveServer
+@inject LocalizationService LocalizationService
+
+<div class="language-switcher">
+    <button class="btn btn-sm btn-link language-flag @(LocalizationService.IsPortuguese() ? "active" : "")" 
+            @onclick='() => SetCulture("pt-PT")' 
+            title="Português"
+            disabled="@LocalizationService.IsPortuguese()">
+        <img src="/images/flags/pt.png" alt="Português" class="flag-icon" />
+    </button>
+    <span class="separator">|</span>
+    <button class="btn btn-sm btn-link language-flag @(LocalizationService.IsEnglish() ? "active" : "")" 
+            @onclick='() => SetCulture("en-US")' 
+            title="English"
+            disabled="@LocalizationService.IsEnglish()">
+        <img src="/images/flags/en.png" alt="English" class="flag-icon" />
+    </button>
+</div>
+
+<style>
+    .language-switcher {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .language-flag {
+        padding: 0;
+        border: none;
+        background: none;
+        cursor: pointer;
+        transition: transform 0.2s, opacity 0.2s;
+        opacity: 0.6;
+    }
+
+        .language-flag:hover:not(:disabled) {
+            transform: scale(1.1);
+            opacity: 1;
+        }
+
+        .language-flag:focus {
+            outline: 2px solid #007bff;
+            outline-offset: 2px;
+        }
+
+        .language-flag.active {
+            opacity: 1;
+            cursor: default;
+        }
+
+        .language-flag:disabled {
+            cursor: default;
+        }
+
+    .flag-icon {
+        width: 24px;
+        height: 16px;
+        object-fit: cover;
+        border-radius: 2px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .separator {
+        color: #6c757d;
+        font-weight: 300;
+    }
+</style>
+
+@code {
+    private void SetCulture(string culture)
+    {
+        LocalizationService.SetCulture(culture);
+    }
+}

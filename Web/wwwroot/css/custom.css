@@ -915,3 +915,78 @@
 .ftco-faqs .myaccordion .btn p {
   text-decoration: none !important;
 }
+
+/* ===========================================
+   FIX: PREVENT TEXT TRANSFORMATION ON BUTTONS
+   =========================================== */
+
+/* Override any uppercase transformation on hero buttons */
+.hero-wrap .btn,
+.hero-wrap .btn-primary,
+.hero-wrap .btn-white {
+    text-transform: none !important;
+    word-spacing: normal !important;
+    letter-spacing: normal !important;
+}
+
+/* Ensure all buttons throughout the site maintain normal text */
+.btn {
+    text-transform: none !important;
+    word-spacing: normal !important;
+    letter-spacing: normal !important;
+}
+
+/* Specifically target hero CTA buttons */
+.hero-cta-buttons .btn {
+    text-transform: none !important;
+    word-spacing: normal !important;
+    letter-spacing: normal !important;
+}
+
+/* Target login provider buttons */
+.login-providers .btn {
+    text-transform: none !important;
+    word-spacing: normal !important;
+    letter-spacing: normal !important;
+}
+
+/* ===========================================
+   FIX: BUTTON TEXT SPACING AND CASING
+   =========================================== */
+
+/* Remove ALL text transformations from buttons */
+.btn,
+a.btn,
+button.btn,
+.hero-wrap .btn,
+.hero-wrap a.btn,
+.hero-cta-buttons .btn,
+.hero-cta-buttons a.btn,
+.login-providers .btn,
+.login-providers a.btn {
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    word-spacing: normal !important;
+    white-space: normal !important;
+}
+
+/* Specifically for hero buttons */
+.hero-wrap .btn-primary,
+.hero-wrap .btn-white,
+.hero-cta-buttons .btn-primary,
+.hero-cta-buttons .btn-white {
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    word-spacing: normal !important;
+    white-space: normal !important;
+    font-variant: normal !important;
+}
+
+/* Ensure button text renders normally */
+.btn span,
+.btn-primary span,
+.btn-white span {
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    word-spacing: normal !important;
+}

@@ -1,9 +1,10 @@
 @page "/profile"
 @using Microsoft.AspNetCore.Authorization
-@using PetAdoption.Services.Interfaces
-@using PetAdoption.Services
 @using PetAdoption.Data.TableStorage
 @using PetAdoption.Data.TableStorage.Enums
+@using PetAdoption.Services
+@using PetAdoption.Services.Interfaces
+@using PetAdoption.Services.Web
 @using PetAdoption.Web.Components.Shared
 @attribute [Authorize]
 @inject IUserService UserService

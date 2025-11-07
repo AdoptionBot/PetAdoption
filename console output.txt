@@ -1,0 +1,159 @@
+info: PetAdoption.Services.Data.KeyVaultSecretService[0]
+      Retrieving application secrets from Key Vault...
+info: PetAdoption.Services.Data.KeyVaultSecretService[0]
+      KeyVaultSecretService initialized with vault: https://petadoption-keyvault.vault.azure.net/
+info: PetAdoption.Services.Data.KeyVaultSecretService[0]
+      Retrieving application secrets from Key Vault...
+info: PetAdoption.Services.Data.KeyVaultSecretService[0]
+      Application secrets retrieved successfully
+info: PetAdoption.Services.Data.KeyVaultSecretService[0]
+      Application secrets retrieved successfully
+info: PetAdoption.Services.Data.KeyVaultSecretService[0]
+      KeyVaultSecretService initialized with vault: https://petadoption-keyvault.vault.azure.net/
+info: PetAdoption.Services.Data.AzureTableStorageService[0]
+      Creating TableServiceClient
+info: PetAdoption.Services.Data.AzureTableStorageService[0]
+      TableServiceClient created successfully
+info: PetAdoption.Web.Program[0]
+      Initializing database...
+info: PetAdoption.Services.Data.DatabaseSeeder[0]
+      Starting database seeding...
+info: PetAdoption.Services.Data.DatabaseSeeder[0]
+      Ensuring all tables exist...
+info: PetAdoption.Services.Data.AzureTableStorageService[0]
+      Ensured table exists: Users
+info: PetAdoption.Services.Data.DatabaseSeeder[0]
+      Table 'Users' is ready
+info: PetAdoption.Services.Data.AzureTableStorageService[0]
+      Ensured table exists: Shelters
+info: PetAdoption.Services.Data.DatabaseSeeder[0]
+      Table 'Shelters' is ready
+info: PetAdoption.Services.Data.AzureTableStorageService[0]
+      Ensured table exists: Pets
+info: PetAdoption.Services.Data.DatabaseSeeder[0]
+      Table 'Pets' is ready
+info: PetAdoption.Services.Data.AzureTableStorageService[0]
+      Ensured table exists: AdoptionApplications
+info: PetAdoption.Services.Data.DatabaseSeeder[0]
+      Table 'AdoptionApplications' is ready
+info: PetAdoption.Services.Data.AzureTableStorageService[0]
+      Ensured table exists: Veterinaries
+info: PetAdoption.Services.Data.DatabaseSeeder[0]
+      Table 'Veterinaries' is ready
+info: PetAdoption.Services.Data.DatabaseSeeder[0]
+      Seeding veterinary data...
+dbug: PetAdoption.Services.Data.AzureTableStorageService[0]
+      Creating TableClient for table: Veterinaries
+dbug: PetAdoption.Services.Data.AzureTableStorageService[0]
+      Queried 33 entities from Veterinaries
+info: PetAdoption.Services.Data.DatabaseSeeder[0]
+      Veterinaries table already contains 33 records. Skipping seed.
+info: PetAdoption.Services.Data.DatabaseSeeder[0]
+      Database seeding completed successfully
+info: PetAdoption.Web.Program[0]
+      Database initialization completed
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: https://localhost:7187
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: https://localhost:5286
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Development
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: C:\Users\sevaz\source\repos\PetAdoption\Web
+info: PetAdoption.Services.Web.DynamicLocalizer[0]
+      === DynamicLocalizer Constructor ===
+Type.Name: NavBar
+Type.FullName: PetAdoption.Web.Components.Layout.NavBar
+Assembly.Name: Web
+Assembly.Location: C:\Users\sevaz\source\repos\PetAdoption\Web\bin\Debug\net8.0\Web.dll
+Resource will be looked up as: PetAdoption.Web.Components.Layout.NavBar
+info: PetAdoption.Services.Web.DynamicLocalizer[0]
+      === DynamicLocalizer Constructor ===
+Type.Name: Home
+Type.FullName: PetAdoption.Web.Components.Pages.Home
+Assembly.Name: Web
+Assembly.Location: C:\Users\sevaz\source\repos\PetAdoption\Web\bin\Debug\net8.0\Web.dll
+Resource will be looked up as: PetAdoption.Web.Components.Pages.Home
+info: PetAdoption.Services.Web.DynamicLocalizer[0]
+      === DynamicLocalizer Constructor ===
+Type.Name: NavBar
+Type.FullName: PetAdoption.Web.Components.Layout.NavBar
+Assembly.Name: Web
+Assembly.Location: C:\Users\sevaz\source\repos\PetAdoption\Web\bin\Debug\net8.0\Web.dll
+Resource will be looked up as: PetAdoption.Web.Components.Layout.NavBar
+info: PetAdoption.Services.Web.DynamicLocalizer[0]
+      === DynamicLocalizer Constructor ===
+Type.Name: Home
+Type.FullName: PetAdoption.Web.Components.Pages.Home
+Assembly.Name: Web
+Assembly.Location: C:\Users\sevaz\source\repos\PetAdoption\Web\bin\Debug\net8.0\Web.dll
+Resource will be looked up as: PetAdoption.Web.Components.Pages.Home
+info: PetAdoption.Services.Web.DynamicLocalizer[0]
+      === DynamicLocalizer Constructor ===
+Type.Name: NavBar
+Type.FullName: PetAdoption.Web.Components.Layout.NavBar
+Assembly.Name: Web
+Assembly.Location: C:\Users\sevaz\source\repos\PetAdoption\Web\bin\Debug\net8.0\Web.dll
+Resource will be looked up as: PetAdoption.Web.Components.Layout.NavBar
+info: PetAdoption.Services.Web.DynamicLocalizer[0]
+      === DynamicLocalizer Constructor ===
+Type.Name: NavBar
+Type.FullName: PetAdoption.Web.Components.Layout.NavBar
+Assembly.Name: Web
+Assembly.Location: C:\Users\sevaz\source\repos\PetAdoption\Web\bin\Debug\net8.0\Web.dll
+Resource will be looked up as: PetAdoption.Web.Components.Layout.NavBar
+info: PetAdoption.Services.Web.DynamicLocalizer[0]
+      === DynamicLocalizer Constructor ===
+Type.Name: Home
+Type.FullName: PetAdoption.Web.Components.Pages.Home
+Assembly.Name: Web
+Assembly.Location: C:\Users\sevaz\source\repos\PetAdoption\Web\bin\Debug\net8.0\Web.dll
+Resource will be looked up as: PetAdoption.Web.Components.Pages.Home
+info: PetAdoption.Services.Web.DynamicLocalizer[0]
+      === DynamicLocalizer Constructor ===
+Type.Name: Home
+Type.FullName: PetAdoption.Web.Components.Pages.Home
+Assembly.Name: Web
+Assembly.Location: C:\Users\sevaz\source\repos\PetAdoption\Web\bin\Debug\net8.0\Web.dll
+Resource will be looked up as: PetAdoption.Web.Components.Pages.Home
+info: PetAdoption.Services.Web.DynamicLocalizer[0]
+      === DynamicLocalizer Constructor ===
+Type.Name: NavBar
+Type.FullName: PetAdoption.Web.Components.Layout.NavBar
+Assembly.Name: Web
+Assembly.Location: C:\Users\sevaz\source\repos\PetAdoption\Web\bin\Debug\net8.0\Web.dll
+Resource will be looked up as: PetAdoption.Web.Components.Layout.NavBar
+info: PetAdoption.Services.Web.DynamicLocalizer[0]
+      === DynamicLocalizer Constructor ===
+Type.Name: Home
+Type.FullName: PetAdoption.Web.Components.Pages.Home
+Assembly.Name: Web
+Assembly.Location: C:\Users\sevaz\source\repos\PetAdoption\Web\bin\Debug\net8.0\Web.dll
+Resource will be looked up as: PetAdoption.Web.Components.Pages.Home
+info: PetAdoption.Services.Web.DynamicLocalizer[0]
+      === DynamicLocalizer Constructor ===
+Type.Name: NavBar
+Type.FullName: PetAdoption.Web.Components.Layout.NavBar
+Assembly.Name: Web
+Assembly.Location: C:\Users\sevaz\source\repos\PetAdoption\Web\bin\Debug\net8.0\Web.dll
+Resource will be looked up as: PetAdoption.Web.Components.Layout.NavBar
+info: PetAdoption.Services.Web.DynamicLocalizer[0]
+      === DynamicLocalizer Constructor ===
+Type.Name: Home
+Type.FullName: PetAdoption.Web.Components.Pages.Home
+Assembly.Name: Web
+Assembly.Location: C:\Users\sevaz\source\repos\PetAdoption\Web\bin\Debug\net8.0\Web.dll
+Resource will be looked up as: PetAdoption.Web.Components.Pages.Home
+info: PetAdoption.Services.Web.DynamicLocalizer[0]
+      === DynamicLocalizer Constructor ===
+Type.Name: Pets
+Type.FullName: PetAdoption.Web.Components.Pages.Pets
+Assembly.Name: Web
+Assembly.Location: C:\Users\sevaz\source\repos\PetAdoption\Web\bin\Debug\net8.0\Web.dll
+Resource will be looked up as: PetAdoption.Web.Components.Pages.Pets
+dbug: PetAdoption.Services.Data.AzureTableStorageService[0]
+      Creating TableClient for table: Pets
+dbug: PetAdoption.Services.Data.AzureTableStorageService[0]
+      Queried 7 entities from Pets

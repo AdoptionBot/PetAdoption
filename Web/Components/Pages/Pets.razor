@@ -1,9 +1,11 @@
 @page "/pets"
-@using PetAdoption.Services.Interfaces
+@using Microsoft.AspNetCore.Components
 @using PetAdoption.Data.TableStorage
 @using PetAdoption.Data.TableStorage.Enums
-@using Microsoft.AspNetCore.Components
+@using PetAdoption.Services.Interfaces
+@using PetAdoption.Services.Web
 @using PetAdoption.Web.Components.Shared
+tAdoption.Web.Components.Shared
 @inject IPetService PetService
 @inject IAdoptionProcessService AdoptionProcessService
 @inject IUserService UserService
@@ -12,9 +14,12 @@
 @inject NavigationManager Navigation
 @inject IJSRuntime JSRuntime
 @inject ILogger<Pets> Logger
+@inject LocalizationService LocalizationService
+@inject DynamicLocalizer<Pets> Localizer
+@implements IDisposable
 @rendermode InteractiveServer
 
-<PageTitle>Pets - Madeira Pet Adoption</PageTitle>
+<PageTitle>@Localizer["PageTitle"]</PageTitle>
 
 <div class="pets-page-wrapper">
     <section class="hero-wrap hero-wrap-2" style="background-image: url('images/bg_2.jpg');" data-stellar-background-ratio="0.5">
@@ -23,15 +28,15 @@
             <div class="row no-gutters slider-text align-items-end">
                 <div class="col-md-9 ftco-animate pb-5">
                     <p class="breadcrumbs mb-2">
-                        <span class="mr-2"><a href="/">Home <i class="ion-ios-arrow-forward"></i></a></span>
-                        <span>Pets <i class="ion-ios-arrow-forward"></i></span>
+                        <span class="mr-2"><a href="/">@Localizer["Home"] <i class="ion-ios-arrow-forward"></i></a></span>
+                        <span>@Localizer["Pets"] <i class="ion-ios-arrow-forward"></i></span>
                     </p>
                     <h1 class="mb-0 bread">
-                        <i class="fas fa-paw paw-print me-2"></i>Available Pets
+                        <i class="fas fa-paw paw-print me-2"></i>@Localizer["AvailablePets"]
                     </h1>
                     <p class="hero-subtitle mt-3 text-white">
                         <i class="fas fa-heart heartbeat text-danger me-2"></i>
-                        Every pet deserves a loving home. Find your perfect companion today!
+                        @Localizer["HeroSubtitle"]
                     </p>
                 </div>
             </div>
@@ -45,12 +50,12 @@
                 <div class="row">
                     <div class="col-md-12 text-center py-5 fade-in">
                         <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
-                            <span class="sr-only">Loading...</span>
+                            <span class="sr-only">@Localizer["LoadingMessage"]</span>
                         </div>
-                        <h4 class="text-primary">Finding your perfect companion...</h4>
+                        <h4 class="text-primary">@Localizer["LoadingMessage"]</h4>
                         <p class="text-muted">
                             <i class="fas fa-paw me-2"></i>
-                            Please wait while we fetch our adorable friends
+                            @Localizer["PleaseWait"]
                         </p>
                     </div>
                 </div>
@@ -60,10 +65,10 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="alert alert-danger fade-in">
-                            <h4><i class="fas fa-exclamation-triangle me-2"></i>Oops! Something went wrong</h4>
+                            <h4><i class="fas fa-exclamation-triangle me-2"></i>@Localizer["ErrorTitle"]</h4>
                             <p>@errorMessage</p>
                             <button class="btn btn-primary" @onclick="RetryLoading">
-                                <i class="fas fa-refresh me-2"></i>Try Again
+                                <i class="fas fa-refresh me-2"></i>@Localizer["TryAgain"]
                             </button>
                         </div>
                     </div>
@@ -74,14 +79,14 @@
                 <div class="row">
                     <div class="col-md-12 text-center py-5 fade-in">
                         <i class="fas fa-heart-broken" style="font-size: 5rem; color: #ddd;"></i>
-                        <h3 class="mt-4 mb-3">No Pets Available Right Now</h3>
+                        <h3 class="mt-4 mb-3">@Localizer["NoPetsTitle"]</h3>
                         <p class="text-muted mb-4">
-                            All our furry friends are currently in loving homes or waiting for their perfect match!
+                            @Localizer["NoPetsMessage"]
                             <i class="fas fa-smile ms-2"></i>
                         </p>
                         <div class="alert alert-info d-inline-block">
                             <i class="fas fa-bell me-2"></i>
-                            Check back soon - new pets are added regularly, and your perfect companion might arrive any day!
+                            @Localizer["CheckBackSoon"]
                         </div>
                     </div>
                 </div>
@@ -94,11 +99,10 @@
                         <div class="col-md-12 text-center mb-3">
                             <h2>
                                 <i class="fas fa-heart heartbeat me-2"></i>
-                                Meet Your Future Best Friend
+                                @Localizer["MeetYourBestFriend"]
                             </h2>
                             <p class="lead mb-4">
-                                These beautiful souls are waiting for someone special - maybe that's you!
-                                Each one has a unique story and endless love to give.
+                                @Localizer["IntroMessage"]
                             </p>
                         </div>
                     </div>
@@ -106,17 +110,17 @@
                         <div class="col-md-4 stat-item">
                             <i class="fas fa-home fa-2x mb-2"></i>
                             <span class="stat-number">@allPets.Count</span>
-                            <span>Pets Ready for Adoption</span>
+                            <span>@Localizer["PetsReadyForAdoption"]</span>
                         </div>
                         <div class="col-md-4 stat-item">
                             <i class="fas fa-heart fa-2x mb-2"></i>
                             <span class="stat-number">100%</span>
-                            <span>Love Guaranteed</span>
+                            <span>@Localizer["LoveGuaranteed"]</span>
                         </div>
                         <div class="col-md-4 stat-item">
                             <i class="fas fa-shield-alt fa-2x mb-2"></i>
-                            <span class="stat-number">Safe</span>
-                            <span>Health Checked</span>
+                            <span class="stat-number">@Localizer["Safe"]</span>
+                            <span>@Localizer["HealthChecked"]</span>
                         </div>
                     </div>
                 </div>
@@ -125,7 +129,7 @@
                 {
                     <div class="alert alert-success alert-dismissible fade show fade-in">
                         <i class="fas fa-check-circle me-2"></i>
-                        <strong>Success!</strong> @successMessage
+                        <strong>@Localizer["SuccessPrefix"]</strong> @successMessage
                         <button type="button" class="btn-close" @onclick="() => successMessage = null" aria-label="Close"></button>
                     </div>
                 }
@@ -139,7 +143,7 @@
                                 <ul class="pagination justify-content-center">
                                     <li class="page-item @(currentPage == 1 ? "disabled" : "")">
                                         <a class="page-link" href="#" @onclick="() => GoToPage(currentPage - 1)" @onclick:preventDefault="true">
-                                            <i class="fas fa-chevron-left me-1"></i>Previous
+                                            <i class="fas fa-chevron-left me-1"></i>@Localizer["Previous"]
                                         </a>
                                     </li>
                                     @for (int i = 1; i <= totalPages; i++)
@@ -151,7 +155,7 @@
                                     }
                                     <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
                                         <a class="page-link" href="#" @onclick="() => GoToPage(currentPage + 1)" @onclick:preventDefault="true">
-                                            Next<i class="fas fa-chevron-right ms-1"></i>
+                                            @Localizer["Next"]<i class="fas fa-chevron-right ms-1"></i>
                                         </a>
                                     </li>
                                 </ul>
@@ -174,7 +178,7 @@
                                          alt="@pet.PartitionKey"
                                          onerror="this.src='/images/placeholder-pet.jpg';" />
                                     <div class="love-badge">
-                                        <i class="fas fa-heart heartbeat me-1"></i>Adopt Me
+                                        <i class="fas fa-heart heartbeat me-1"></i>@Localizer["AdoptMe"]
                                     </div>
                                 </div>
                                 <div class="card-body">
@@ -187,22 +191,22 @@
                                         </span>
                                         <br />
                                         <small class="text-muted">
-                                            <i class="fas fa-birthday-cake me-1"></i><strong>Age:</strong> @GetPetAge(pet.RowKey)
+                                            <i class="fas fa-birthday-cake me-1"></i><strong>@Localizer["Age"]:</strong> @GetPetAge(pet.RowKey)
                                         </small>
                                         <br />
                                         <small class="text-muted">
-                                            <i class="fas fa-@(pet.Gender == Gender.Male ? "mars" : "venus") me-1"></i><strong>Gender:</strong> @pet.Gender
+                                            <i class="fas fa-@(pet.Gender == Gender.Male ? "mars" : "venus") me-1"></i><strong>@Localizer["Gender"]:</strong> @pet.Gender
                                         </small>
                                         <br />
                                     <p class="mb-1">
                                         <small class="text-muted">
-                                            <i class="fas fa-home me-1"></i><strong>Shelter:</strong> @pet.ShelterName
+                                            <i class="fas fa-home me-1"></i><strong>@Localizer["Shelter"]:</strong> @pet.ShelterName
                                         </small>
                                     </p>
                                     </p>
                                     <div class="text-center mt-3">
                                         <small class="text-primary">
-                                            <i class="fas fa-hand-pointer me-2"></i>Click to learn more
+                                            <i class="fas fa-hand-pointer me-2"></i>@Localizer["ClickToLearnMore"]
                                         </small>
                                     </div>
                                 </div>
@@ -220,7 +224,7 @@
                                 <ul class="pagination justify-content-center">
                                     <li class="page-item @(currentPage == 1 ? "disabled" : "")">
                                         <a class="page-link" href="#" @onclick="() => GoToPage(currentPage - 1)" @onclick:preventDefault="true">
-                                            <i class="fas fa-chevron-left me-1"></i>Previous
+                                            <i class="fas fa-chevron-left me-1"></i>@Localizer["Previous"]
                                         </a>
                                     </li>
                                     @for (int i = 1; i <= totalPages; i++)
@@ -232,7 +236,7 @@
                                     }
                                     <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
                                         <a class="page-link" href="#" @onclick="() => GoToPage(currentPage + 1)" @onclick:preventDefault="true">
-                                            Next<i class="fas fa-chevron-right ms-1"></i>
+                                            @Localizer["Next"]<i class="fas fa-chevron-right ms-1"></i>
                                         </a>
                                     </li>
                                 </ul>
@@ -246,11 +250,11 @@
                     <div class="col-md-12 text-center">
                         <p class="text-muted">
                             <i class="fas fa-paw text-primary me-2"></i>
-                            Showing <strong>@((currentPage - 1) * pageSize + 1)</strong> to <strong>@Math.Min(currentPage * pageSize, allPets.Count)</strong> of <strong>@allPets.Count</strong> beautiful pets
+                            @Localizer["Showing"] <strong>@((currentPage - 1) * pageSize + 1)</strong> @Localizer["To"] <strong>@Math.Min(currentPage * pageSize, allPets.Count)</strong> @Localizer["Of"] <strong>@allPets.Count</strong> @Localizer["BeautifulPets"]
                         </p>
                         <div class="alert alert-light d-inline-block mt-3">
                             <i class="fas fa-lightbulb text-warning me-2"></i>
-                            <strong>Tip:</strong> Each pet has been health-checked and is ready to bring joy to your home!
+                            <strong>@Localizer["Tip"]:</strong> @Localizer["TipMessage"]
                         </div>
                     </div>
                 </div>
@@ -267,7 +271,7 @@
                 <div class="modal-content">
                     <div class="modal-header bg-primary text-white">
                         <h5 class="modal-title">
-                            <i class="fas fa-paw heartbeat me-2"></i> Meet @selectedPet.PartitionKey
+                            <i class="fas fa-paw heartbeat me-2"></i> @Localizer["Meet"] @selectedPet.PartitionKey
                             <span class="badge bg-light text-primary ms-2">@selectedPet.Species</span>
                         </h5>
                         <button type="button" class="btn-close btn-close-white" @onclick="CloseModal" aria-label="Close"></button>
@@ -275,11 +279,10 @@
                     <div class="modal-body">
                         <!-- Heartwarming Introduction -->
                         <div class="alert alert-info fade-in mb-4">
-                            <h5><i class="fas fa-heart text-danger heartbeat me-2"></i>About @selectedPet.PartitionKey</h5>
+                            <h5><i class="fas fa-heart text-danger heartbeat me-2"></i>@Localizer["About"] @selectedPet.PartitionKey</h5>
                             <p class="mb-0">
-                                <strong>@selectedPet.PartitionKey</strong> is a wonderful <strong>@GetPetAge(selectedPet.RowKey)</strong> old
-                                @selectedPet.Species.ToString().ToLower() looking for a loving forever home. This special friend is ready to bring
-                                endless joy, companionship, and unconditional love into your life!
+                                <strong>@selectedPet.PartitionKey</strong> @Localizer["AboutMessage"] <strong>@GetPetAge(selectedPet.RowKey)</strong> 
+                                @selectedPet.Species.ToString().ToLower() @Localizer["OldLookingForHome"]
                             </p>
                         </div>
 
@@ -287,8 +290,8 @@
                             <!-- Images Column -->
                             <div class="col-md-6">
                                 <h6 class="border-bottom pb-2">
-                                    <i class="fas fa-images me-2"></i>Gallery
-                                    <small class="text-muted ms-2">(Click to enlarge)</small>
+                                    <i class="fas fa-images me-2"></i>@Localizer["Gallery"]
+                                    <small class="text-muted ms-2">@Localizer["ClickToEnlarge"]</small>
                                 </h6>
                                 <div class="row g-2 mb-3">
                                     @if (!string.IsNullOrEmpty(selectedPet.Image1Url))
@@ -340,7 +343,7 @@
                                 {
                                     <div class="mb-3">
                                         <h6 class="border-bottom pb-2">
-                                            <i class="fas fa-video me-2"></i>Video
+                                            <i class="fas fa-video me-2"></i>@Localizer["Video"]
                                         </h6>
                                         <video src="@selectedPet.Video1Url" class="w-100 rounded shadow-sm" controls></video>
                                     </div>
@@ -350,43 +353,43 @@
                             <!-- Details Column -->
                             <div class="col-md-6">
                                 <h6 class="border-bottom pb-2">
-                                    <i class="fas fa-info-circle me-2"></i>Basic Information
+                                    <i class="fas fa-info-circle me-2"></i>@Localizer["BasicInformation"]
                                 </h6>
                                 <table class="table table-sm table-hover">
                                     <tr>
-                                        <th style="width: 40%;"><i class="fas fa-signature me-2 text-primary"></i>Name:</th>
+                                        <th style="width: 40%;"><i class="fas fa-signature me-2 text-primary"></i>@Localizer["Name"]:</th>
                                         <td><strong>@selectedPet.PartitionKey</strong></td>
                                     </tr>
                                     <tr>
-                                        <th><i class="fas fa-calendar me-2 text-info"></i>Birth Date:</th>
+                                        <th><i class="fas fa-calendar me-2 text-info"></i>@Localizer["BirthDate"]:</th>
                                         <td>@DateTime.Parse(selectedPet.RowKey).ToLongDateString()</td>
                                     </tr>
                                     <tr>
-                                        <th><i class="fas fa-birthday-cake me-2 text-warning"></i>Age:</th>
+                                        <th><i class="fas fa-birthday-cake me-2 text-warning"></i>@Localizer["Age"]:</th>
                                         <td><span class="badge bg-warning">@GetPetAge(selectedPet.RowKey)</span></td>
                                     </tr>
                                     <tr>
-                                        <th><i class="fas fa-paw me-2 text-success"></i>Species:</th>
+                                        <th><i class="fas fa-paw me-2 text-success"></i>@Localizer["Species"]:</th>
                                         <td>@selectedPet.Species</td>
                                     </tr>
                                     <tr>
-                                        <th><i class="fas fa-dog me-2 text-primary"></i>Breed:</th>
-                                        <td>@(selectedPet.Breed ?? "Mixed / Not specified")</td>
+                                        <th><i class="fas fa-dog me-2 text-primary"></i>@Localizer["Breed"]:</th>
+                                        <td>@(selectedPet.Breed ?? Localizer["MixedNotSpecified"])</td>
                                     </tr>
                                     <tr>
-                                        <th><i class="fas fa-palette me-2 text-info"></i>Colour:</th>
-                                        <td>@(selectedPet.Colour ?? "Not specified")</td>
+                                        <th><i class="fas fa-palette me-2 text-info"></i>@Localizer["Colour"]:</th>
+                                        <td>@(selectedPet.Colour ?? Localizer["NotSpecified"])</td>
                                     </tr>
                                     <tr>
-                                        <th><i class="fas fa-@(selectedPet.Gender == Gender.Male ? "mars" : "venus") me-2 @(selectedPet.Gender == Gender.Male ? "text-primary" : "text-danger")"></i>Gender:</th>
+                                        <th><i class="fas fa-@(selectedPet.Gender == Gender.Male ? "mars" : "venus") me-2 @(selectedPet.Gender == Gender.Male ? "text-primary" : "text-danger")"></i>@Localizer["Gender"]:</th>
                                         <td>@selectedPet.Gender</td>
                                     </tr>
                                     <tr>
-                                        <th><i class="fas fa-ruler-vertical me-2 text-secondary"></i>Size:</th>
+                                        <th><i class="fas fa-ruler-vertical me-2 text-secondary"></i>@Localizer["Size"]:</th>
                                         <td><span class="badge bg-@GetSizeBadgeColor(selectedPet.Size)">@selectedPet.Size</span></td>
                                     </tr>
                                     <tr>
-                                        <th><i class="fas fa-home me-2 text-success"></i>Shelter:</th>
+                                        <th><i class="fas fa-home me-2 text-success"></i>@Localizer["Shelter"]:</th>
                                         <td>
                                             <a class="shelter-link" @onclick="() => NavigateToShelter(selectedPet.ShelterName, selectedPet.ShelterLocation)" @onclick:preventDefault="true">
                                                 @selectedPet.ShelterName, @selectedPet.ShelterLocation <i class="fas fa-external-link-alt ms-1"></i>
@@ -396,72 +399,72 @@
                                 </table>
 
                                 <h6 class="border-bottom pb-2 mt-4">
-                                    <i class="fas fa-book-open me-2"></i>@selectedPet.PartitionKey's Story
+                                    <i class="fas fa-book-open me-2"></i>@selectedPet.PartitionKey @Localizer["Story"]
                                 </h6>
                                 <div class="alert alert-light">
                                     <p class="mb-0">@selectedPet.About</p>
                                 </div>
 
                                 <h6 class="border-bottom pb-2 mt-4">
-                                    <i class="fas fa-heartbeat me-2"></i>Medical Information
+                                    <i class="fas fa-heartbeat me-2"></i>@Localizer["MedicalInformation"]
                                 </h6>
                                 <table class="table table-sm">
                                     <tr>
-                                        <th style="width: 40%;"><i class="fas fa-syringe me-2 text-info"></i>Vaccinations:</th>
+                                        <th style="width: 40%;"><i class="fas fa-syringe me-2 text-info"></i>@Localizer["Vaccinations"]:</th>
                                         <td>
                                             <span class="badge bg-success">@GetVaccinationsDisplay(selectedPet.Vaccinations)</span>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <th><i class="fas fa-check-circle me-2 text-success"></i>Neutered/Spayed:</th>
+                                        <th><i class="fas fa-check-circle me-2 text-success"></i>@Localizer["NeuteredSpayed"]:</th>
                                         <td>
                                             @if (selectedPet.Neutered)
                                             {
-                                                <span class="badge bg-success"><i class="fas fa-check me-1"></i>Yes</span>
+                                                <span class="badge bg-success"><i class="fas fa-check me-1"></i>@Localizer["Yes"]</span>
                                             }
                                             else
                                             {
-                                                <span class="badge bg-secondary"><i class="fas fa-times me-1"></i>No</span>
+                                                <span class="badge bg-secondary"><i class="fas fa-times me-1"></i>@Localizer["No"]</span>
                                             }
                                         </td>
                                     </tr>
                                     <tr>
-                                        <th><i class="fas fa-pills me-2 text-warning"></i>Dewormed:</th>
+                                        <th><i class="fas fa-pills me-2 text-warning"></i>@Localizer["Dewormed"]:</th>
                                         <td>
                                             @if (selectedPet.Dewormed)
                                             {
-                                                <span class="badge bg-success"><i class="fas fa-check me-1"></i>Yes</span>
+                                                <span class="badge bg-success"><i class="fas fa-check me-1"></i>@Localizer["Yes"]</span>
                                             }
                                             else
                                             {
-                                                <span class="badge bg-secondary"><i class="fas fa-times me-1"></i>No</span>
+                                                <span class="badge bg-secondary"><i class="fas fa-times me-1"></i>@Localizer["No"]</span>
                                             }
                                         </td>
                                     </tr>
                                     <tr>
-                                        <th><i class="fas fa-microchip me-2 text-primary"></i>Microchipped:</th>
+                                        <th><i class="fas fa-microchip me-2 text-primary"></i>@Localizer["Microchipped"]:</th>
                                         <td>
                                             @if (selectedPet.Chipped)
                                             {
-                                                <span class="badge bg-success"><i class="fas fa-check me-1"></i>Yes</span>
+                                                <span class="badge bg-success"><i class="fas fa-check me-1"></i>@Localizer["Yes"]</span>
                                             }
                                             else
                                             {
-                                                <span class="badge bg-secondary"><i class="fas fa-times me-1"></i>No</span>
+                                                <span class="badge bg-secondary"><i class="fas fa-times me-1"></i>@Localizer["No"]</span>
                                             }
                                         </td>
                                     </tr>
                                     @if (!string.IsNullOrEmpty(selectedPet.MedicalTreatments))
                                     {
                                         <tr>
-                                            <th><i class="fas fa-notes-medical me-2 text-info"></i>Medical Treatments:</th>
+                                            <th><i class="fas fa-notes-medical me-2 text-info"></i>@Localizer["MedicalTreatments"]:</th>
                                             <td>@selectedPet.MedicalTreatments</td>
                                         </tr>
                                     }
                                     @if (!string.IsNullOrEmpty(selectedPet.KnownMedicalIssues))
                                     {
                                         <tr>
-                                            <th><i class="fas fa-exclamation-triangle me-2 text-warning"></i>Known Medical Issues:</th>
+                                            <th><i class="fas fa-exclamation-triangle me-2 text-warning"></i>@Localizer["KnownMedicalIssues"]:</th>
                                             <td class="text-danger">@selectedPet.KnownMedicalIssues</td>
                                         </tr>
                                     }
@@ -471,27 +474,26 @@
 
                         <!-- Call to Action -->
                         <div class="alert alert-success mt-4 fade-in">
-                            <h5><i class="fas fa-heart heartbeat text-danger me-2"></i>Ready to Change a Life?</h5>
+                            <h5><i class="fas fa-heart heartbeat text-danger me-2"></i>@Localizer["ReadyToChangeLife"]</h5>
                             <p class="mb-0">
-                                <strong>@selectedPet.PartitionKey</strong> is waiting for someone special. By adopting, you're not just giving
-                                a pet a home - you're gaining a loyal friend who will love you unconditionally. Take the first step today!
+                                <strong>@selectedPet.PartitionKey</strong> @Localizer["AdoptionCTA"]
                             </p>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" @onclick="CloseModal">
-                            <i class="fas fa-times me-2"></i>Close
+                            <i class="fas fa-times me-2"></i>@Localizer["Close"]
                         </button>
                         @if (isUserAuthenticated && (currentUserRole == UserRole.User || currentUserRole == UserRole.Foster))
                         {
                             <button type="button" class="btn btn-success btn-lg" @onclick="() => ShowAdoptionRequestModal(selectedPet)">
-                                <i class="fas fa-heart me-2 heartbeat"></i>Adopt @selectedPet.PartitionKey
+                                <i class="fas fa-heart me-2 heartbeat"></i>@Localizer["Adopt"] @selectedPet.PartitionKey
                             </button>
                         }
                         else if (!isUserAuthenticated)
                         {
                             <button type="button" class="btn btn-info" @onclick='() => Navigation.NavigateTo("/Account/Login")'>
-                                <i class="fas fa-sign-in-alt me-2"></i>Login to Adopt
+                                <i class="fas fa-sign-in-alt me-2"></i>@Localizer["LoginToAdopt"]
                             </button>
                         }
                     </div>
@@ -509,7 +511,7 @@
                 <div class="modal-content">
                     <div class="modal-header bg-success text-white">
                         <h5 class="modal-title">
-                            <i class="fas fa-heart heartbeat me-2"></i> Start Your Adoption Journey
+                            <i class="fas fa-heart heartbeat me-2"></i> @Localizer["StartAdoptionJourney"]
                         </h5>
                         <button type="button" class="btn-close btn-close-white" @onclick="CloseAdoptionModal" aria-label="Close"></button>
                     </div>
@@ -518,9 +520,9 @@
                         {
                             <div class="text-center py-4">
                                 <div class="spinner-border text-success" role="status">
-                                    <span class="sr-only">Checking...</span>
+                                    <span class="sr-only">@Localizer["VerifyingRequirements"]</span>
                                 </div>
-                                <p class="mt-3">Verifying adoption requirements...</p>
+                                <p class="mt-3">@Localizer["VerifyingRequirements"]</p>
                             </div>
                         }
                         else if (!string.IsNullOrEmpty(adoptionCheckMessage))
@@ -536,59 +538,59 @@
                                 <div class="mb-3">
                                     <i class="fas fa-heart fa-4x text-danger heartbeat"></i>
                                 </div>
-                                <h4>Ready to Give @petForAdoption.PartitionKey a Forever Home?</h4>
-                                <p class="text-muted">You're about to make a life-changing decision - for both of you!</p>
+                                <h4>@Localizer["ReadyToGiveForeverHome"] @petForAdoption.PartitionKey?</h4>
+                                <p class="text-muted">@Localizer["LifeChangingDecision"]</p>
                             </div>
 
                             <div class="alert alert-info">
-                                <h6><i class="fas fa-paw me-2"></i>Pet Information</h6>
+                                <h6><i class="fas fa-paw me-2"></i>@Localizer["PetInformation"]</h6>
                                 <hr />
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <p class="mb-1"><i class="fas fa-signature me-2 text-primary"></i><strong>Pet:</strong> @petForAdoption.PartitionKey</p>
-                                        <p class="mb-1"><i class="fas fa-dog me-2 text-success"></i><strong>Species:</strong> @petForAdoption.Species</p>
-                                        <p class="mb-0"><i class="fas fa-birthday-cake me-2 text-warning"></i><strong>Age:</strong> @GetPetAge(petForAdoption.RowKey)</p>
+                                        <p class="mb-1"><i class="fas fa-signature me-2 text-primary"></i><strong>@Localizer["Pet"]:</strong> @petForAdoption.PartitionKey</p>
+                                        <p class="mb-1"><i class="fas fa-dog me-2 text-success"></i><strong>@Localizer["Species"]:</strong> @petForAdoption.Species</p>
+                                        <p class="mb-0"><i class="fas fa-birthday-cake me-2 text-warning"></i><strong>@Localizer["Age"]:</strong> @GetPetAge(petForAdoption.RowKey)</p>
                                     </div>
                                     <div class="col-md-6">
                                         <p class="mb-1">
-                                            <i class="fas fa-home me-2 text-info"></i><strong>Shelter:</strong>
+                                            <i class="fas fa-home me-2 text-info"></i><strong>@Localizer["Shelter"]:</strong>
                                             <a class="shelter-link" @onclick="() => NavigateToShelter(petForAdoption.ShelterName, petForAdoption.ShelterLocation)" @onclick:preventDefault="true">
                                                 @petForAdoption.ShelterName <i class="fas fa-external-link-alt ms-1"></i>
                                             </a>
                                         </p>
-                                        <p class="mb-0"><i class="fas fa-map-marker-alt me-2 text-danger"></i><strong>Location:</strong> @petForAdoption.ShelterLocation</p>
+                                        <p class="mb-0"><i class="fas fa-map-marker-alt me-2 text-danger"></i><strong>@Localizer["Location"]:</strong> @petForAdoption.ShelterLocation</p>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="alert alert-warning">
-                                <h6><i class="fas fa-file-contract me-2"></i>Next Steps</h6>
+                                <h6><i class="fas fa-file-contract me-2"></i>@Localizer["NextSteps"]</h6>
                                 <p class="mb-0">
-                                    You'll be taken to review the <strong>Adoption Agreement</strong> from
-                                    <strong>@petForAdoption.ShelterName</strong>. Please read it carefully - it ensures the best care for your new friend!
+                                    @Localizer["NextStepsMessage"]
+                                    <strong>@petForAdoption.ShelterName</strong>. @Localizer["PleaseReadCarefully"]
                                 </p>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">
-                                    <i class="fas fa-comment-dots me-2"></i>Tell us about yourself (Optional)
+                                    <i class="fas fa-comment-dots me-2"></i>@Localizer["TellUsAboutYourself"]
                                 </label>
                                 <textarea class="form-control" rows="4" @bind="adoptionNotes"
-                                          placeholder="Why would you be a great parent for @petForAdoption.PartitionKey? Share your experience with pets, your living situation, or what made you fall in love with this special friend..."></textarea>
+                                          placeholder="@Localizer["AdoptionNotesPlaceholder", petForAdoption.PartitionKey]"></textarea>
                                 <small class="text-muted">
                                     <i class="fas fa-lightbulb text-warning me-1"></i>
-                                    This helps the shelter understand why you're the perfect match!
+                                    @Localizer["HelpsUnderstand"]
                                 </small>
                             </div>
 
                             <div class="bg-light p-3 rounded">
                                 <p class="small mb-2">
                                     <i class="fas fa-heart text-danger me-2"></i>
-                                    <strong>Remember:</strong> Adopting a pet is a lifelong commitment filled with joy, companionship, and unconditional love.
+                                    <strong>@Localizer["RememberCommitment"]</strong> @Localizer["CommitmentMessage"]
                                 </p>
                                 <p class="small mb-0">
                                     <i class="fas fa-shield-alt text-success me-2"></i>
-                                    By continuing, you'll review the adoption agreement to ensure @petForAdoption.PartitionKey gets the best care possible.
+                                    @Localizer["ByContinuing", petForAdoption.PartitionKey]
                                 </p>
                             </div>
                         }
@@ -597,16 +599,16 @@
                         @if (string.IsNullOrEmpty(adoptionCheckMessage) && !isCheckingApplication)
                         {
                             <button type="button" class="btn btn-secondary" @onclick="CloseAdoptionModal">
-                                <i class="fas fa-times me-2"></i>Cancel
+                                <i class="fas fa-times me-2"></i>@Localizer["Cancel"]
                             </button>
                             <button type="button" class="btn btn-success btn-lg" @onclick="ContinueToAdoptionRequest">
-                                <i class="fas fa-heart me-2 heartbeat"></i>Continue to Adoption
+                                <i class="fas fa-heart me-2 heartbeat"></i>@Localizer["ContinueToAdoption"]
                             </button>
                         }
                         else
                         {
                             <button type="button" class="btn btn-secondary" @onclick="CloseAdoptionModal">
-                                Close
+                                @Localizer["Close"]
                             </button>
                         }
                     </div>
@@ -625,7 +627,7 @@
                 </button>
                 <img src="@viewerImageUrl" alt="Pet Image" class="image-viewer-image" @onclick:stopPropagation="true" />
                 <div class="image-viewer-hint">
-                    <i class="fas fa-info-circle me-2"></i>Click anywhere outside the image to close
+                    <i class="fas fa-info-circle me-2"></i>@Localizer["ClickOutsideToClose"]
                 </div>
             </div>
         </div>
@@ -772,6 +774,19 @@
         {
             successMessage = "?? Your adoption request has been submitted successfully! The shelter will contact you soon.";
         }
+
+        // Subscribe to culture change
+        LocalizationService.OnCultureChanged += OnCultureChanged;
+    }
+
+    private void OnCultureChanged()
+    {
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        LocalizationService.OnCultureChanged -= OnCultureChanged;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

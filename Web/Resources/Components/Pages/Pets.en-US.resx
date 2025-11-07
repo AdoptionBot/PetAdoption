@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="PageTitle" xml:space="preserve">
+    <value>Pets - Madeira Pet Adoption</value>
+  </data>
+  <data name="Home" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="Pets" xml:space="preserve">
+    <value>Pets</value>
+  </data>
+  <data name="AvailablePets" xml:space="preserve">
+    <value>Available Pets</value>
+  </data>
+  <data name="HeroSubtitle" xml:space="preserve">
+    <value>Every pet deserves a loving home. Find your perfect companion today!</value>
+  </data>
+  <data name="LoadingMessage" xml:space="preserve">
+    <value>Finding your perfect companion...</value>
+  </data>
+  <data name="PleaseWait" xml:space="preserve">
+    <value>Please wait while we fetch our adorable friends</value>
+  </data>
+  <data name="ErrorTitle" xml:space="preserve">
+    <value>Oops! Something went wrong</value>
+  </data>
+  <data name="TryAgain" xml:space="preserve">
+    <value>Try Again</value>
+  </data>
+  <data name="NoPetsTitle" xml:space="preserve">
+    <value>No Pets Available Right Now</value>
+  </data>
+  <data name="NoPetsMessage" xml:space="preserve">
+    <value>All our furry friends are currently in loving homes or waiting for their perfect match!</value>
+  </data>
+  <data name="CheckBackSoon" xml:space="preserve">
+    <value>Check back soon - new pets are added regularly, and your perfect companion might arrive any day!</value>
+  </data>
+  <data name="MeetYourBestFriend" xml:space="preserve">
+    <value>Meet Your Future Best Friend</value>
+  </data>
+  <data name="IntroMessage" xml:space="preserve">
+    <value>These beautiful souls are waiting for someone special - maybe that's you! Each one has a unique story and endless love to give.</value>
+  </data>
+  <data name="PetsReadyForAdoption" xml:space="preserve">
+    <value>Pets Ready for Adoption</value>
+  </data>
+  <data name="LoveGuaranteed" xml:space="preserve">
+    <value>Love Guaranteed</value>
+  </data>
+  <data name="HealthChecked" xml:space="preserve">
+    <value>Health Checked</value>
+  </data>
+  <data name="Safe" xml:space="preserve">
+    <value>Safe</value>
+  </data>
+  <data name="SuccessPrefix" xml:space="preserve">
+    <value>Success!</value>
+  </data>
+  <data name="Previous" xml:space="preserve">
+    <value>Previous</value>
+  </data>
+  <data name="Next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="AdoptMe" xml:space="preserve">
+    <value>Adopt Me</value>
+  </data>
+  <data name="Age" xml:space="preserve">
+    <value>Age</value>
+  </data>
+  <data name="Gender" xml:space="preserve">
+    <value>Gender</value>
+  </data>
+  <data name="Shelter" xml:space="preserve">
+    <value>Shelter</value>
+  </data>
+  <data name="ClickToLearnMore" xml:space="preserve">
+    <value>Click to learn more</value>
+  </data>
+  <data name="Showing" xml:space="preserve">
+    <value>Showing</value>
+  </data>
+  <data name="To" xml:space="preserve">
+    <value>to</value>
+  </data>
+  <data name="Of" xml:space="preserve">
+    <value>of</value>
+  </data>
+  <data name="BeautifulPets" xml:space="preserve">
+    <value>beautiful pets</value>
+  </data>
+  <data name="Tip" xml:space="preserve">
+    <value>Tip</value>
+  </data>
+  <data name="TipMessage" xml:space="preserve">
+    <value>Each pet has been health-checked and is ready to bring joy to your home!</value>
+  </data>
+  <data name="Meet" xml:space="preserve">
+    <value>Meet</value>
+  </data>
+  <data name="About" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="AboutMessage" xml:space="preserve">
+    <value>is a wonderful</value>
+  </data>
+  <data name="OldLookingForHome" xml:space="preserve">
+    <value>old looking for a loving forever home. This special friend is ready to bring endless joy, companionship, and unconditional love into your life!</value>
+  </data>
+  <data name="Gallery" xml:space="preserve">
+    <value>Gallery</value>
+  </data>
+  <data name="ClickToEnlarge" xml:space="preserve">
+    <value>(Click to enlarge)</value>
+  </data>
+  <data name="Video" xml:space="preserve">
+    <value>Video</value>
+  </data>
+  <data name="BasicInformation" xml:space="preserve">
+    <value>Basic Information</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="BirthDate" xml:space="preserve">
+    <value>Birth Date</value>
+  </data>
+  <data name="Species" xml:space="preserve">
+    <value>Species</value>
+  </data>
+  <data name="Breed" xml:space="preserve">
+    <value>Breed</value>
+  </data>
+  <data name="MixedNotSpecified" xml:space="preserve">
+    <value>Mixed / Not specified</value>
+  </data>
+  <data name="Colour" xml:space="preserve">
+    <value>Colour</value>
+  </data>
+  <data name="NotSpecified" xml:space="preserve">
+    <value>Not specified</value>
+  </data>
+  <data name="Size" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="Story" xml:space="preserve">
+    <value>Story</value>
+  </data>
+  <data name="MedicalInformation" xml:space="preserve">
+    <value>Medical Information</value>
+  </data>
+  <data name="Vaccinations" xml:space="preserve">
+    <value>Vaccinations</value>
+  </data>
+  <data name="NeuteredSpayed" xml:space="preserve">
+    <value>Neutered/Spayed</value>
+  </data>
+  <data name="Dewormed" xml:space="preserve">
+    <value>Dewormed</value>
+  </data>
+  <data name="Microchipped" xml:space="preserve">
+    <value>Microchipped</value>
+  </data>
+  <data name="MedicalTreatments" xml:space="preserve">
+    <value>Medical Treatments</value>
+  </data>
+  <data name="KnownMedicalIssues" xml:space="preserve">
+    <value>Known Medical Issues</value>
+  </data>
+  <data name="ReadyToChangeLife" xml:space="preserve">
+    <value>Ready to Change a Life?</value>
+  </data>
+  <data name="AdoptionCTA" xml:space="preserve">
+    <value>is waiting for someone special. By adopting, you're not just giving a pet a home - you're gaining a loyal friend who will love you unconditionally. Take the first step today!</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="Adopt" xml:space="preserve">
+    <value>Adopt</value>
+  </data>
+  <data name="LoginToAdopt" xml:space="preserve">
+    <value>Login to Adopt</value>
+  </data>
+  <data name="StartAdoptionJourney" xml:space="preserve">
+    <value>Start Your Adoption Journey</value>
+  </data>
+  <data name="VerifyingRequirements" xml:space="preserve">
+    <value>Verifying adoption requirements...</value>
+  </data>
+  <data name="ReadyToGiveForeverHome" xml:space="preserve">
+    <value>Ready to Give a Forever Home to</value>
+  </data>
+  <data name="LifeChangingDecision" xml:space="preserve">
+    <value>You're about to make a life-changing decision - for both of you!</value>
+  </data>
+  <data name="PetInformation" xml:space="preserve">
+    <value>Pet Information</value>
+  </data>
+  <data name="Pet" xml:space="preserve">
+    <value>Pet</value>
+  </data>
+  <data name="Location" xml:space="preserve">
+    <value>Location</value>
+  </data>
+  <data name="NextSteps" xml:space="preserve">
+    <value>Next Steps</value>
+  </data>
+  <data name="NextStepsMessage" xml:space="preserve">
+    <value>You'll be taken to review the Adoption Agreement from</value>
+  </data>
+  <data name="PleaseReadCarefully" xml:space="preserve">
+    <value>Please read it carefully - it ensures the best care for your new friend!</value>
+  </data>
+  <data name="TellUsAboutYourself" xml:space="preserve">
+    <value>Tell us about yourself (Optional)</value>
+  </data>
+  <data name="AdoptionNotesPlaceholder" xml:space="preserve">
+    <value>Why would you be a great parent for {0}? Share your experience with pets, your living situation, or what made you fall in love with this special friend...</value>
+  </data>
+  <data name="HelpsUnderstand" xml:space="preserve">
+    <value>This helps the shelter understand why you're the perfect match!</value>
+  </data>
+  <data name="RememberCommitment" xml:space="preserve">
+    <value>Remember:</value>
+  </data>
+  <data name="CommitmentMessage" xml:space="preserve">
+    <value>Adopting a pet is a lifelong commitment filled with joy, companionship, and unconditional love.</value>
+  </data>
+  <data name="ByContinuing" xml:space="preserve">
+    <value>By continuing, you'll review the adoption agreement to ensure {0} gets the best care possible.</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="ContinueToAdoption" xml:space="preserve">
+    <value>Continue to Adoption</value>
+  </data>
+    <data name="Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+    <data name="No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="ClickOutsideToClose" xml:space="preserve">
+    <value>Click anywhere outside the image to close</value>
+  </data>
+</root>

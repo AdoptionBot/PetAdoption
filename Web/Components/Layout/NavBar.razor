@@ -1,11 +1,16 @@
+@rendermode InteractiveServer
 @using Microsoft.AspNetCore.Components.Authorization
-@using PetAdoption.Services.Interfaces
 @using PetAdoption.Services
+@using PetAdoption.Services.Interfaces
+@using PetAdoption.Services.Web
+@using PetAdoption.Web.Components.Shared
 @implements IDisposable
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IUserService UserService
 @inject NavigationManager Navigation
 @inject ProfileStateService ProfileState
+@inject LocalizationService LocalizationService
+@inject DynamicLocalizer<NavBar> Localizer
 
 <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
     <div class="container">
@@ -18,33 +23,33 @@
         <div class="collapse navbar-collapse" id="ftco-nav">
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link @GetDisabledClass()" href="/" @onclick='() => HandleNavigationClick("/")' @onclick:preventDefault="true">Home</a>
+                    <a class="nav-link @GetDisabledClass()" href="/" @onclick='() => HandleNavigationClick("/")' @onclick:preventDefault="true">@Localizer["Home"]</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link @GetDisabledClass()" href="/pets" @onclick='() => HandleNavigationClick("/pets")' @onclick:preventDefault="true">Pets</a>
+                    <a class="nav-link @GetDisabledClass()" href="/pets" @onclick='() => HandleNavigationClick("/pets")' @onclick:preventDefault="true">@Localizer["Pets"]</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link @GetDisabledClass()" href="/shelters" @onclick='() => HandleNavigationClick("/shelters")' @onclick:preventDefault="true">Shelters</a>
+                    <a class="nav-link @GetDisabledClass()" href="/shelters" @onclick='() => HandleNavigationClick("/shelters")' @onclick:preventDefault="true">@Localizer["Shelters"]</a>
                 </li>
                 <AuthorizeView Roles="User,Foster,Shelter,Admin">
                     <Authorized>
                         <li class="nav-item">
-                            <a class="nav-link @GetDisabledClass()" href="/adoptions" @onclick='() => HandleNavigationClick("/adoptions")' @onclick:preventDefault="true">Adoptions</a>
+                            <a class="nav-link @GetDisabledClass()" href="/adoptions" @onclick='() => HandleNavigationClick("/adoptions")' @onclick:preventDefault="true">@Localizer["Adoptions"]</a>
                         </li>
                     </Authorized>
                 </AuthorizeView>
                 <li class="nav-item">
-                    <a class="nav-link @GetDisabledClass()" href="/vet" @onclick='() => HandleNavigationClick("/vet")' @onclick:preventDefault="true">Vets</a>
+                    <a class="nav-link @GetDisabledClass()" href="/vet" @onclick='() => HandleNavigationClick("/vet")' @onclick:preventDefault="true">@Localizer["Vets"]</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link @GetDisabledClass()" href="/Testimonials" @onclick='() => HandleNavigationClick("/Testimonials")' @onclick:preventDefault="true">Testimonials</a>
+                    <a class="nav-link @GetDisabledClass()" href="/Testimonials" @onclick='() => HandleNavigationClick("/Testimonials")' @onclick:preventDefault="true">@Localizer["Testimonials"]</a>
                 </li>
 
                 <AuthorizeView>
                     <Authorized>
                         <li class="nav-item">
                             <NavLink class="nav-link" href="/profile">
-                                <span class="fas fa-user me-1"></span><span class="nav-text">Profile</span>
+                                <span class="fas fa-user me-1"></span><span class="nav-text">@Localizer["Profile"]</span>
                             </NavLink>
                         </li>
                         <AuthorizeView Roles="Shelter,Admin" Context="shelterContext">
@@ -53,20 +58,20 @@
                                     <a class="nav-link dropdown-toggle @GetDisabledClass()" href="#" id="shelterDropdown" role="button" 
                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" 
                                        @onclick:preventDefault="@(!isProfileComplete)">
-                                        <span class="fas fa-home me-1"></span><span class="nav-text">Shelter</span>
+                                        <span class="fas fa-home me-1"></span><span class="nav-text">@Localizer["Shelter"]</span>
                                     </a>
                                     <div class="dropdown-menu" aria-labelledby="shelterDropdown">
                                         <a class="dropdown-item @GetDisabledClass()" href="/shelter" 
                                            @onclick='() => HandleNavigationClick("/shelter")' @onclick:preventDefault="true">
-                                            <span class="fas fa-building me-1"></span> My Shelter
+                                            <span class="fas fa-building me-1"></span> @Localizer["MyShelter"]
                                         </a>
                                         <a class="dropdown-item @GetDisabledClass()" href="/mypets" 
                                            @onclick='() => HandleNavigationClick("/mypets")' @onclick:preventDefault="true">
-                                            <span class="fas fa-paw me-1"></span> Manage Pets
+                                            <span class="fas fa-paw me-1"></span> @Localizer["ManagePets"]
                                         </a>
                                         <a class="dropdown-item @GetDisabledClass()" href="/adoptionagreement" 
                                            @onclick='() => HandleNavigationClick("/adoptionagreement")' @onclick:preventDefault="true">
-                                            <span class="fas fa-file-contract me-1"></span> Adoption Agreement
+                                            <span class="fas fa-file-contract me-1"></span> @Localizer["AdoptionAgreement"]
                                         </a>
                                     </div>
                                 </li>
@@ -78,20 +83,20 @@
                                     <a class="nav-link dropdown-toggle @GetDisabledClass()" href="#" id="adminDropdown" role="button" 
                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" 
                                        @onclick:preventDefault="@(!isProfileComplete)">
-                                        <span class="fas fa-cog me-1"></span><span class="nav-text">Admin</span>
+                                        <span class="fas fa-cog me-1"></span><span class="nav-text">@Localizer["Admin"]</span>
                                     </a>
                                     <div class="dropdown-menu" aria-labelledby="adminDropdown">
                                         <a class="dropdown-item @GetDisabledClass()" href="/admin/users" 
                                            @onclick='() => HandleNavigationClick("/admin/users")' @onclick:preventDefault="true">
-                                            <span class="fas fa-users me-1"></span> Manage Users
+                                            <span class="fas fa-users me-1"></span> @Localizer["ManageUsers"]
                                         </a>
                                         <a class="dropdown-item @GetDisabledClass()" href="/admin/shelters" 
                                            @onclick='() => HandleNavigationClick("/admin/shelters")' @onclick:preventDefault="true">
-                                            <span class="fas fa-home me-1"></span> Manage Shelters
+                                            <span class="fas fa-home me-1"></span> @Localizer["ManageShelters"]
                                         </a>
                                         <a class="dropdown-item @GetDisabledClass()" href="/admin/veterinarians" 
                                            @onclick='() => HandleNavigationClick("/admin/veterinarians")' @onclick:preventDefault="true">
-                                            <span class="fas fa-hospital me-1"></span> Manage Veterinarians
+                                            <span class="fas fa-hospital me-1"></span> @Localizer["ManageVeterinarians"]
                                         </a>
                                     </div>
                                 </li>
@@ -99,18 +104,23 @@
                         </AuthorizeView>
                         <li class="nav-item">
                             <a class="nav-link" href="/api/auth/logout">
-                                <span class="fas fa-sign-out-alt me-1"></span><span class="nav-text">Logout</span>
+                                <span class="fas fa-sign-out-alt me-1"></span><span class="nav-text">@Localizer["Logout"]</span>
                             </a>
                         </li>
                     </Authorized>
                     <NotAuthorized>
                         <li class="nav-item ml-auto">
                             <NavLink class="nav-link btn btn-primary text-white px-3 py-2 ml-2" href="/login">
-                                <span class="fas fa-sign-in-alt me-1"></span><span class="nav-text">Login</span>
+                                <span class="fas fa-sign-in-alt me-1"></span><span class="nav-text">@Localizer["Login"]</span>
                             </NavLink>
                         </li>
                     </NotAuthorized>
                 </AuthorizeView>
+                
+                <!-- Language Switcher -->
+                <li class="nav-item">
+                    <LanguageSwitcher />
+                </li>
             </ul>
         </div>
     </div>
@@ -140,12 +150,20 @@
 
         // Subscribe to profile completion event
         ProfileState.OnProfileCompleted += HandleProfileCompleted;
+        
+        // Subscribe to culture change
+        LocalizationService.OnCultureChanged += OnCultureChanged;
+    }
+
+    private void OnCultureChanged()
+    {
+        InvokeAsync(StateHasChanged);
     }
 
     private void HandleProfileCompleted()
     {
         isProfileComplete = true;
-        StateHasChanged(); // Force re-render
+        InvokeAsync(StateHasChanged);
     }
 
     private void HandleNavigationClick(string path)
@@ -156,7 +174,6 @@
         }
         else
         {
-            // User must complete profile first - stay on current page or redirect to profile
             var currentPath = new Uri(Navigation.Uri).AbsolutePath;
             if (!currentPath.Contains("/profile"))
             {
@@ -177,7 +194,7 @@
 
     public void Dispose()
     {
-        // Unsubscribe from event to prevent memory leaks
         ProfileState.OnProfileCompleted -= HandleProfileCompleted;
+        LocalizationService.OnCultureChanged -= OnCultureChanged;
     }
 }

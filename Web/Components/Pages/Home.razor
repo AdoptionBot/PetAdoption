@@ -1,12 +1,17 @@
 ﻿@page "/"
+@rendermode InteractiveServer
 @using Microsoft.AspNetCore.Components.Authorization
 @using PetAdoption.Data.TableStorage.Enums
+@using PetAdoption.Services.Web
 @inject IJSRuntime JS
 @inject IConfiguration Configuration
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject PetAdoption.Services.Interfaces.IUserService UserService
+@inject LocalizationService LocalizationService
+@inject DynamicLocalizer<Home> Localizer
+@implements IDisposable
 
-<PageTitle>Home - Madeira Pet Adoption</PageTitle>
+<PageTitle>@Localizer["PageTitle"]</PageTitle>
 
 <!-- Top Contact Bar -->
 <div class="wrap">
@@ -36,8 +41,8 @@
     <div class="container">
         <div class="row no-gutters slider-text js-fullheight align-items-center justify-content-center" data-scrollax-parent="true">
             <div class="col-md-11 ftco-animate text-center">
-                <h1 class="mb-4">Find Your Perfect Companion</h1>
-                <p class="mb-5">Join our community to adopt, foster, or support pets in need</p>
+                <h1 class="mb-4">@Localizer["HeroTitle"]</h1>
+                <p class="mb-5">@Localizer["HeroSubtitle"]</p>
                 
                 <AuthorizeView>
                     <Authorized>
@@ -45,67 +50,64 @@
                         {
                             <div class="hero-cta-buttons">
                                 <a href="/pets" class="btn btn-primary mr-md-3 py-3 px-5">
-                                    <span class="fa fa-paw mr-2"></span>Browse Pets
+                                    <span class="fa fa-paw mr-2"></span>@Localizer["BrowsePets"]
                                 </a>
                                 <a href="/adoptions" class="btn btn-white py-3 px-5">
-                                    <span class="fa fa-heart mr-2"></span>My Adoptions
+                                    <span class="fa fa-heart mr-2"></span>@Localizer["MyAdoptions"]
                                 </a>
                             </div>
                             <p class="mt-4 text-white">
-                                <small>Welcome back, @context.User.Identity?.Name! Ready to find your new best friend?</small>
+                                <small>@Localizer["WelcomeUser", context.User.Identity?.Name ?? ""]</small>
                             </p>
                         }
                         else if (currentUserRole == UserRole.Shelter)
                         {
                             <div class="hero-cta-buttons">
                                 <a href="/adoptions" class="btn btn-primary mr-md-3 py-3 px-5">
-                                    <span class="fa fa-clipboard-list mr-2"></span>Adoption Requests
+                                    <span class="fa fa-clipboard-list mr-2"></span>@Localizer["AdoptionRequests"]
                                 </a>
                                 <a href="/mypets" class="btn btn-white py-3 px-5">
-                                    <span class="fa fa-paw mr-2"></span>Manage My Pets
+                                    <span class="fa fa-paw mr-2"></span>@Localizer["ManageMyPets"]
                                 </a>
                             </div>
                             <p class="mt-4 text-white">
-                                <small>Welcome back, @context.User.Identity?.Name! Ready to help pets find their forever homes?</small>
+                                <small>@Localizer["WelcomeShelter", context.User.Identity?.Name ?? ""]</small>
                             </p>
                         }
                         else
                         {
                             <div class="hero-cta-buttons">
                                 <a href="/profile" class="btn btn-primary mr-md-3 py-3 px-5">
-                                    <span class="fa fa-user mr-2"></span>My Profile
+                                    <span class="fa fa-user mr-2"></span>@Localizer["MyProfile"]
                                 </a>
                                 <a href="/pets" class="btn btn-white py-3 px-5">
-                                    Browse Pets <span class="ion-ios-arrow-forward"></span>
+                                    @Localizer["BrowsePets"] <span class="ion-ios-arrow-forward"></span>
                                 </a>
                             </div>
                             <p class="mt-4 text-white">
-                                <small>Welcome back, @context.User.Identity?.Name! Ready to make a difference?</small>
+                                <small>@Localizer["WelcomeGeneral", context.User.Identity?.Name ?? ""]</small>
                             </p>
                         }
                     </Authorized>
                     <NotAuthorized>
                         <div class="hero-cta-buttons">
                             <a href="/pets" class="btn btn-primary mr-md-3 py-3 px-5">
-                                <span class="fa fa-paw mr-2"></span>Browse Available Pets
+                                <span class="fa fa-paw mr-2"></span>@Localizer["BrowseAvailablePets"]
                             </a>
                             <a href="/login" class="btn btn-white py-3 px-5">
-                                <span class="fa fa-sign-in-alt mr-2"></span>Sign In to Adopt
+                                <span class="fa fa-sign-in-alt mr-2"></span>@Localizer["SignInToAdopt"]
                             </a>
                         </div>
                         
                         <div class="login-providers mt-5 pt-4">
-                            <p class="text-white mb-3">Quick Sign In:</p>
+                            <p class="text-white mb-3">@Localizer["QuickSignIn"]</p>
                             <div class="d-flex justify-content-center gap-3">
-                                <a href="/signin-google" class="btn btn-sm btn-outline-light px-4 py-2" title="Sign in with Google">
+                                <a href="/signin-google" class="btn btn-sm btn-outline-light px-4 py-2" title="@Localizer["SignInWithGoogle"]">
                                     <span class="fa fa-google fa-lg"></span>
                                 </a>
-                                <a href="/signin-microsoft" class="btn btn-sm btn-outline-light px-4 py-2" title="Sign in with Microsoft">
+                                <a href="/signin-microsoft" class="btn btn-sm btn-outline-light px-4 py-2" title="@Localizer["SignInWithMicrosoft"]">
                                     <span class="fa fa-windows fa-lg"></span>
                                 </a>
-                                @* <a href="/signin-apple" class="btn btn-sm btn-outline-light px-4 py-2" title="Sign in with Apple">
-                                    <span class="fa fa-apple fa-lg"></span>
-                                </a> *@
                             </div>
                         </div>
                     </NotAuthorized>
@@ -125,9 +127,9 @@
                         <span class="flaticon-blind"></span>
                     </div>
                     <div class="media-body">
-                        <h3 class="heading">Madeira Adoption Community</h3>
-                        <p>Madeira Adoption Community is a place where all animal rescuers can put animals up for adoption. From young kittens to long-term shelter animals; all creatures who are looking for a loving home can be found here and easily adopted. There is no need to go to several places to see what animals are available; they are right here for you to fall in love with!</p>
-                        <a href="#" class="btn-custom d-flex align-items-center justify-content-center"><span class="fa fa-chevron-right"></span><i class="sr-only">Read more</i></a>
+                        <h3 class="heading">@Localizer["Service1Title"]</h3>
+                        <p>@Localizer["Service1Description"]</p>
+                        <a href="#" class="btn-custom d-flex align-items-center justify-content-center"><span class="fa fa-chevron-right"></span><i class="sr-only">@Localizer["ReadMore"]</i></a>
                     </div>
                 </div>
             </div>
@@ -137,10 +139,9 @@
                         <span class="flaticon-dog-eating"></span>
                     </div>
                     <div class="media-body">
-                        <h3 class="heading">How does it work?</h3>
-                        <p>As a user you can brows all adoptable animals. You can search by type of animal, area, age, breed; whatever you want. When you find your new furry soulmate, you can log in and apply to adopt your future cat, dog, hamster, ferret or whatever other animal you want to give a loving home to. Your application will be sent to the shelter, association, foster family or other organisation, who will then judge your application.</p>
-                        <p>As a shelter or other animal rescuer you can create an account and upload photos and details such as name, age, medical status, and of course the animals personality. You can also upload Terms of Responsibility or Adoption Agreements for future adopters to sign. This will save time, paperwork and in the end, animals lives!</p>
-                        <a href="#" class="btn-custom d-flex align-items-center justify-content-center"><span class="fa fa-chevron-right"></span><i class="sr-only">Read more</i></a>
+                        <h3 class="heading">@Localizer["Service2Title"]</h3>
+                        <p>@Localizer["Service2Description"]</p>
+                        <a href="#" class="btn-custom d-flex align-items-center justify-content-center"><span class="fa fa-chevron-right"></span><i class="sr-only">@Localizer["ReadMore"]</i></a>
                     </div>
                 </div>
             </div>
@@ -150,9 +151,9 @@
                         <span class="flaticon-grooming"></span>
                     </div>
                     <div class="media-body">
-                        <h3 class="heading">Why adopt?</h3>
-                        <p>Madeira has many animals who have a rough start in life, who are living on the street or have been abandoned at a later age. You can make the difference between a life on the streets and a loving home. What do you get when you adopt an animal? You will get a friend for life who will love you in a way only an animal can. And you saved a life!</p>
-                        <a href="#" class="btn-custom d-flex align-items-center justify-content-center"><span class="fa fa-chevron-right"></span><i class="sr-only">Read more</i></a>
+                        <h3 class="heading">@Localizer["Service3Title"]</h3>
+                        <p>@Localizer["Service3Description"]</p>
+                        <a href="#" class="btn-custom d-flex align-items-center justify-content-center"><span class="fa fa-chevron-right"></span><i class="sr-only">@Localizer["ReadMore"]</i></a>
                     </div>
                 </div>
             </div>
@@ -170,35 +171,35 @@
             </div>
             <div class="col-md-7 pl-md-5 py-md-5">
                 <div class="heading-section pt-md-5">
-                    <h2 class="mb-4">Why Choose Us?</h2>
+                    <h2 class="mb-4">@Localizer["WhyChooseUsTitle"]</h2>
                 </div>
                 <div class="row">
                     <div class="col-md-6 services-2 w-100 d-flex">
                         <div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-stethoscope"></span></div>
                         <div class="text pl-3">
-                            <h4>Care Advices</h4>
-                            <p>Far far away, behind the word mountains, far from the countries.</p>
+                            <h4>@Localizer["Feature1Title"]</h4>
+                            <p>@Localizer["Feature1Description"]</p>
                         </div>
                     </div>
                     <div class="col-md-6 services-2 w-100 d-flex">
                         <div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-customer-service"></span></div>
                         <div class="text pl-3">
-                            <h4>Customer Supports</h4>
-                            <p>Far far away, behind the word mountains, far from the countries.</p>
+                            <h4>@Localizer["Feature2Title"]</h4>
+                            <p>@Localizer["Feature2Description"]</p>
                         </div>
                     </div>
                     <div class="col-md-6 services-2 w-100 d-flex">
                         <div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-emergency-call"></span></div>
                         <div class="text pl-3">
-                            <h4>Emergency Services</h4>
-                            <p>Far far away, behind the word mountains, far from the countries.</p>
+                            <h4>@Localizer["Feature3Title"]</h4>
+                            <p>@Localizer["Feature3Description"]</p>
                         </div>
                     </div>
                     <div class="col-md-6 services-2 w-100 d-flex">
                         <div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-veterinarian"></span></div>
                         <div class="text pl-3">
-                            <h4>Veterinary Help</h4>
-                            <p>Far far away, behind the word mountains, far from the countries.</p>
+                            <h4>@Localizer["Feature4Title"]</h4>
+                            <p>@Localizer["Feature4Description"]</p>
                         </div>
                     </div>
                 </div>
@@ -217,7 +218,7 @@
                         <strong class="number" data-number="50">0</strong>
                     </div>
                     <div class="text">
-                        <span>Customer</span>
+                        <span>@Localizer["StatCustomer"]</span>
                     </div>
                 </div>
             </div>
@@ -227,7 +228,7 @@
                         <strong class="number" data-number="8500">0</strong>
                     </div>
                     <div class="text">
-                        <span>Professionals</span>
+                        <span>@Localizer["StatProfessionals"]</span>
                     </div>
                 </div>
             </div>
@@ -237,7 +238,7 @@
                         <strong class="number" data-number="20">0</strong>
                     </div>
                     <div class="text">
-                        <span>Products</span>
+                        <span>@Localizer["StatProducts"]</span>
                     </div>
                 </div>
             </div>
@@ -247,7 +248,7 @@
                         <strong class="number" data-number="50">0</strong>
                     </div>
                     <div class="text">
-                        <span>Pets Hosted</span>
+                        <span>@Localizer["StatPetsHosted"]</span>
                     </div>
                 </div>
             </div>
@@ -273,15 +274,15 @@
 
             <div class="col-lg-6">
                 <div class="heading-section mb-5 mt-5 mt-lg-0">
-                    <h2 class="mb-3">Frequently Asks Questions</h2>
-                    <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
+                    <h2 class="mb-3">@Localizer["FAQTitle"]</h2>
+                    <p>@Localizer["FAQDescription"]</p>
                 </div>
                 <div id="accordion" class="myaccordion w-100" aria-multiselectable="true">
                     <div class="card">
                         <div class="card-header p-0" id="headingOne">
                             <h2 class="mb-0">
                                 <button href="#collapseOne" class="d-flex py-3 px-4 align-items-center justify-content-between btn btn-link" data-parent="#accordion" data-toggle="collapse" aria-expanded="true" aria-controls="collapseOne">
-                                    <p class="mb-0">How to train your pet dog?</p>
+                                    <p class="mb-0">@Localizer["FAQ1Question"]</p>
                                     <i class="fa" aria-hidden="true"></i>
                                 </button>
                             </h2>
@@ -289,11 +290,11 @@
                         <div class="collapse show" id="collapseOne" role="tabpanel" aria-labelledby="headingOne">
                             <div class="card-body py-3 px-0">
                                 <ol>
-                                    <li>Far far away, behind the word mountains</li>
-                                    <li>Consonantia, there live the blind texts</li>
-                                    <li>When she reached the first hills of the Italic Mountains</li>
-                                    <li>Bookmarksgrove, the headline of Alphabet Village</li>
-                                    <li>Separated they live in Bookmarksgrove right</li>
+                                    <li>@Localizer["FAQ1Answer1"]</li>
+                                    <li>@Localizer["FAQ1Answer2"]</li>
+                                    <li>@Localizer["FAQ1Answer3"]</li>
+                                    <li>@Localizer["FAQ1Answer4"]</li>
+                                    <li>@Localizer["FAQ1Answer5"]</li>
                                 </ol>
                             </div>
                         </div>
@@ -303,7 +304,7 @@
                         <div class="card-header p-0" id="headingTwo" role="tab">
                             <h2 class="mb-0">
                                 <button href="#collapseTwo" class="d-flex py-3 px-4 align-items-center justify-content-between btn btn-link collapsed" data-parent="#accordion" data-toggle="collapse" aria-expanded="false" aria-controls="collapseTwo">
-                                    <p class="mb-0">How to manage your pets?</p>
+                                    <p class="mb-0">@Localizer["FAQ2Question"]</p>
                                     <i class="fa" aria-hidden="true"></i>
                                 </button>
                             </h2>
@@ -311,11 +312,11 @@
                         <div class="collapse" id="collapseTwo" role="tabpanel" aria-labelledby="headingTwo">
                             <div class="card-body py-3 px-0">
                                 <ol>
-                                    <li>Far far away, behind the word mountains</li>
-                                    <li>Consonantia, there live the blind texts</li>
-                                    <li>When she reached the first hills of the Italic Mountains</li>
-                                    <li>Bookmarksgrove, the headline of Alphabet Village</li>
-                                    <li>Separated they live in Bookmarksgrove right</li>
+                                    <li>@Localizer["FAQ2Answer1"]</li>
+                                    <li>@Localizer["FAQ2Answer2"]</li>
+                                    <li>@Localizer["FAQ2Answer3"]</li>
+                                    <li>@Localizer["FAQ2Answer4"]</li>
+                                    <li>@Localizer["FAQ2Answer5"]</li>
                                 </ol>
                             </div>
                         </div>
@@ -325,7 +326,7 @@
                         <div class="card-header p-0" id="headingThree" role="tab">
                             <h2 class="mb-0">
                                 <button href="#collapseThree" class="d-flex py-3 px-4 align-items-center justify-content-between btn btn-link collapsed" data-parent="#accordion" data-toggle="collapse" aria-expanded="false" aria-controls="collapseThree">
-                                    <p class="mb-0">What is the best grooming for your pets?</p>
+                                    <p class="mb-0">@Localizer["FAQ3Question"]</p>
                                     <i class="fa" aria-hidden="true"></i>
                                 </button>
                             </h2>
@@ -333,11 +334,11 @@
                         <div class="collapse" id="collapseThree" role="tabpanel" aria-labelledby="headingTwo">
                             <div class="card-body py-3 px-0">
                                 <ol>
-                                    <li>Far far away, behind the word mountains</li>
-                                    <li>Consonantia, there live the blind texts</li>
-                                    <li>When she reached the first hills of the Italic Mountains</li>
-                                    <li>Bookmarksgrove, the headline of Alphabet Village</li>
-                                    <li>Separated they live in Bookmarksgrove right</li>
+                                    <li>@Localizer["FAQ3Answer1"]</li>
+                                    <li>@Localizer["FAQ3Answer2"]</li>
+                                    <li>@Localizer["FAQ3Answer3"]</li>
+                                    <li>@Localizer["FAQ3Answer4"]</li>
+                                    <li>@Localizer["FAQ3Answer5"]</li>
                                 </ol>
                             </div>
                         </div>
@@ -347,14 +348,14 @@
                         <div class="card-header p-0" id="headingFour" role="tab">
                             <h2 class="mb-0">
                                 <button href="#collapseFour" class="d-flex py-3 px-4 align-items-center justify-content-between btn btn-link collapsed" data-parent="#accordion" data-toggle="collapse" aria-expanded="false" aria-controls="collapseFour">
-                                    <p class="mb-0">What are those requirements for sitting pets?</p>
+                                    <p class="mb-0">@Localizer["FAQ4Question"]</p>
                                     <i class="fa" aria-hidden="true"></i>
                                 </button>
                             </h2>
                         </div>
                         <div class="collapse" id="collapseFour" role="tabpanel" aria-labelledby="headingTwo">
                             <div class="card-body py-3 px-0">
-                                <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts. Separated they live in Bookmarksgrove right at the coast of the Semantics, a large language ocean.</p>
+                                <p>@Localizer["FAQ4Answer"]</p>
                             </div>
                         </div>
                     </div>
@@ -370,7 +371,7 @@
     <div class="container">
         <div class="row justify-content-center pb-5 mb-3">
             <div class="col-md-7 heading-section text-center ftco-animate">
-                <h2>Happy Clients &amp; Feedbacks</h2>
+                <h2>@Localizer["TestimonialsTitle"]</h2>
             </div>
         </div>
         <div class="row ftco-animate">
@@ -380,12 +381,12 @@
                         <div class="testimony-wrap py-4">
                             <div class="icon d-flex align-items-center justify-content-center"><span class="fa fa-quote-left"></span></div>
                             <div class="text">
-                                <p class="mb-4">Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
+                                <p class="mb-4">@Localizer["TestimonialText"]</p>
                                 <div class="d-flex align-items-center">
                                     <div class="user-img" style="background-image: url(images/person_1.jpg)"></div>
                                     <div class="pl-3">
                                         <p class="name">Roger Scott</p>
-                                        <span class="position">Marketing Manager</span>
+                                        <span class="position">@Localizer["TestimonialPosition"]</span>
                                     </div>
                                 </div>
                             </div>
@@ -395,12 +396,12 @@
                         <div class="testimony-wrap py-4">
                             <div class="icon d-flex align-items-center justify-content-center"><span class="fa fa-quote-left"></span></div>
                             <div class="text">
-                                <p class="mb-4">Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
+                                <p class="mb-4">@Localizer["TestimonialText"]</p>
                                 <div class="d-flex align-items-center">
                                     <div class="user-img" style="background-image: url(images/person_2.jpg)"></div>
                                     <div class="pl-3">
                                         <p class="name">Roger Scott</p>
-                                        <span class="position">Marketing Manager</span>
+                                        <span class="position">@Localizer["TestimonialPosition"]</span>
                                     </div>
                                 </div>
                             </div>
@@ -410,12 +411,12 @@
                         <div class="testimony-wrap py-4">
                             <div class="icon d-flex align-items-center justify-content-center"><span class="fa fa-quote-left"></span></div>
                             <div class="text">
-                                <p class="mb-4">Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
+                                <p class="mb-4">@Localizer["TestimonialText"]</p>
                                 <div class="d-flex align-items-center">
                                     <div class="user-img" style="background-image: url(images/person_3.jpg)"></div>
                                     <div class="pl-3">
                                         <p class="name">Roger Scott</p>
-                                        <span class="position">Marketing Manager</span>
+                                        <span class="position">@Localizer["TestimonialPosition"]</span>
                                     </div>
                                 </div>
                             </div>
@@ -425,12 +426,12 @@
                         <div class="testimony-wrap py-4">
                             <div class="icon d-flex align-items-center justify-content-center"><span class="fa fa-quote-left"></span></div>
                             <div class="text">
-                                <p class="mb-4">Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
+                                <p class="mb-4">@Localizer["TestimonialText"]</p>
                                 <div class="d-flex align-items-center">
                                     <div class="user-img" style="background-image: url(images/person_1.jpg)"></div>
                                     <div class="pl-3">
                                         <p class="name">Roger Scott</p>
-                                        <span class="position">Marketing Manager</span>
+                                        <span class="position">@Localizer["TestimonialPosition"]</span>
                                     </div>
                                 </div>
                             </div>
@@ -440,12 +441,12 @@
                         <div class="testimony-wrap py-4">
                             <div class="icon d-flex align-items-center justify-content-center"><span class="fa fa-quote-left"></span></div>
                             <div class="text">
-                                <p class="mb-4">Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
+                                <p class="mb-4">@Localizer["TestimonialText"]</p>
                                 <div class="d-flex align-items-center">
                                     <div class="user-img" style="background-image: url(images/person_2.jpg)"></div>
                                     <div class="pl-3">
                                         <p class="name">Roger Scott</p>
-                                        <span class="position">Marketing Manager</span>
+                                        <span class="position">@Localizer["TestimonialPosition"]</span>
                                     </div>
                                 </div>
                             </div>
@@ -462,7 +463,7 @@
     <div class="container">
         <div class="row justify-content-center pb-5 mb-3">
             <div class="col-md-7 heading-section text-center ftco-animate">
-                <h2>Affordable Packages</h2>
+                <h2>@Localizer["PricingTitle"]</h2>
             </div>
         </div>
         <div class="row">
@@ -470,17 +471,17 @@
                 <div class="block-7">
                     <div class="img" style="background-image: url(images/pricing-1.jpg);"></div>
                     <div class="text-center p-4">
-                        <span class="excerpt d-block">Personal</span>
+                        <span class="excerpt d-block">@Localizer["PricingPersonal"]</span>
                         <span class="price"><sup>$</sup> <span class="number">49</span> <sub>/mos</sub></span>
 
                         <ul class="pricing-text mb-5">
-                            <li><span class="fa fa-check mr-2"></span>5 Dog Walk</li>
-                            <li><span class="fa fa-check mr-2"></span>3 Vet Visit</li>
-                            <li><span class="fa fa-check mr-2"></span>3 Pet Spa</li>
-                            <li><span class="fa fa-check mr-2"></span>Free Supports</li>
+                            <li><span class="fa fa-check mr-2"></span>@Localizer["PricingFeature1"]</li>
+                            <li><span class="fa fa-check mr-2"></span>@Localizer["PricingFeature2"]</li>
+                            <li><span class="fa fa-check mr-2"></span>@Localizer["PricingFeature3"]</li>
+                            <li><span class="fa fa-check mr-2"></span>@Localizer["PricingFeature4"]</li>
                         </ul>
 
-                        <a href="#" class="btn btn-primary d-block px-2 py-3">Get Started</a>
+                        <a href="#" class="btn btn-primary d-block px-2 py-3">@Localizer["GetStarted"]</a>
                     </div>
                 </div>
             </div>
@@ -488,17 +489,17 @@
                 <div class="block-7">
                     <div class="img" style="background-image: url(images/pricing-2.jpg);"></div>
                     <div class="text-center p-4">
-                        <span class="excerpt d-block">Business</span>
+                        <span class="excerpt d-block">@Localizer["PricingBusiness"]</span>
                         <span class="price"><sup>$</sup> <span class="number">79</span> <sub>/mos</sub></span>
 
                         <ul class="pricing-text mb-5">
-                            <li><span class="fa fa-check mr-2"></span>5 Dog Walk</li>
-                            <li><span class="fa fa-check mr-2"></span>3 Vet Visit</li>
-                            <li><span class="fa fa-check mr-2"></span>3 Pet Spa</li>
-                            <li><span class="fa fa-check mr-2"></span>Free Supports</li>
+                            <li><span class="fa fa-check mr-2"></span>@Localizer["PricingFeature1"]</li>
+                            <li><span class="fa fa-check mr-2"></span>@Localizer["PricingFeature2"]</li>
+                            <li><span class="fa fa-check mr-2"></span>@Localizer["PricingFeature3"]</li>
+                            <li><span class="fa fa-check mr-2"></span>@Localizer["PricingFeature4"]</li>
                         </ul>
 
-                        <a href="#" class="btn btn-primary d-block px-2 py-3">Get Started</a>
+                        <a href="#" class="btn btn-primary d-block px-2 py-3">@Localizer["GetStarted"]</a>
                     </div>
                 </div>
             </div>
@@ -506,17 +507,17 @@
                 <div class="block-7">
                     <div class="img" style="background-image: url(images/pricing-3.jpg);"></div>
                     <div class="text-center p-4">
-                        <span class="excerpt d-block">Ultimate</span>
+                        <span class="excerpt d-block">@Localizer["PricingUltimate"]</span>
                         <span class="price"><sup>$</sup> <span class="number">109</span> <sub>/mos</sub></span>
 
                         <ul class="pricing-text mb-5">
-                            <li><span class="fa fa-check mr-2"></span>5 Dog Walk</li>
-                            <li><span class="fa fa-check mr-2"></span>3 Vet Visit</li>
-                            <li><span class="fa fa-check mr-2"></span>3 Pet Spa</li>
-                            <li><span class="fa fa-check mr-2"></span>Free Supports</li>
+                            <li><span class="fa fa-check mr-2"></span>@Localizer["PricingFeature1"]</li>
+                            <li><span class="fa fa-check mr-2"></span>@Localizer["PricingFeature2"]</li>
+                            <li><span class="fa fa-check mr-2"></span>@Localizer["PricingFeature3"]</li>
+                            <li><span class="fa fa-check mr-2"></span>@Localizer["PricingFeature4"]</li>
                         </ul>
 
-                        <a href="#" class="btn btn-primary d-block px-2 py-3">Get Started</a>
+                        <a href="#" class="btn btn-primary d-block px-2 py-3">@Localizer["GetStarted"]</a>
                     </div>
                 </div>
             </div>
@@ -529,7 +530,7 @@
     <div class="container">
         <div class="row justify-content-center pb-5 mb-3">
             <div class="col-md-7 heading-section text-center ftco-animate">
-                <h2>Pets Gallery</h2>
+                <h2>@Localizer["GalleryTitle"]</h2>
             </div>
         </div>
         <div class="row">
@@ -540,8 +541,8 @@
                     </a>
                     <div class="desc w-100 px-4">
                         <div class="text w-100 mb-3">
-                            <span>Cat</span>
-                            <h2><a href="/pets">Persian Cat</a></h2>
+                            <span>@Localizer["Cat"]</span>
+                            <h2><a href="/pets">@Localizer["PersianCat"]</a></h2>
                         </div>
                     </div>
                 </div>
@@ -553,8 +554,8 @@
                     </a>
                     <div class="desc w-100 px-4">
                         <div class="text w-100 mb-3">
-                            <span>Dog</span>
-                            <h2><a href="/pets">Pomeranian</a></h2>
+                            <span>@Localizer["Dog"]</span>
+                            <h2><a href="/pets">@Localizer["Pomeranian"]</a></h2>
                         </div>
                     </div>
                 </div>
@@ -566,8 +567,8 @@
                     </a>
                     <div class="desc w-100 px-4">
                         <div class="text w-100 mb-3">
-                            <span>Cat</span>
-                            <h2><a href="/pets">Sphynx Cat</a></h2>
+                            <span>@Localizer["Cat"]</span>
+                            <h2><a href="/pets">@Localizer["SphynxCat"]</a></h2>
                         </div>
                     </div>
                 </div>
@@ -580,8 +581,8 @@
                     </a>
                     <div class="desc w-100 px-4">
                         <div class="text w-100 mb-3">
-                            <span>Cat</span>
-                            <h2><a href="/pets">British Shorthair</a></h2>
+                            <span>@Localizer["Cat"]</span>
+                            <h2><a href="/pets">@Localizer["BritishShorthair"]</a></h2>
                         </div>
                     </div>
                 </div>
@@ -593,8 +594,8 @@
                     </a>
                     <div class="desc w-100 px-4">
                         <div class="text w-100 mb-3">
-                            <span>Dog</span>
-                            <h2><a href="/pets">Beagle</a></h2>
+                            <span>@Localizer["Dog"]</span>
+                            <h2><a href="/pets">@Localizer["Beagle"]</a></h2>
                         </div>
                     </div>
                 </div>
@@ -606,8 +607,8 @@
                     </a>
                     <div class="desc w-100 px-4">
                         <div class="text w-100 mb-3">
-                            <span>Dog</span>
-                            <h2><a href="/pets">Pug</a></h2>
+                            <span>@Localizer["Dog"]</span>
+                            <h2><a href="/pets">@Localizer["Pug"]</a></h2>
                         </div>
                     </div>
                 </div>
@@ -618,7 +619,7 @@
         <div class="row mt-4">
             <div class="col-md-12 text-center">
                 <a href="/pets" class="btn btn-primary py-3 px-5">
-                    View All Available Pets <span class="ion-ios-arrow-forward"></span>
+                    @Localizer["ViewAllPets"] <span class="ion-ios-arrow-forward"></span>
                 </a>
             </div>
         </div>
@@ -630,7 +631,7 @@
     <div class="container">
         <div class="row justify-content-center pb-5 mb-3">
             <div class="col-md-7 heading-section text-center ftco-animate">
-                <h2>Latest news from our blog</h2>
+                <h2>@Localizer["BlogTitle"]</h2>
             </div>
         </div>
         <div class="row d-flex">
@@ -640,11 +641,11 @@
                     </a>
                     <div class="text p-4">
                         <div class="meta mb-2">
-                            <div><a href="#">April 07, 2020</a></div>
-                            <div><a href="#">Admin</a></div>
+                            <div><a href="#">@Localizer["BlogDate"]</a></div>
+                            <div><a href="#">@Localizer["BlogAdmin"]</a></div>
                             <div><a href="#" class="meta-chat"><span class="fa fa-comment"></span> 3</a></div>
                         </div>
-                        <h3 class="heading"><a href="#">Even the all-powerful Pointing has no control about the blind texts</a></h3>
+                        <h3 class="heading"><a href="#">@Localizer["BlogHeading"]</a></h3>
                     </div>
                 </div>
             </div>
@@ -654,11 +655,11 @@
                     </a>
                     <div class="text p-4">
                         <div class="meta mb-2">
-                            <div><a href="#">April 07, 2020</a></div>
-                            <div><a href="#">Admin</a></div>
+                            <div><a href="#">@Localizer["BlogDate"]</a></div>
+                            <div><a href="#">@Localizer["BlogAdmin"]</a></div>
                             <div><a href="#" class="meta-chat"><span class="fa fa-comment"></span> 3</a></div>
                         </div>
-                        <h3 class="heading"><a href="#">Even the all-powerful Pointing has no control about the blind texts</a></h3>
+                        <h3 class="heading"><a href="#">@Localizer["BlogHeading"]</a></h3>
                     </div>
                 </div>
             </div>
@@ -668,11 +669,11 @@
                     </a>
                     <div class="text p-4">
                         <div class="meta mb-2">
-                            <div><a href="#">April 07, 2020</a></div>
-                            <div><a href="#">Admin</a></div>
+                            <div><a href="#">@Localizer["BlogDate"]</a></div>
+                            <div><a href="#">@Localizer["BlogAdmin"]</a></div>
                             <div><a href="#" class="meta-chat"><span class="fa fa-comment"></span> 3</a></div>
                         </div>
-                        <h3 class="heading"><a href="#">Even the all-powerful Pointing has no control about the blind texts</a></h3>
+                        <h3 class="heading"><a href="#">@Localizer["BlogHeading"]</a></h3>
                     </div>
                 </div>
             </div>
@@ -686,7 +687,7 @@
     <div class="container">
         <div class="row d-md-flex justify-content-end">
             <div class="col-md-12 col-lg-6 half p-3 py-5 pl-lg-5 ftco-animate">
-                <h2 class="mb-4">Free Consultation</h2>
+                <h2 class="mb-4">@Localizer["ConsultationTitle"]</h2>
                 <form action="#" class="appointment">
                     <div class="row">
                         <div class="col-md-12">
@@ -695,12 +696,12 @@
                                     <div class="select-wrap">
                                         <div class="icon"><span class="fa fa-chevron-down"></span></div>
                                         <select name="" id="" class="form-control">
-                                            <option value="">Select services</option>
-                                            <option value="">Cat Sitting</option>
-                                            <option value="">Dog Walk</option>
-                                            <option value="">Pet Spa</option>
-                                            <option value="">Pet Grooming</option>
-                                            <option value="">Pet Daycare</option>
+                                            <option value="">@Localizer["SelectServices"]</option>
+                                            <option value="">@Localizer["CatSitting"]</option>
+                                            <option value="">@Localizer["DogWalk"]</option>
+                                            <option value="">@Localizer["PetSpa"]</option>
+                                            <option value="">@Localizer["PetGrooming"]</option>
+                                            <option value="">@Localizer["PetDaycare"]</option>
                                         </select>
                                     </div>
                                 </div>
@@ -708,19 +709,19 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <input type="text" class="form-control" placeholder="Your Name">
+                                <input type="text" class="form-control" placeholder="@Localizer["YourName"]">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <input type="text" class="form-control" placeholder="Vehicle number">
+                                <input type="text" class="form-control" placeholder="@Localizer["VehicleNumber"]">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <div class="input-wrap">
                                     <div class="icon"><span class="fa fa-calendar"></span></div>
-                                    <input type="text" class="form-control appointment_date" placeholder="Date">
+                                    <input type="text" class="form-control appointment_date" placeholder="@Localizer["Date"]">
                                 </div>
                             </div>
                         </div>
@@ -728,18 +729,18 @@
                             <div class="form-group">
                                 <div class="input-wrap">
                                     <div class="icon"><span class="fa fa-clock-o"></span></div>
-                                    <input type="text" class="form-control appointment_time" placeholder="Time">
+                                    <input type="text" class="form-control appointment_time" placeholder="@Localizer["Time"]">
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-12">
                             <div class="form-group">
-                                <textarea name="" id="" cols="30" rows="7" class="form-control" placeholder="Message"></textarea>
+                                <textarea name="" id="" cols="30" rows="7" class="form-control" placeholder="@Localizer["Message"]"></textarea>
                             </div>
                         </div>
                         <div class="col-md-12">
                             <div class="form-group">
-                                <input type="submit" value="Send message" class="btn btn-primary py-3 px-4">
+                                <input type="submit" value="@Localizer["SendMessage"]" class="btn btn-primary py-3 px-4">
                             </div>
                         </div>
                     </div>
@@ -779,6 +780,19 @@
                 }
             }
         }
+
+        // Subscribe to culture change
+        LocalizationService.OnCultureChanged += OnCultureChanged;
+    }
+
+    private void OnCultureChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        LocalizationService.OnCultureChanged -= OnCultureChanged;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

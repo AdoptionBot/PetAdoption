@@ -1,4 +1,4 @@
-namespace PetAdoption.Services
+namespace PetAdoption.Services.Web
 {
     public class ProfileStateService
     {

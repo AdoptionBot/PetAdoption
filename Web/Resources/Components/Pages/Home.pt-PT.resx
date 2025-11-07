@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="PageTitle" xml:space="preserve">
+    <value>Início - Adoção de Animais Madeira</value>
+  </data>
+  <data name="HeroTitle" xml:space="preserve">
+    <value>Encontre o Seu Companheiro Perfeito</value>
+  </data>
+  <data name="HeroSubtitle" xml:space="preserve">
+    <value>Junte-se à nossa comunidade para adotar, acolher ou apoiar animais necessitados</value>
+  </data>
+  <data name="BrowsePets" xml:space="preserve">
+    <value>Ver Animais</value>
+  </data>
+  <data name="MyAdoptions" xml:space="preserve">
+    <value>As Minhas Adoções</value>
+  </data>
+  <data name="AdoptionRequests" xml:space="preserve">
+    <value>Pedidos de Adoção</value>
+  </data>
+  <data name="ManageMyPets" xml:space="preserve">
+    <value>Gerir os Meus Animais</value>
+  </data>
+  <data name="MyProfile" xml:space="preserve">
+    <value>O Meu Perfil</value>
+  </data>
+  <data name="BrowseAvailablePets" xml:space="preserve">
+    <value>Ver Animais Disponíveis</value>
+  </data>
+  <data name="SignInToAdopt" xml:space="preserve">
+    <value>Entrar para Adotar</value>
+  </data>
+  <data name="WelcomeUser" xml:space="preserve">
+    <value>Bem-vindo de volta, {0}! Pronto para encontrar o seu novo melhor amigo?</value>
+  </data>
+  <data name="WelcomeShelter" xml:space="preserve">
+    <value>Bem-vindo de volta, {0}! Pronto para ajudar os animais a encontrar lares permanentes?</value>
+  </data>
+  <data name="WelcomeGeneral" xml:space="preserve">
+    <value>Bem-vindo de volta, {0}! Pronto para fazer a diferença?</value>
+  </data>
+  <data name="QuickSignIn" xml:space="preserve">
+    <value>Entrar Rapidamente:</value>
+  </data>
+  <data name="SignInWithGoogle" xml:space="preserve">
+    <value>Entrar com o Google</value>
+  </data>
+  <data name="SignInWithMicrosoft" xml:space="preserve">
+    <value>Entrar com a Microsoft</value>
+  </data>
+  <data name="Service1Title" xml:space="preserve">
+    <value>Comunidade de Adoção da Madeira</value>
+  </data>
+  <data name="Service1Description" xml:space="preserve">
+    <value>A Comunidade de Adoção da Madeira é um lugar onde todos os salvadores de animais podem colocar animais para adoção. Desde gatinhos jovens a animais de abrigo de longa duração; todas as criaturas que procuram um lar amoroso podem ser encontradas aqui e facilmente adotadas. Não há necessidade de ir a vários locais para ver que animais estão disponíveis; estão aqui para se apaixonar!</value>
+  </data>
+  <data name="Service2Title" xml:space="preserve">
+    <value>Como funciona?</value>
+  </data>
+  <data name="Service2Description" xml:space="preserve">
+    <value>Como utilizador, pode navegar por todos os animais adotáveis. Pode pesquisar por tipo de animal, área, idade, raça; o que quiser. Quando encontrar a sua nova alma gémea peluda, pode fazer login e candidatar-se a adotar o seu futuro gato, cão, hamster, furão ou qualquer outro animal a que queira dar um lar amoroso. A sua candidatura será enviada ao abrigo, associação, família de acolhimento ou outra organização, que depois avaliará a sua candidatura.</value>
+  </data>
+  <data name="Service3Title" xml:space="preserve">
+    <value>Por que adotar?</value>
+  </data>
+  <data name="Service3Description" xml:space="preserve">
+    <value>A Madeira tem muitos animais que tiveram um início difícil na vida, que vivem na rua ou foram abandonados numa idade mais avançada. Pode fazer a diferença entre uma vida nas ruas e um lar amoroso. O que obtém quando adota um animal? Terá um amigo para a vida que o amará de uma forma que só um animal consegue. E salvou uma vida!</value>
+  </data>
+  <data name="ReadMore" xml:space="preserve">
+    <value>Ler mais</value>
+  </data>
+  <data name="WhyChooseUsTitle" xml:space="preserve">
+    <value>Por Que Escolher-Nos?</value>
+  </data>
+  <data name="Feature1Title" xml:space="preserve">
+    <value>Conselhos de Cuidados</value>
+  </data>
+  <data name="Feature1Description" xml:space="preserve">
+    <value>Muito longe, atrás das montanhas de palavras, longe dos países.</value>
+  </data>
+  <data name="Feature2Title" xml:space="preserve">
+    <value>Apoio ao Cliente</value>
+  </data>
+  <data name="Feature2Description" xml:space="preserve">
+    <value>Muito longe, atrás das montanhas de palavras, longe dos países.</value>
+  </data>
+  <data name="Feature3Title" xml:space="preserve">
+    <value>Serviços de Emergência</value>
+  </data>
+  <data name="Feature3Description" xml:space="preserve">
+    <value>Muito longe, atrás das montanhas de palavras, longe dos países.</value>
+  </data>
+  <data name="Feature4Title" xml:space="preserve">
+    <value>Ajuda Veterinária</value>
+  </data>
+  <data name="Feature4Description" xml:space="preserve">
+    <value>Muito longe, atrás das montanhas de palavras, longe dos países.</value>
+  </data>
+  <data name="StatCustomer" xml:space="preserve">
+    <value>Clientes</value>
+  </data>
+  <data name="StatProfessionals" xml:space="preserve">
+    <value>Profissionais</value>
+  </data>
+  <data name="StatProducts" xml:space="preserve">
+    <value>Produtos</value>
+  </data>
+  <data name="StatPetsHosted" xml:space="preserve">
+    <value>Animais Acolhidos</value>
+  </data>
+  <data name="FAQTitle" xml:space="preserve">
+    <value>Perguntas Frequentes</value>
+  </data>
+  <data name="FAQDescription" xml:space="preserve">
+    <value>Muito longe, atrás das montanhas de palavras, longe dos países Vokalia e Consonantia, vivem os textos cegos.</value>
+  </data>
+  <data name="FAQ1Question" xml:space="preserve">
+    <value>Como treinar o seu cão?</value>
+  </data>
+  <data name="FAQ1Answer1" xml:space="preserve">
+    <value>Muito longe, atrás das montanhas de palavras</value>
+  </data>
+  <data name="FAQ1Answer2" xml:space="preserve">
+    <value>Consonantia, vivem os textos cegos</value>
+  </data>
+  <data name="FAQ1Answer3" xml:space="preserve">
+    <value>Quando ela chegou às primeiras colinas das Montanhas Itálicas</value>
+  </data>
+  <data name="FAQ1Answer4" xml:space="preserve">
+    <value>Bookmarksgrove, o título da Vila do Alfabeto</value>
+  </data>
+  <data name="FAQ1Answer5" xml:space="preserve">
+    <value>Separados, vivem em Bookmarksgrove</value>
+  </data>
+  <data name="FAQ2Question" xml:space="preserve">
+    <value>Como gerir os seus animais?</value>
+  </data>
+  <data name="FAQ2Answer1" xml:space="preserve">
+    <value>Muito longe, atrás das montanhas de palavras</value>
+  </data>
+  <data name="FAQ2Answer2" xml:space="preserve">
+    <value>Consonantia, vivem os textos cegos</value>
+  </data>
+  <data name="FAQ2Answer3" xml:space="preserve">
+    <value>Quando ela chegou às primeiras colinas das Montanhas Itálicas</value>
+  </data>
+  <data name="FAQ2Answer4" xml:space="preserve">
+    <value>Bookmarksgrove, o título da Vila do Alfabeto</value>
+  </data>
+  <data name="FAQ2Answer5" xml:space="preserve">
+    <value>Separados, vivem em Bookmarksgrove</value>
+  </data>
+  <data name="FAQ3Question" xml:space="preserve">
+    <value>Qual é o melhor tratamento para os seus animais?</value>
+  </data>
+  <data name="FAQ3Answer1" xml:space="preserve">
+    <value>Muito longe, atrás das montanhas de palavras</value>
+  </data>
+  <data name="FAQ3Answer2" xml:space="preserve">
+    <value>Consonantia, vivem os textos cegos</value>
+  </data>
+  <data name="FAQ3Answer3" xml:space="preserve">
+    <value>Quando ela chegou às primeiras colinas das Montanhas Itálicas</value>
+  </data>
+  <data name="FAQ3Answer4" xml:space="preserve">
+    <value>Bookmarksgrove, o título da Vila do Alfabeto</value>
+  </data>
+  <data name="FAQ3Answer5" xml:space="preserve">
+    <value>Separados, vivem em Bookmarksgrove</value>
+  </data>
+  <data name="FAQ4Question" xml:space="preserve">
+    <value>Quais são os requisitos para cuidar de animais?</value>
+  </data>
+  <data name="FAQ4Answer" xml:space="preserve">
+    <value>Muito longe, atrás das montanhas de palavras, longe dos países Vokalia e Consonantia, vivem os textos cegos. Separados, vivem em Bookmarksgrove à beira da costa da Semântica, um grande oceano de linguagem.</value>
+  </data>
+  <data name="TestimonialsTitle" xml:space="preserve">
+    <value>Clientes Felizes e Comentários</value>
+  </data>
+  <data name="TestimonialText" xml:space="preserve">
+    <value>Muito longe, atrás das montanhas de palavras, longe dos países Vokalia e Consonantia, vivem os textos cegos.</value>
+  </data>
+  <data name="TestimonialPosition" xml:space="preserve">
+    <value>Gestor de Marketing</value>
+  </data>
+  <data name="PricingTitle" xml:space="preserve">
+    <value>Pacotes Acessíveis</value>
+  </data>
+  <data name="PricingPersonal" xml:space="preserve">
+    <value>Pessoal</value>
+  </data>
+  <data name="PricingBusiness" xml:space="preserve">
+    <value>Empresarial</value>
+  </data>
+  <data name="PricingUltimate" xml:space="preserve">
+    <value>Ultimate</value>
+  </data>
+  <data name="PricingFeature1" xml:space="preserve">
+    <value>5 Passeios de Cão</value>
+  </data>
+  <data name="PricingFeature2" xml:space="preserve">
+    <value>3 Visitas Veterinárias</value>
+  </data>
+  <data name="PricingFeature3" xml:space="preserve">
+    <value>3 Pet Spa</value>
+  </data>
+  <data name="PricingFeature4" xml:space="preserve">
+    <value>Suporte Gratuito</value>
+  </data>
+  <data name="GetStarted" xml:space="preserve">
+    <value>Começar</value>
+  </data>
+  <data name="GalleryTitle" xml:space="preserve">
+    <value>Galeria de Animais</value>
+  </data>
+  <data name="Cat" xml:space="preserve">
+    <value>Gato</value>
+  </data>
+  <data name="Dog" xml:space="preserve">
+    <value>Cão</value>
+  </data>
+  <data name="PersianCat" xml:space="preserve">
+    <value>Gato Persa</value>
+  </data>
+  <data name="Pomeranian" xml:space="preserve">
+    <value>Pomeranian</value>
+  </data>
+  <data name="SphynxCat" xml:space="preserve">
+    <value>Gato Sphynx</value>
+  </data>
+  <data name="BritishShorthair" xml:space="preserve">
+    <value>British Shorthair</value>
+  </data>
+  <data name="Beagle" xml:space="preserve">
+    <value>Beagle</value>
+  </data>
+  <data name="Pug" xml:space="preserve">
+    <value>Pug</value>
+  </data>
+  <data name="ViewAllPets" xml:space="preserve">
+    <value>Ver Todos os Animais Disponíveis</value>
+  </data>
+  <data name="BlogTitle" xml:space="preserve">
+    <value>Últimas notícias do nosso blog</value>
+  </data>
+  <data name="BlogDate" xml:space="preserve">
+    <value>7 de Abril de 2020</value>
+  </data>
+  <data name="BlogAdmin" xml:space="preserve">
+    <value>Administrador</value>
+  </data>
+  <data name="BlogHeading" xml:space="preserve">
+    <value>Mesmo o poderoso Pointing não tem controlo sobre os textos cegos</value>
+  </data>
+  <data name="ConsultationTitle" xml:space="preserve">
+    <value>Consulta Gratuita</value>
+  </data>
+  <data name="SelectServices" xml:space="preserve">
+    <value>Selecionar serviços</value>
+  </data>
+  <data name="CatSitting" xml:space="preserve">
+    <value>Cuidar de Gato</value>
+  </data>
+  <data name="DogWalk" xml:space="preserve">
+    <value>Passeio de Cão</value>
+  </data>
+  <data name="PetSpa" xml:space="preserve">
+    <value>Pet Spa</value>
+  </data>
+  <data name="PetGrooming" xml:space="preserve">
+    <value>Tosquia de Animais</value>
+  </data>
+  <data name="PetDaycare" xml:space="preserve">
+    <value>Creche para Animais</value>
+  </data>
+  <data name="YourName" xml:space="preserve">
+    <value>O Seu Nome</value>
+  </data>
+  <data name="VehicleNumber" xml:space="preserve">
+    <value>Número do Veículo</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>Data</value>
+  </data>
+  <data name="Time" xml:space="preserve">
+    <value>Hora</value>
+  </data>
+  <data name="Message" xml:space="preserve">
+    <value>Mensagem</value>
+  </data>
+  <data name="SendMessage" xml:space="preserve">
+    <value>Enviar mensagem</value>
+  </data>
+</root>
