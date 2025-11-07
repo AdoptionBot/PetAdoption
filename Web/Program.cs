@@ -33,16 +33,8 @@ namespace PetAdoption.Web
             builder.Services.AddCascadingAuthenticationState();
             builder.Services.AddScoped<ProfileStateService>();
 
-            // Add Localization with correct ResourcesPath
-            builder.Services.AddLocalization(options => 
-            {
-                options.ResourcesPath = "Resources";
-            });
-            
-            // Register LocalizationService as Scoped (per circuit in Blazor Server)
+            builder.Services.AddLocalization();
             builder.Services.AddScoped<LocalizationService>();
-            
-            // Register DynamicLocalizer as Scoped
             builder.Services.AddScoped(typeof(DynamicLocalizer<>));
 
             // Configure supported cultures
