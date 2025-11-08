@@ -305,7 +305,7 @@
                             <div class="col-md-6">
                                 <h6 class="border-bottom pb-2 mb-3">
                                     <i class="fa fa-paw"></i> @Localizer["PetInformation"]
-                                    @if (selectedPet != null && !string.IsNullOrEmpty(selectedPet.Image1Url))
+                                    @if (selectedPet != null && (HasPetMedia(selectedPet)))
                                     {
                                         <small class="text-muted ms-2">(@Localizer["ClickToEnlarge"])</small>
                                     }
@@ -552,8 +552,8 @@
     </div>
 }
 
-<!-- Image Carousel Viewer -->
-@if (showImageViewer && carouselImages.Any())
+<!-- Media Carousel Viewer -->
+@if (showImageViewer && carouselMedia.Any())
 {
     <div class="image-carousel-overlay" @onclick="CloseImageViewer" @onkeydown="HandleCarouselKeyDown" tabindex="0">
         <div class="carousel-container" @onclick:stopPropagation="true">
@@ -561,44 +561,57 @@
                 <i class="fas fa-times"></i>
             </button>
 
-            @if (carouselImages.Count > 1)
+            @if (carouselMedia.Count > 1)
             {
                 <button type="button"
                         class="carousel-nav carousel-prev"
                         @onclick="PreviousImage"
-                        aria-label="Previous image">
+                        aria-label="Previous media">
                     <i class="fas fa-chevron-left"></i>
                 </button>
             }
 
             <div class="carousel-image-wrapper">
-                <img src="@carouselImages[currentCarouselIndex]"
-                     alt="Pet Image"
-                     class="carousel-image"
-                     @onclick:stopPropagation="true" />
+                @if (carouselMedia[currentCarouselIndex].IsVideo)
+                {
+                    <video src="@carouselMedia[currentCarouselIndex].Url"
+                           class="carousel-video"
+                           controls
+                           autoplay
+                           @onclick:stopPropagation="true">
+                        Your browser does not support the video tag.
+                    </video>
+                }
+                else
+                {
+                    <img src="@carouselMedia[currentCarouselIndex].Url"
+                         alt="Pet Media"
+                         class="carousel-image"
+                         @onclick:stopPropagation="true" />
+                }
             </div>
 
-            @if (carouselImages.Count > 1)
+            @if (carouselMedia.Count > 1)
             {
                 <button type="button"
                         class="carousel-nav carousel-next"
                         @onclick="NextImage"
-                        aria-label="Next image">
+                        aria-label="Next media">
                     <i class="fas fa-chevron-right"></i>
                 </button>
             }
 
             <div class="carousel-footer">
-                @if (carouselImages.Count > 1)
+                @if (carouselMedia.Count > 1)
                 {
                     <div class="carousel-counter">
-                        <i class="fas fa-images me-2"></i>
-                        <span>@(currentCarouselIndex + 1) / @carouselImages.Count</span>
+                        <i class="fas fa-@(carouselMedia[currentCarouselIndex].IsVideo ? "video" : "images") me-2"></i>
+                        <span>@(currentCarouselIndex + 1) / @carouselMedia.Count</span>
                     </div>
                 }
                 <div class="carousel-hint">
                     <i class="fas fa-info-circle me-2"></i>
-                    @if (carouselImages.Count > 1)
+                    @if (carouselMedia.Count > 1)
                     {
                         <span>Use arrow keys or click arrows to navigate • Click outside to close</span>
                     }
@@ -611,7 +624,6 @@
         </div>
     </div>
 }
-
 <style>
     .application-card {
         transition: transform 0.2s, box-shadow 0.3s;
@@ -682,6 +694,16 @@
     }
 
     .carousel-image {
+        max-width: 100%;
+        max-height: 85vh;
+        object-fit: contain;
+        border-radius: 8px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        animation: zoomIn 0.3s ease-in-out;
+        user-select: none;
+    }
+
+    .carousel-video {
         max-width: 100%;
         max-height: 85vh;
         object-fit: contain;
@@ -1129,10 +1151,17 @@
     private Pet? selectedPet;
     private User? selectedApplicant;
 
-    // Image carousel state
+    // Media carousel state - Updated to support both images and videos
     private bool showImageViewer = false;
-    private List<string> carouselImages = new();
+    private List<CarouselMediaItem> carouselMedia = new();
     private int currentCarouselIndex = 0;
+
+    // Helper class to track media type
+    private class CarouselMediaItem
+    {
+        public string Url { get; set; } = string.Empty;
+        public bool IsVideo { get; set; }
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -1436,17 +1465,32 @@
         };
     }
 
-    // Image carousel methods
+    private bool HasPetMedia(Pet pet)
+    {
+        return !string.IsNullOrEmpty(pet.Image1Url) ||
+               !string.IsNullOrEmpty(pet.Image2Url) ||
+               !string.IsNullOrEmpty(pet.Image3Url) ||
+               !string.IsNullOrEmpty(pet.Image4Url) ||
+               !string.IsNullOrEmpty(pet.Video1Url);
+    }
+
+    // Media carousel methods - Updated to support videos
     private void OpenCarouselForCardImage(Pet pet)
     {
-        carouselImages = new List<string>();
+        carouselMedia = new List<CarouselMediaItem>();
 
-        if (!string.IsNullOrEmpty(pet.Image1Url)) carouselImages.Add(pet.Image1Url);
-        if (!string.IsNullOrEmpty(pet.Image2Url)) carouselImages.Add(pet.Image2Url);
-        if (!string.IsNullOrEmpty(pet.Image3Url)) carouselImages.Add(pet.Image3Url);
-        if (!string.IsNullOrEmpty(pet.Image4Url)) carouselImages.Add(pet.Image4Url);
+        if (!string.IsNullOrEmpty(pet.Image1Url))
+            carouselMedia.Add(new CarouselMediaItem { Url = pet.Image1Url, IsVideo = false });
+        if (!string.IsNullOrEmpty(pet.Image2Url))
+            carouselMedia.Add(new CarouselMediaItem { Url = pet.Image2Url, IsVideo = false });
+        if (!string.IsNullOrEmpty(pet.Image3Url))
+            carouselMedia.Add(new CarouselMediaItem { Url = pet.Image3Url, IsVideo = false });
+        if (!string.IsNullOrEmpty(pet.Image4Url))
+            carouselMedia.Add(new CarouselMediaItem { Url = pet.Image4Url, IsVideo = false });
+        if (!string.IsNullOrEmpty(pet.Video1Url))
+            carouselMedia.Add(new CarouselMediaItem { Url = pet.Video1Url, IsVideo = true });
 
-        if (carouselImages.Any())
+        if (carouselMedia.Any())
         {
             currentCarouselIndex = 0;
             showImageViewer = true;
@@ -1458,16 +1502,22 @@
     {
         if (selectedPet == null) return;
 
-        carouselImages = new List<string>();
+        carouselMedia = new List<CarouselMediaItem>();
 
-        if (!string.IsNullOrEmpty(selectedPet.Image1Url)) carouselImages.Add(selectedPet.Image1Url);
-        if (!string.IsNullOrEmpty(selectedPet.Image2Url)) carouselImages.Add(selectedPet.Image2Url);
-        if (!string.IsNullOrEmpty(selectedPet.Image3Url)) carouselImages.Add(selectedPet.Image3Url);
-        if (!string.IsNullOrEmpty(selectedPet.Image4Url)) carouselImages.Add(selectedPet.Image4Url);
+        if (!string.IsNullOrEmpty(selectedPet.Image1Url))
+            carouselMedia.Add(new CarouselMediaItem { Url = selectedPet.Image1Url, IsVideo = false });
+        if (!string.IsNullOrEmpty(selectedPet.Image2Url))
+            carouselMedia.Add(new CarouselMediaItem { Url = selectedPet.Image2Url, IsVideo = false });
+        if (!string.IsNullOrEmpty(selectedPet.Image3Url))
+            carouselMedia.Add(new CarouselMediaItem { Url = selectedPet.Image3Url, IsVideo = false });
+        if (!string.IsNullOrEmpty(selectedPet.Image4Url))
+            carouselMedia.Add(new CarouselMediaItem { Url = selectedPet.Image4Url, IsVideo = false });
+        if (!string.IsNullOrEmpty(selectedPet.Video1Url))
+            carouselMedia.Add(new CarouselMediaItem { Url = selectedPet.Video1Url, IsVideo = true });
 
-        if (carouselImages.Any())
+        if (carouselMedia.Any())
         {
-            currentCarouselIndex = Math.Min(startIndex, carouselImages.Count - 1);
+            currentCarouselIndex = Math.Min(startIndex, carouselMedia.Count - 1);
             showImageViewer = true;
             StateHasChanged();
         }
@@ -1476,27 +1526,27 @@
     private void CloseImageViewer()
     {
         showImageViewer = false;
-        carouselImages.Clear();
+        carouselMedia.Clear();
         currentCarouselIndex = 0;
         StateHasChanged();
     }
 
     private void NextImage()
     {
-        if (carouselImages.Count > 0)
+        if (carouselMedia.Count > 0)
         {
-            // Circular navigation: go to first image when at the end
-            currentCarouselIndex = (currentCarouselIndex + 1) % carouselImages.Count;
+            // Circular navigation: go to first item when at the end
+            currentCarouselIndex = (currentCarouselIndex + 1) % carouselMedia.Count;
             StateHasChanged();
         }
     }
 
     private void PreviousImage()
     {
-        if (carouselImages.Count > 0)
+        if (carouselMedia.Count > 0)
         {
-            // Circular navigation: go to last image when at the beginning
-            currentCarouselIndex = (currentCarouselIndex - 1 + carouselImages.Count) % carouselImages.Count;
+            // Circular navigation: go to last item when at the beginning
+            currentCarouselIndex = (currentCarouselIndex - 1 + carouselMedia.Count) % carouselMedia.Count;
             StateHasChanged();
         }
     }
