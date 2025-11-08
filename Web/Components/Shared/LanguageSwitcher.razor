@@ -1,4 +1,4 @@
-@using PetAdoption.Services.Web
+﻿@using PetAdoption.Services.Web
 @using Microsoft.AspNetCore.Localization
 @rendermode InteractiveServer
 @inject LocalizationService LocalizationService
@@ -6,14 +6,14 @@
 @inject IJSRuntime JSRuntime
 
 <div class="language-switcher">
-    <button class="btn btn-sm btn-link language-flag @(LocalizationService.IsPortuguese() ? "active" : "")" 
+    <button class="btn btn-sm btn-link language-flag @(LocalizationService.IsPortuguese() ? "active" : "")"
             @onclick='() => SetCultureAsync("pt-PT")' 
-            title="Portugu&ecirc;s"
+            title="@portuguesLabel"
             disabled="@LocalizationService.IsPortuguese()">
-        <img src="/images/flags/pt.png" alt="Portugu&ecirc;s" class="flag-icon" />
+        <img src="/images/flags/pt.png" alt="@portuguesLabel" class="flag-icon" />
     </button>
     <span class="separator">|</span>
-    <button class="btn btn-sm btn-link language-flag @(LocalizationService.IsEnglish() ? "active" : "")" 
+    <button class="btn btn-sm btn-link language-flag @(LocalizationService.IsEnglish() ? "active" : "")"
             @onclick='() => SetCultureAsync("en-US")' 
             title="English"
             disabled="@LocalizationService.IsEnglish()">
@@ -71,6 +71,8 @@
 </style>
 
 @code {
+    private const string portuguesLabel = "Português";
+
     private async Task SetCultureAsync(string culture)
     {
         // Set culture in the service (for current circuit)
