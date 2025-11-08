@@ -23,23 +23,23 @@
         <div class="collapse navbar-collapse" id="ftco-nav">
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link @GetDisabledClass()" href="/pets" @onclick='() => HandleNavigationClick("/pets")' @onclick:preventDefault="true">@Localizer["Pets"]</a>
+                    <NavLink class="@($"nav-link {GetDisabledClass()}")" href="/pets" Match="NavLinkMatch.Prefix" @onclick="@((e) => HandleNavLinkClick(e, "/pets"))">@Localizer["Pets"]</NavLink>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link @GetDisabledClass()" href="/shelters" @onclick='() => HandleNavigationClick("/shelters")' @onclick:preventDefault="true">@Localizer["Shelters"]</a>
+                    <NavLink class="@($"nav-link {GetDisabledClass()}")" href="/shelters" Match="NavLinkMatch.Prefix" @onclick="@((e) => HandleNavLinkClick(e, "/shelters"))">@Localizer["Shelters"]</NavLink>
                 </li>
                 <AuthorizeView Roles="User,Foster,Shelter,Admin">
                     <Authorized>
                         <li class="nav-item">
-                            <a class="nav-link @GetDisabledClass()" href="/adoptions" @onclick='() => HandleNavigationClick("/adoptions")' @onclick:preventDefault="true">@Localizer["Adoptions"]</a>
+                            <NavLink class="@($"nav-link {GetDisabledClass()}")" href="/adoptions" Match="NavLinkMatch.Prefix" @onclick="@((e) => HandleNavLinkClick(e, "/adoptions"))">@Localizer["Adoptions"]</NavLink>
                         </li>
                     </Authorized>
                 </AuthorizeView>
                 <li class="nav-item">
-                    <a class="nav-link @GetDisabledClass()" href="/vet" @onclick='() => HandleNavigationClick("/vet")' @onclick:preventDefault="true">@Localizer["Vets"]</a>
+                    <NavLink class="@($"nav-link {GetDisabledClass()}")" href="/vet" Match="NavLinkMatch.Prefix" @onclick="@((e) => HandleNavLinkClick(e, "/vet"))">@Localizer["Vets"]</NavLink>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link @GetDisabledClass()" href="/Testimonials" @onclick='() => HandleNavigationClick("/Testimonials")' @onclick:preventDefault="true">@Localizer["Testimonials"]</a>
+                    <NavLink class="@($"nav-link {GetDisabledClass()}")" href="/Testimonials" Match="NavLinkMatch.Prefix" @onclick="@((e) => HandleNavLinkClick(e, "/Testimonials"))">@Localizer["Testimonials"]</NavLink>
                 </li>
 
                 <AuthorizeView>
@@ -106,8 +106,8 @@
                         </li>
                     </Authorized>
                     <NotAuthorized>
-                        <li class="nav-item ml-auto">
-                            <NavLink class="nav-link btn btn-primary text-white px-3 py-2 ml-2" href="/login">
+                        <li class="nav-item">
+                            <NavLink class="nav-link" href="/login">
                                 <span class="fas fa-sign-in-alt me-1"></span><span class="nav-text">@Localizer["Login"]</span>
                             </NavLink>
                         </li>
@@ -124,7 +124,7 @@
 </nav>
 
 <style>
-    /* Compact navbar - MAIN FIX HERE */
+    /* Compact navbar */
     .ftco_navbar {
         padding-top: 0.15rem !important;
         padding-bottom: 0.15rem !important;
@@ -191,6 +191,35 @@
         margin-left: 0;
     }
 
+    /* Active state for nav links - keep green text and underline */
+    .ftco_navbar .nav-link.active {
+        color: #00bd56 !important;
+    }
+
+        .ftco_navbar .nav-link.active:before {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            bottom: 0px;
+            left: 0;
+            background-color: #00bd56;
+            visibility: visible;
+            -webkit-transform: scaleX(1);
+            -ms-transform: scaleX(1);
+            transform: scaleX(1);
+            z-index: -1;
+        }
+
+    /* Ensure disabled links don't show active styling */
+    .ftco_navbar .nav-link.disabled {
+        color: #6c757d !important;
+    }
+
+        .ftco_navbar .nav-link.disabled:before {
+            visibility: hidden !important;
+        }
+
     /* Mobile responsiveness */
     @@media (max-width: 991px) {
         .ftco_navbar {
@@ -217,6 +246,10 @@
 
         .ftco_navbar .nav-link {
             font-size: 0.9rem;
+        }
+
+        .ftco_navbar .nav-link.active:before {
+            display: none;
         }
     }
 
@@ -288,6 +321,20 @@
     {
         isProfileComplete = true;
         InvokeAsync(StateHasChanged);
+    }
+
+    private void HandleNavLinkClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs e, string path)
+    {
+        if (!isProfileComplete)
+        {
+            // Prevent navigation if profile is incomplete
+            var currentPath = new Uri(Navigation.Uri).AbsolutePath;
+            if (!currentPath.Contains("/profile"))
+            {
+                Navigation.NavigateTo("/profile", forceLoad: true);
+            }
+        }
+        // If profile is complete, NavLink will handle navigation automatically
     }
 
     private void HandleNavigationClick(string path)
