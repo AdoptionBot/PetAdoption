@@ -126,16 +126,16 @@
 <style>
     /* Compact navbar - MAIN FIX HERE */
     .ftco_navbar {
-        padding-top: 0.15rem !important;  /* Drastically reduced */
-        padding-bottom: 0.15rem !important; /* Drastically reduced */
-        min-height: 50px !important; /* Reduced from 60px */
+        padding-top: 0.15rem !important;
+        padding-bottom: 0.15rem !important;
+        min-height: 50px !important;
         position: relative;
         overflow: visible !important;
         z-index: 1030;
     }
 
         .ftco_navbar .container {
-            padding-left: 140px; /* Slightly reduced from 160px */
+            padding-left: 140px;
             position: relative;
             overflow: visible !important;
         }
@@ -152,32 +152,32 @@
     }
 
     .ftco_navbar .nav-link {
-        padding-top: 0.5rem !important; /* Reduced from default */
+        padding-top: 0.5rem !important;
         padding-bottom: 0.5rem !important;
-        font-size: 0.95rem; /* Slightly smaller text */
+        font-size: 0.95rem;
     }
 
-    /* Logo positioning - overlaps contact bar */
+    /* Logo positioning */
     .logo-brand {
         padding: 0 !important;
         margin-right: 0;
         position: absolute;
         left: 15px;
-        top: -45px; /* Fine-tuned from -50px */
+        top: -10px;
         z-index: 1050;
         line-height: 0;
     }
 
-    /* Slightly smaller logo for better proportions */
+    /* Logo styling */
     .navbar-logo {
-        height: 120px; /* Reduced from 130px */
+        height: 120px;
         width: 120px;
         object-fit: cover;
         border-radius: 50%;
-        border: 4px solid #fff;
+        border: 2px solid #fff;
         box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
         transition: transform 0.3s ease, box-shadow 0.3s ease;
-        background-color: #fff;
+        background-color: transparent;
         display: block;
     }
 
@@ -202,12 +202,13 @@
         .navbar-logo {
             height: 85px;
             width: 85px;
-            border-width: 3px;
+            border-width: 1px;
+            background-color: transparent;
         }
 
         .logo-brand {
             left: 10px;
-            top: -32px;
+            top: -20px; /* -20px for tablet */
         }
 
         .ftco_navbar .container {
@@ -229,11 +230,12 @@
         .navbar-logo {
             height: 65px;
             width: 65px;
-            border-width: 3px;
+            border-width: 1px;
+            background-color: transparent;
         }
 
         .logo-brand {
-            top: -22px;
+            top: -15px; /* -15px for mobile */
         }
 
         .ftco_navbar .container {
