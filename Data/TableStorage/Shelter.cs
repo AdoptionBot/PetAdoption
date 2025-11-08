@@ -53,14 +53,19 @@ namespace PetAdoption.Data.TableStorage
         [StringLength(256, ErrorMessage = "X URL cannot exceed 256 characters.")]
         public string? X { get; set; }
 
-        // Google Maps Location - NEW
+        // Google Maps Location
         [OptionalUrl(ErrorMessage = "Google Maps location must be a valid URL.")]
         [StringLength(500, ErrorMessage = "Google Maps location URL cannot exceed 500 characters.")]
         public string? GoogleMapsLocation { get; set; }
 
-        // Opening Times - NEW
+        // Opening Times
         [StringLength(500, ErrorMessage = "Opening times cannot exceed 500 characters.")]
         public string? OpeningTimes { get; set; }
+
+        // Photo Reference
+        [OptionalUrl(ErrorMessage = "Photo URL must be a valid URL.")]
+        [StringLength(500, ErrorMessage = "Photo URL cannot exceed 500 characters.")]
+        public string? PhotoReference { get; set; }
 
         // Adoption Agreement Properties
         [StringLength(2000, ErrorMessage = "Adoption agreement rules cannot exceed 2000 characters.")]
@@ -103,7 +108,7 @@ namespace PetAdoption.Data.TableStorage
 
         public Shelter(string shelterName, string shelterCityTown, string country, string phoneNumber,
             string address, string email, string? website, string? facebook, string? instagram, string? x,
-            string? googleMapsLocation = null, string? openingTimes = null)
+            string? googleMapsLocation = null, string? openingTimes = null, string? photoReference = null)
         {
             PartitionKey = shelterName;
             RowKey = shelterCityTown;
@@ -117,6 +122,7 @@ namespace PetAdoption.Data.TableStorage
             X = x;
             GoogleMapsLocation = googleMapsLocation;
             OpeningTimes = openingTimes;
+            PhotoReference = photoReference;
         }
     }
 }

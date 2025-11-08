@@ -317,12 +317,15 @@
 
     private string? GetPhotoUrlOrNull(string? photoReference)
     {
-        if (string.IsNullOrEmpty(googleApiKey) || string.IsNullOrEmpty(photoReference))
+        // PhotoReference now contains the Azure Blob Storage URL directly
+        // No Google API call needed
+        if (string.IsNullOrEmpty(photoReference))
         {
             return null;
         }
 
-        return $"https://maps.googleapis.com/maps/api/place/photo?maxwidth=200&photo_reference={photoReference}&key={googleApiKey}";
+        // Return the blob URL directly
+        return photoReference;
     }
 
     private string GetEmbedUrl(string googleMapsUrl)

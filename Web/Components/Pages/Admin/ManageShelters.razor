@@ -5,6 +5,8 @@
 @using System.ComponentModel.DataAnnotations
 @using PetAdoption.Web.Components.Shared
 @using PetAdoption.Services.Web
+@using PetAdoption.Services.Data
+@using Microsoft.Extensions.DependencyInjection
 @using Azure
 @attribute [Authorize(Policy = "AdminOnly")]
 @inject IShelterService ShelterService
@@ -13,6 +15,9 @@
 @inject IHttpClientFactory HttpClientFactory
 @inject LocalizationService LocalizationService
 @inject DynamicLocalizer<ManageShelters> Localizer
+@inject ILogger<ManageShelters> Logger
+@inject ILoggerFactory LoggerFactory
+@inject IServiceProvider ServiceProvider
 @implements IDisposable
 @rendermode InteractiveServer
 
@@ -692,8 +697,30 @@
     private bool extractionComplete = false;
     private string? extractionError;
 
+    // Add a temporary field to hold the Google photo reference
+    private string? _tempGooglePhotoReference;
+
+    private GooglePlacesPhotoService? _photoService;
+    private IAzureBlobStorageService? _shelterBlobService;
+
     protected override async Task OnInitializedAsync()
     {
+        // Get the shelter-media blob storage service using keyed service
+        _shelterBlobService = ServiceProvider.GetKeyedService<IAzureBlobStorageService>(
+            BlobStorageServiceKeys.ShelterMedia);
+
+        if (_shelterBlobService == null)
+        {
+            Logger.LogWarning("ShelterMedia blob service not found. Photos will not be uploaded.");
+        }
+
+        // Initialize photo service
+        _photoService = new GooglePlacesPhotoService(
+            HttpClientFactory,
+            Configuration,
+            LoggerFactory.CreateLogger<GooglePlacesPhotoService>()
+        );
+
         await LoadShelters();
 
         // Subscribe to culture change
@@ -747,6 +774,7 @@
         catch (Exception ex)
         {
             errorMessage = "Failed to load shelters: " + ex.Message;
+            Logger.LogError(ex, "Error loading shelters");
         }
         finally
         {
@@ -837,6 +865,9 @@
             // Format opening hours
             var openingTimes = FormatOpeningHours(placeDetails.OpeningHours?.WeekdayText);
 
+            // Store Google photo reference separately to avoid validation issues
+            _tempGooglePhotoReference = placeDetails.PhotoReference;
+
             // Create shelter entry with extracted info (email required, so use placeholder)
             editingShelter = new Shelter
             {
@@ -848,14 +879,17 @@
                 PhoneNumber = placeDetails.PhoneNumber ?? string.Empty,
                 Email = string.Empty, // Must be filled manually
                 Website = placeDetails.Website,
-                OpeningTimes = openingTimes
+                OpeningTimes = openingTimes,
+                PhotoReference = null // Don't set this - will cause validation error
             };
 
             extractionComplete = true;
+            Logger.LogInformation("Successfully extracted shelter info for: {Name}", editingShelter.PartitionKey);
         }
         catch (Exception ex)
         {
             extractionError = $"Error extracting information: {ex.Message}";
+            Logger.LogError(ex, "Error extracting shelter information");
         }
         finally
         {
@@ -998,6 +1032,7 @@
         extractionComplete = false;
         extractionError = null;
         isCreatingNew = false;
+        _tempGooglePhotoReference = null; // Clear temp reference
     }
 
     private void CloseViewModal()
@@ -1027,15 +1062,47 @@
         
         try
         {
+            // Download and upload photo to blob storage if temp photo reference exists
+            if (!string.IsNullOrEmpty(_tempGooglePhotoReference) && 
+                _photoService != null && 
+                _shelterBlobService != null && 
+                isCreatingNew)
+            {
+                Logger.LogInformation("Processing photo for shelter: {Name}", editingShelter.PartitionKey);
+                
+                // Download from Google and upload to Azure Blob Storage
+                var blobUrl = await _photoService.DownloadAndUploadPhotoAsync(
+                    _tempGooglePhotoReference,
+                    editingShelter.PartitionKey,
+                    _shelterBlobService,
+                    maxWidth: 800
+                );
+
+                if (!string.IsNullOrEmpty(blobUrl))
+                {
+                    // Set the Azure Blob URL (this will pass validation)
+                    editingShelter.PhotoReference = blobUrl;
+                    Logger.LogInformation("? Photo successfully uploaded to blob storage: {BlobUrl}", blobUrl);
+                }
+                else
+                {
+                    // Clear photo reference if upload failed
+                    editingShelter.PhotoReference = null;
+                    Logger.LogWarning("Failed to upload photo, continuing without image");
+                }
+            }
+
             if (isCreatingNew)
             {
                 await ShelterService.AddShelterAsync(editingShelter);
-                successMessage = $"Shelter {editingShelter.PartitionKey} created successfully";
+                successMessage = $"Shelter '{editingShelter.PartitionKey}' created successfully!";
+                Logger.LogInformation("Shelter created: {Name}", editingShelter.PartitionKey);
             }
             else
             {
                 await ShelterService.UpdateShelterAsync(editingShelter);
-                successMessage = $"Shelter {editingShelter.PartitionKey} updated successfully";
+                successMessage = $"Shelter '{editingShelter.PartitionKey}' updated successfully!";
+                Logger.LogInformation("Shelter updated: {Name}", editingShelter.PartitionKey);
             }
             
             CloseModal();
@@ -1045,10 +1112,12 @@
         catch (Exception ex)
         {
             errorMessage = $"Failed to save shelter: {ex.Message}";
+            Logger.LogError(ex, "Error saving shelter");
         }
         finally
         {
             isSaving = false;
+            _tempGooglePhotoReference = null; // Clear temp reference
         }
     }
 
@@ -1061,7 +1130,8 @@
         {
             await ShelterService.DeleteShelterAsync(deletingShelter.ShelterName, deletingShelter.Location);
             
-            successMessage = $"Shelter {deletingShelter.ShelterName} deleted successfully";
+            successMessage = $"Shelter '{deletingShelter.ShelterName}' deleted successfully!";
+            Logger.LogInformation("Shelter deleted: {Name}", deletingShelter.ShelterName);
             CloseDeleteModal();
             await LoadShelters();
             ApplyFilters();
@@ -1069,6 +1139,7 @@
         catch (Exception ex)
         {
             errorMessage = $"Failed to delete shelter: {ex.Message}";
+            Logger.LogError(ex, "Error deleting shelter");
         }
         finally
         {

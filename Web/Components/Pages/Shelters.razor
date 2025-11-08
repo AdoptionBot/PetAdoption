@@ -80,7 +80,21 @@
                                     <div class="col-md-4">
                                         <div class="d-flex align-items-center">
                                             <div class="shelter-icon me-3">
-                                                <i class="fa fa-home fa-3x text-primary"></i>
+                                                @{
+                                                    var photoUrl = shelter.PhotoReference;
+                                                }
+                                                @if (!string.IsNullOrEmpty(photoUrl))
+                                                {
+                                                    <img src="@photoUrl"
+                                                         alt="@shelter.PartitionKey"
+                                                         class="rounded"
+                                                         style="width: 80px; height: 80px; object-fit: cover;"
+                                                         onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fa fa-home fa-3x text-primary\'></i>';" />
+                                                }
+                                                else
+                                                {
+                                                    <i class="fa fa-home fa-3x text-primary"></i>
+                                                }
                                             </div>
                                             <div>
                                                 <h4 class="mb-1">@shelter.PartitionKey</h4>

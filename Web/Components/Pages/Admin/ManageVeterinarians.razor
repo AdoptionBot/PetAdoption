@@ -4,15 +4,20 @@
 @using PetAdoption.Data.TableStorage
 @using PetAdoption.Web.Components.Shared
 @using PetAdoption.Services.Web
+@using PetAdoption.Services.Data
+@using Microsoft.Extensions.DependencyInjection
 @using Azure
 @using System.Text.RegularExpressions
 @attribute [Authorize(Policy = "AdminOnly")]
 @inject IVeterinaryService VeterinaryService
 @inject IGooglePlacesService GooglePlacesService
-@inject IConfiguration Configuration
 @inject IHttpClientFactory HttpClientFactory
+@inject IConfiguration Configuration
 @inject LocalizationService LocalizationService
 @inject DynamicLocalizer<ManageVeterinarians> Localizer
+@inject ILogger<ManageVeterinarians> Logger
+@inject ILoggerFactory LoggerFactory
+@inject IServiceProvider ServiceProvider
 @implements IDisposable
 @rendermode InteractiveServer
 
@@ -540,8 +545,22 @@
     private bool extractionComplete = false;
     private string? extractionError;
 
+    private GooglePlacesPhotoService? _photoService;
+    private IAzureBlobStorageService? _veterinaryBlobService;
+
     protected override async Task OnInitializedAsync()
     {
+        // Get the veterinary-media blob storage service using keyed service
+        _veterinaryBlobService = ServiceProvider.GetKeyedService<IAzureBlobStorageService>(
+            BlobStorageServiceKeys.VeterinaryMedia);
+
+        // Initialize photo service
+        _photoService = new GooglePlacesPhotoService(
+            HttpClientFactory,
+            Configuration,
+            LoggerFactory.CreateLogger<GooglePlacesPhotoService>()
+        );
+
         await LoadVeterinaries();
 
         // Subscribe to culture change
@@ -762,6 +781,36 @@
 
         try
         {
+            // Download and upload photo to blob storage if photo reference exists
+            if (!string.IsNullOrEmpty(editingVeterinary.PhotoReference) && 
+                _photoService != null && 
+                _veterinaryBlobService != null)
+            {
+                Logger.LogInformation("Processing photo for veterinary: {Name}", editingVeterinary.PartitionKey);
+                
+                var googlePhotoReference = editingVeterinary.PhotoReference; // Temp store
+                
+                // Download from Google and upload to Azure Blob Storage
+                var blobUrl = await _photoService.DownloadAndUploadPhotoAsync(
+                    googlePhotoReference,
+                    editingVeterinary.PartitionKey,
+                    _veterinaryBlobService
+                );
+
+                if (!string.IsNullOrEmpty(blobUrl))
+                {
+                    // Replace Google photo reference with Azure Blob URL
+                    editingVeterinary.PhotoReference = blobUrl;
+                    Logger.LogInformation("Photo successfully uploaded to blob storage: {BlobUrl}", blobUrl);
+                }
+                else
+                {
+                    // Clear photo reference if upload failed
+                    editingVeterinary.PhotoReference = null;
+                    Logger.LogWarning("Failed to upload photo, continuing without image");
+                }
+            }
+
             await VeterinaryService.AddVeterinaryAsync(editingVeterinary);
             successMessage = $"Veterinary {editingVeterinary.PartitionKey} created successfully";
 
@@ -772,6 +821,7 @@
         catch (Exception ex)
         {
             errorMessage = $"Failed to create veterinary: {ex.Message}";
+            Logger.LogError(ex, "Error creating veterinary");
         }
         finally
         {

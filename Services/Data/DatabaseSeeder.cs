@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using PetAdoption.Data.TableStorage;
 using PetAdoption.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace PetAdoption.Services.Data
 {
@@ -12,17 +13,23 @@ namespace PetAdoption.Services.Data
     {
         private readonly IAzureTableStorageService _tableStorageService;
         private readonly IGooglePlacesService _googlePlacesService;
+        private readonly GooglePlacesPhotoService _photoService;
+        private readonly IServiceProvider _serviceProvider;
         private readonly IConfiguration _configuration;
         private readonly ILogger<DatabaseSeeder> _logger;
 
         public DatabaseSeeder(
             IAzureTableStorageService tableStorageService, 
             IGooglePlacesService googlePlacesService,
+            GooglePlacesPhotoService photoService,
+            IServiceProvider serviceProvider,
             IConfiguration configuration,
             ILogger<DatabaseSeeder> logger)
         {
             _tableStorageService = tableStorageService;
             _googlePlacesService = googlePlacesService;
+            _photoService = photoService;
+            _serviceProvider = serviceProvider;
             _configuration = configuration;
             _logger = logger;
         }
@@ -89,12 +96,54 @@ namespace PetAdoption.Services.Data
                     return;
                 }
 
+                // Get the veterinary media blob service
+                var vetMediaBlobService = _serviceProvider.GetKeyedService<IAzureBlobStorageService>("VeterinaryMedia");
+                if (vetMediaBlobService == null)
+                {
+                    _logger.LogWarning("VeterinaryMedia blob service not found. Photos will not be uploaded.");
+                }
+
                 var veterinaries = await GetDefaultVeterinariesAsync();
 
                 foreach (var vet in veterinaries)
                 {
                     try
                     {
+                        // Upload photo to blob storage if PhotoReference exists
+                        if (!string.IsNullOrEmpty(vet.PhotoReference) && vetMediaBlobService != null)
+                        {
+                            try
+                            {
+                                _logger.LogInformation("Downloading and uploading photo for {Name}", vet.PartitionKey);
+                                
+                                // Use GooglePlacesPhotoService to download and upload
+                                var blobUrl = await _photoService.DownloadAndUploadPhotoAsync(
+                                    vet.PhotoReference,
+                                    vet.PartitionKey,
+                                    vetMediaBlobService,
+                                    maxWidth: 800
+                                );
+                                
+                                if (!string.IsNullOrEmpty(blobUrl))
+                                {
+                                    // Update PhotoReference with blob URL
+                                    vet.PhotoReference = blobUrl;
+                                    _logger.LogInformation("? Photo uploaded successfully for {Name}: {Url}", vet.PartitionKey, blobUrl);
+                                }
+                                else
+                                {
+                                    _logger.LogWarning("Failed to download/upload photo for {Name}", vet.PartitionKey);
+                                    vet.PhotoReference = null; // Clear invalid reference
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(ex, "Failed to process photo for {Name}. Will continue without photo.", vet.PartitionKey);
+                                vet.PhotoReference = null; // Clear on error
+                            }
+                        }
+
+                        // Add to Table Storage
                         await _tableStorageService.AddEntityAsync("Veterinaries", vet);
                         _logger.LogInformation("Added veterinary: {Name} in {Location}", vet.PartitionKey, vet.RowKey);
                     }
@@ -185,7 +234,7 @@ namespace PetAdoption.Services.Data
                     // Format opening hours
                     var openingTimes = FormatOpeningHours(placeDetails.OpeningHours?.WeekdayText);
 
-                    // Create veterinary entity
+                    // Create veterinary entity (PhotoReference will be replaced with blob URL later)
                     var veterinary = new Veterinary(
                         veterinaryName: CleanVeterinaryName(placeDetails.Name),
                         cityTown: city,

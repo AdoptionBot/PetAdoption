@@ -73,6 +73,22 @@ namespace PetAdoption.Services.Data.Extensions
         }
 
         /// <summary>
+        /// Adds named blob storage service for a specific container
+        /// </summary>
+        private static void AddNamedBlobStorageService(
+            IServiceCollection services,
+            string containerName,
+            string serviceName)
+        {
+            services.AddKeyedScoped<IAzureBlobStorageService>(serviceName, (sp, key) =>
+            {
+                var factory = sp.GetRequiredService<AzureBlobStorageClientFactory>();
+                var logger = sp.GetRequiredService<ILogger<AzureBlobStorageService>>();
+                return new AzureBlobStorageService(factory, containerName, logger);
+            });
+        }
+
+        /// <summary>
         /// Adds all business logic services as Scoped
         /// Business services should be scoped to ensure proper data isolation per request
         /// </summary>
@@ -85,6 +101,9 @@ namespace PetAdoption.Services.Data.Extensions
             services.AddScoped<IAdoptionProcessService, AdoptionProcessService>();
             services.AddScoped<IVeterinaryService, VeterinaryService>();
             services.AddScoped<IGooglePlacesService, GooglePlacesService>();
+            
+            // Register GooglePlacesPhotoService as Scoped
+            services.AddScoped<GooglePlacesPhotoService>();
 
             return services;
         }
@@ -102,6 +121,8 @@ namespace PetAdoption.Services.Data.Extensions
             var secretName = configuration["KeyVault:AzureStorageConnectionStringSecret"];
             var petMediaContainer = configuration["Azure:BlobStorage:PetMediaContainer"];
             var shelterDocumentsContainer = configuration["Azure:BlobStorage:ShelterDocumentsContainer"];
+            var veterinaryMediaContainer = configuration["Azure:BlobStorage:VeterinaryMediaContainer"];
+            var shelterMediaContainer = configuration["Azure:BlobStorage:ShelterMediaContainer"];
 
             if (string.IsNullOrWhiteSpace(keyVaultUri))
             {
@@ -120,6 +141,12 @@ namespace PetAdoption.Services.Data.Extensions
             shelterDocumentsContainer = string.IsNullOrWhiteSpace(shelterDocumentsContainer) 
                 ? "shelter-documents" 
                 : shelterDocumentsContainer;
+            veterinaryMediaContainer = string.IsNullOrWhiteSpace(veterinaryMediaContainer)
+                ? "veterinary-media"
+                : veterinaryMediaContainer;
+            shelterMediaContainer = string.IsNullOrWhiteSpace(shelterMediaContainer)
+                ? "shelter-media"
+                : shelterMediaContainer;
 
             // Step 1: Retrieve secrets from Key Vault (happens once at startup)
             var tempKeyVaultService = KeyVaultSecretService.CreateInstance(configuration);
@@ -146,20 +173,20 @@ namespace PetAdoption.Services.Data.Extensions
                 return new AzureBlobStorageClientFactory(storageConnectionString, logger);
             });
 
-            // Step 5: Register default blob storage service for pet media (backward compatibility)
+            // Step 5: Register named blob storage services for different containers
+            // These use keyed services for proper DI resolution
+            AddNamedBlobStorageService(services, petMediaContainer, "PetMedia");
+            AddNamedBlobStorageService(services, shelterDocumentsContainer, "ShelterDocuments");
+            AddNamedBlobStorageService(services, veterinaryMediaContainer, "VeterinaryMedia");
+            AddNamedBlobStorageService(services, shelterMediaContainer, "ShelterMedia");
+
+            // Step 6: Register default blob storage service for backward compatibility
+            // This defaults to pet-media for components that don't specify a container
             services.AddScoped<IAzureBlobStorageService>(sp =>
             {
                 var factory = sp.GetRequiredService<AzureBlobStorageClientFactory>();
                 var logger = sp.GetRequiredService<ILogger<AzureBlobStorageService>>();
                 return new AzureBlobStorageService(factory, petMediaContainer, logger);
-            });
-
-            // Step 6: Register named blob storage service for shelter documents
-            services.AddScoped<IAzureBlobStorageService>(sp =>
-            {
-                var factory = sp.GetRequiredService<AzureBlobStorageClientFactory>();
-                var logger = sp.GetRequiredService<ILogger<AzureBlobStorageService>>();
-                return new AzureBlobStorageService(factory, shelterDocumentsContainer, logger);
             });
 
             // Step 7: Register business services as Scoped
