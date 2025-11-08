@@ -3,6 +3,7 @@
 @using PetAdoption.Services.Interfaces
 @using PetAdoption.Data.TableStorage
 @using PetAdoption.Web.Components.Shared
+@using PetAdoption.Services.Web
 @using Azure
 @using System.Text.RegularExpressions
 @attribute [Authorize(Policy = "AdminOnly")]
@@ -10,17 +11,20 @@
 @inject IGooglePlacesService GooglePlacesService
 @inject IConfiguration Configuration
 @inject IHttpClientFactory HttpClientFactory
+@inject LocalizationService LocalizationService
+@inject DynamicLocalizer<ManageVeterinarians> Localizer
+@implements IDisposable
 @rendermode InteractiveServer
 
-<PageTitle>Manage Veterinarians - Admin</PageTitle>
+<PageTitle>@Localizer["PageTitle"]</PageTitle>
 
 <div class="veterinary-management-page">
     <div class="container mt-5 mb-5">
         <div class="card shadow">
             <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                <h3 class="mb-0">Veterinary Management</h3>
+                <h3 class="mb-0">@Localizer["VeterinaryManagement"]</h3>
                 <button class="btn btn-light btn-sm" @onclick="ShowCreateModal">
-                    <i class="fa fa-plus"></i> Add New Veterinary
+                    <i class="fa fa-plus"></i> @Localizer["AddNewVeterinary"]
                 </button>
             </div>
             <div class="card-body">
@@ -28,9 +32,9 @@
                 {
                     <div class="text-center py-5">
                         <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
+                            <span class="visually-hidden">@Localizer["Loading"]</span>
                         </div>
-                        <p class="mt-3 text-muted">Loading veterinaries...</p>
+                        <p class="mt-3 text-muted">@Localizer["LoadingVeterinaries"]</p>
                     </div>
                 }
                 else if (veterinaries != null && veterinaries.Any())
@@ -56,13 +60,13 @@
                         <div class="col-md-6">
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-search"></i></span>
-                                <input type="text" class="form-control" placeholder="Search veterinaries..." 
+                                <input type="text" class="form-control" placeholder="@Localizer["SearchVeterinaries"]" 
                                        @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterVeterinaries" />
                             </div>
                         </div>
                         <div class="col-md-6">
                             <select class="form-select" @onchange="FilterByCountry">
-                                <option value="">All Countries</option>
+                                <option value="">@Localizer["AllCountries"]</option>
                                 @if (availableCountries != null)
                                 {
                                     @foreach (var country in availableCountries)
@@ -78,12 +82,12 @@
                         <table class="table table-hover table-striped">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Veterinary Name</th>
-                                    <th>Location</th>
-                                    <th>Country</th>
-                                    <th>Phone</th>
-                                    <th>Opening Times</th>
-                                    <th class="text-center">Actions</th>
+                                    <th>@Localizer["VeterinaryName"]</th>
+                                    <th>@Localizer["Location"]</th>
+                                    <th>@Localizer["Country"]</th>
+                                    <th>@Localizer["Phone"]</th>
+                                    <th>@Localizer["OpeningTimes"]</th>
+                                    <th class="text-center">@Localizer["Actions"]</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -106,15 +110,15 @@
                                         </td>
                                         <td class="text-center">
                                             <div class="btn-group btn-group-sm" role="group">
-                                                <button class="btn btn-outline-primary" title="View Details"
+                                                <button class="btn btn-outline-primary" title="@Localizer["ViewDetails"]"
                                                         @onclick="() => ShowViewModal(vet)">
                                                     <i class="fa fa-eye"></i>
                                                 </button>
-                                                <button class="btn btn-outline-success" title="Edit"
+                                                <button class="btn btn-outline-success" title="@Localizer["Edit"]"
                                                         @onclick="() => ShowEditModal(vet)">
                                                     <i class="fa fa-edit"></i>
                                                 </button>
-                                                <button class="btn btn-outline-danger" title="Delete"
+                                                <button class="btn btn-outline-danger" title="@Localizer["Delete"]"
                                                         @onclick="() => ShowDeleteConfirmation(vet)">
                                                     <i class="fa fa-trash"></i>
                                                 </button>
@@ -128,10 +132,10 @@
 
                     <div class="mt-3 d-flex justify-content-between align-items-center">
                         <p class="text-muted mb-0">
-                            <i class="fa fa-hospital"></i> Total Veterinaries: <strong>@veterinaries.Count()</strong>
+                            <i class="fa fa-hospital"></i> @Localizer["TotalVeterinaries"] <strong>@veterinaries.Count()</strong>
                             @if (filteredVeterinaries != null)
                             {
-                                <span> | Filtered: <strong>@filteredVeterinaries.Count()</strong></span>
+                                <span> | @Localizer["Filtered"] <strong>@filteredVeterinaries.Count()</strong></span>
                             }
                         </p>
                     </div>
@@ -140,7 +144,7 @@
                 {
                     <div class="text-center py-5">
                         <div class="alert alert-info d-inline-block">
-                            <i class="fa fa-info-circle"></i> No veterinaries found in the system.
+                            <i class="fa fa-info-circle"></i> @Localizer["NoVeterinariesFound"]
                         </div>
                     </div>
                 }
@@ -157,49 +161,49 @@
                 <div class="modal-content">
                     <div class="modal-header bg-primary text-white">
                         <h5 class="modal-title">
-                            <i class="fa fa-plus-circle"></i> Add New Veterinary
+                            <i class="fa fa-plus-circle"></i> @Localizer["AddNewVeterinary"]
                         </h5>
                         <button type="button" class="btn-close btn-close-white" @onclick="CloseModal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <div class="alert alert-info">
-                            <i class="fa fa-info-circle"></i> 
-                            <strong>Quick Add:</strong> Just paste the Google Maps link and we'll extract all the information automatically!
+                            <i class="fa fa-info-circle"></i>
+                            <strong>@Localizer["QuickAdd"]</strong> @Localizer["QuickAddMessage"]
                         </div>
 
                         @if (isExtracting)
                         {
                             <div class="text-center py-4">
                                 <div class="spinner-border text-primary mb-3" role="status">
-                                    <span class="visually-hidden">Extracting...</span>
+                                    <span class="visually-hidden">@Localizer["Extracting"]</span>
                                 </div>
-                                <p class="text-muted">Extracting veterinary information from Google Maps...</p>
+                                <p class="text-muted">@Localizer["ExtractingMessage"]</p>
                             </div>
                         }
                         else if (extractionComplete)
                         {
                             <div class="alert alert-success">
                                 <i class="fa fa-check-circle"></i>
-                                Information extracted successfully! Review and save below.
+                                @Localizer["ExtractionSuccess"]
                             </div>
 
                             <!-- Preview extracted data -->
                             <div class="card mb-3">
                                 <div class="card-header bg-light">
-                                    <h6 class="mb-0"><i class="fa fa-eye"></i> Extracted Information</h6>
+                                    <h6 class="mb-0"><i class="fa fa-eye"></i> @Localizer["ExtractedInformation"]</h6>
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <p class="mb-2"><strong>Name:</strong> <span class="text-primary">@editingVeterinary?.PartitionKey</span></p>
-                                            <p class="mb-2"><strong>City/Town:</strong> <span class="text-primary">@editingVeterinary?.RowKey</span></p>
-                                            <p class="mb-2"><strong>Country:</strong> <span class="text-primary">@editingVeterinary?.Country</span></p>
-                                            <p class="mb-2"><strong>Address:</strong> <span class="text-secondary">@(editingVeterinary?.Address ?? "Not found")</span></p>
+                                            <p class="mb-2"><strong>@Localizer["Name"]</strong> <span class="text-primary">@editingVeterinary?.PartitionKey</span></p>
+                                            <p class="mb-2"><strong>@Localizer["CityTown"]</strong> <span class="text-primary">@editingVeterinary?.RowKey</span></p>
+                                            <p class="mb-2"><strong>@Localizer["Country"]</strong> <span class="text-primary">@editingVeterinary?.Country</span></p>
+                                            <p class="mb-2"><strong>@Localizer["Address"]</strong> <span class="text-secondary">@(editingVeterinary?.Address ?? Localizer["NotFound"])</span></p>
                                         </div>
                                         <div class="col-md-6">
-                                            <p class="mb-2"><strong>Phone:</strong> <span class="text-secondary">@(editingVeterinary?.PhoneNumber ?? "Not found")</span></p>
+                                            <p class="mb-2"><strong>@Localizer["Phone"]</strong> <span class="text-secondary">@(editingVeterinary?.PhoneNumber ?? Localizer["NotFound"])</span></p>
                                             <p class="mb-2">
-                                                <strong>Website:</strong>
+                                                <strong>@Localizer["Website"]</strong>
                                                 @if (!string.IsNullOrEmpty(editingVeterinary?.Website))
                                                 {
                                                     <a href="@editingVeterinary.Website" target="_blank" rel="noopener noreferrer">
@@ -208,17 +212,17 @@
                                                 }
                                                 else
                                                 {
-                                                    <span class="text-secondary">Not found</span>
+                                                    <span class="text-secondary">@Localizer["NotFound"]</span>
                                                 }
                                             </p>
-                                            <p class="mb-0"><strong>Opening Times:</strong></p>
+                                            <p class="mb-0"><strong>@Localizer["OpeningTimes"]</strong></p>
                                             @if (!string.IsNullOrEmpty(editingVeterinary?.OpeningTimes))
                                             {
                                                 <small class="text-secondary d-block mt-1" style="white-space: pre-line;">@editingVeterinary.OpeningTimes</small>
                                             }
                                             else
                                             {
-                                                <span class="text-secondary"><small>Not found</small></span>
+                                                <span class="text-secondary"><small>@Localizer["NotFound"]</small></span>
                                             }
                                         </div>
                                     </div>
@@ -228,26 +232,26 @@
                         else
                         {
                             <div class="mb-3">
-                                <label class="form-label">Google Maps Link <span class="text-danger">*</span></label>
+                                <label class="form-label">@Localizer["GoogleMapsLink"] <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-map-marker-alt"></i></span>
-                                    <input type="text" 
-                                           class="form-control" 
-                                           placeholder="https://www.google.com/maps/place/..." 
+                                    <input type="text"
+                                           class="form-control"
+                                           placeholder="@Localizer["GoogleMapsPlaceholder"]"
                                            @bind="googleMapsLink"
                                            @bind:event="oninput" />
                                 </div>
                                 <small class="form-text text-muted">
-                                    Paste the full Google Maps URL (e.g., from Share ? Copy link)
+                                    @Localizer["GoogleMapsHelp"]
                                 </small>
                             </div>
 
                             <div class="d-grid">
-                                <button type="button" 
-                                        class="btn btn-primary" 
+                                <button type="button"
+                                        class="btn btn-primary"
                                         @onclick="ExtractVeterinaryInfo"
                                         disabled="@(string.IsNullOrWhiteSpace(googleMapsLink))">
-                                    <i class="fa fa-magic"></i> Extract Information
+                                    <i class="fa fa-magic"></i> @Localizer["ExtractInformation"]
                                 </button>
                             </div>
                         }
@@ -261,7 +265,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" @onclick="CloseModal">
-                            <i class="fa fa-times"></i> Cancel
+                            <i class="fa fa-times"></i> @Localizer["Cancel"]
                         </button>
                         @if (extractionComplete)
                         {
@@ -270,7 +274,7 @@
                                 {
                                     <span class="spinner-border spinner-border-sm me-2"></span>
                                 }
-                                <i class="fa fa-save"></i> Create Veterinary
+                                <i class="fa fa-save"></i> @Localizer["CreateVeterinary"]
                             </button>
                         }
                     </div>
@@ -288,7 +292,7 @@
                 <div class="modal-content">
                     <div class="modal-header bg-primary text-white">
                         <h5 class="modal-title">
-                            <i class="fa fa-edit"></i> Edit Veterinary
+                            <i class="fa fa-edit"></i> @Localizer["EditVeterinary"]
                         </h5>
                         <button type="button" class="btn-close btn-close-white" @onclick="CloseModal" aria-label="Close"></button>
                     </div>
@@ -299,59 +303,59 @@
                             <!-- Basic Information Section -->
                             <div class="card mb-3">
                                 <div class="card-header bg-light">
-                                    <h6 class="mb-0"><i class="fa fa-hospital"></i> Basic Information</h6>
+                                    <h6 class="mb-0"><i class="fa fa-hospital"></i> @Localizer["BasicInformation"]</h6>
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Veterinary Name (PartitionKey)</label>
+                                            <label class="form-label">@Localizer["VeterinaryName"] (PartitionKey)</label>
                                             <input type="text" class="form-control" value="@editingVeterinary!.PartitionKey" disabled />
-                                            <small class="text-muted">Cannot be changed (used as primary key)</small>
+                                            <small class="text-muted">@Localizer["CannotBeChanged"]</small>
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">City/Town (RowKey)</label>
+                                            <label class="form-label">@Localizer["CityTown"] (RowKey)</label>
                                             <input type="text" class="form-control" value="@editingVeterinary!.RowKey" disabled />
-                                            <small class="text-muted">Cannot be changed (used as primary key)</small>
+                                            <small class="text-muted">@Localizer["CannotBeChanged"]</small>
                                         </div>
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">Google Maps Location <span class="text-danger">*</span></label>
+                                        <label class="form-label">@Localizer["GoogleMapsLocation"] <span class="text-danger">*</span></label>
                                         <InputText @bind-Value="editingVeterinary!.GoogleMapsLocation" class="form-control" 
-                                                   placeholder="https://maps.google.com/..." />
-                                        <small class="form-text text-muted">Full Google Maps URL</small>
+                                                   placeholder="@Localizer["GoogleMapsPlaceholder"]" />
+                                        <small class="form-text text-muted">@Localizer["FullGoogleMapsUrl"]</small>
                                         <ValidationMessage For="@(() => editingVeterinary!.GoogleMapsLocation)" class="text-danger" />
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Country</label>
+                                            <label class="form-label">@Localizer["Country"]</label>
                                             <CountryDropdown @bind-Value="editingVeterinary!.Country" CssClass="form-select" />
                                             <ValidationMessage For="@(() => editingVeterinary!.Country)" class="text-danger" />
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Phone Number</label>
+                                            <label class="form-label">@Localizer["PhoneNumber"]</label>
                                             <InputText @bind-Value="editingVeterinary!.PhoneNumber" class="form-control" 
-                                                       placeholder="+351 291 123 456" />
+                                                       placeholder="@Localizer["Plus1234567890"]" />
                                             <ValidationMessage For="@(() => editingVeterinary!.PhoneNumber)" class="text-danger" />
                                         </div>
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">Address</label>
+                                        <label class="form-label">@Localizer["Address"]</label>
                                         <InputTextArea @bind-Value="editingVeterinary!.Address" class="form-control" rows="2" 
-                                                       placeholder="Street address, city, postal code" />
+                                                       placeholder="@Localizer["StreetAddressCityPostalCode"]" />
                                         <ValidationMessage For="@(() => editingVeterinary!.Address)" class="text-danger" />
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">Opening Times</label>
+                                        <label class="form-label">@Localizer["OpeningTimes"]</label>
                                         <InputTextArea @bind-Value="editingVeterinary!.OpeningTimes" class="form-control" rows="2" 
-                                                       placeholder="Mon-Fri: 9:00-18:00, Sat: 9:00-13:00" />
+                                                       placeholder="@Localizer["MonFri900To1800Sat900To1300"]" />
                                         <ValidationMessage For="@(() => editingVeterinary!.OpeningTimes)" class="text-danger" />
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">Website</label>
+                                        <label class="form-label">@Localizer["Website"]</label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fa fa-globe"></i></span>
                                             <InputText @bind-Value="editingVeterinary!.Website" class="form-control" 
-                                                       placeholder="https://example.com" />
+                                                       placeholder="@Localizer["HttpsExampleCom"]" />
                                         </div>
                                         <ValidationMessage For="@(() => editingVeterinary!.Website)" class="text-danger" />
                                     </div>
@@ -362,14 +366,14 @@
                             
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" @onclick="CloseModal">
-                                    <i class="fa fa-times"></i> Cancel
+                                    <i class="fa fa-times"></i> @Localizer["Cancel"]
                                 </button>
                                 <button type="submit" class="btn btn-primary" disabled="@isSaving">
                                     @if (isSaving)
                                     {
                                         <span class="spinner-border spinner-border-sm me-2"></span>
                                     }
-                                    <i class="fa fa-save"></i> Update Veterinary
+                                    <i class="fa fa-save"></i> @Localizer["UpdateVeterinary"]
                                 </button>
                             </div>
                         </ValidatedForm>
@@ -388,7 +392,7 @@
                 <div class="modal-content">
                     <div class="modal-header bg-primary text-white">
                         <h5 class="modal-title">
-                            <i class="fa fa-hospital"></i> Veterinary Details
+                            <i class="fa fa-hospital"></i> @Localizer["VeterinaryDetails"]
                         </h5>
                         <button type="button" class="btn-close btn-close-white" @onclick="CloseViewModal" aria-label="Close"></button>
                     </div>
@@ -397,17 +401,17 @@
                             <div class="col-md-6">
                                 <div class="card mb-3">
                                     <div class="card-header bg-light">
-                                        <strong>Basic Information</strong>
+                                        <strong>@Localizer["BasicInformation"]</strong>
                                     </div>
                                     <ul class="list-group list-group-flush">
-                                        <li class="list-group-item"><strong>Name:</strong> @viewingVeterinary.VeterinaryName</li>
-                                        <li class="list-group-item"><strong>Location:</strong> @viewingVeterinary.CityTown</li>
-                                        <li class="list-group-item"><strong>Country:</strong> @viewingVeterinary.Country</li>
-                                        <li class="list-group-item"><strong>Phone:</strong> @viewingVeterinary.PhoneNumber</li>
-                                        <li class="list-group-item"><strong>Address:</strong> @viewingVeterinary.Address</li>
+                                        <li class="list-group-item"><strong>@Localizer["Name"]</strong> @viewingVeterinary.VeterinaryName</li>
+                                        <li class="list-group-item"><strong>@Localizer["Location"]</strong> @viewingVeterinary.CityTown</li>
+                                        <li class="list-group-item"><strong>@Localizer["Country"]</strong> @viewingVeterinary.Country</li>
+                                        <li class="list-group-item"><strong>@Localizer["Phone"]</strong> @viewingVeterinary.PhoneNumber</li>
+                                        <li class="list-group-item"><strong>@Localizer["Address"]</strong> @viewingVeterinary.Address</li>
                                         @if (!string.IsNullOrEmpty(viewingVeterinary.OpeningTimes))
                                         {
-                                            <li class="list-group-item"><strong>Opening Times:</strong> @viewingVeterinary.OpeningTimes</li>
+                                            <li class="list-group-item"><strong>@Localizer["OpeningTimes"]</strong> @viewingVeterinary.OpeningTimes</li>
                                         }
                                     </ul>
                                 </div>
@@ -415,7 +419,7 @@
                                 {
                                     <div class="card">
                                         <div class="card-body">
-                                            <strong><i class="fa fa-globe me-2"></i>Website:</strong>
+                                            <strong><i class="fa fa-globe me-2"></i>@Localizer["Website"]</strong>
                                             <a href="@viewingVeterinary.Website" target="_blank" rel="noopener noreferrer">
                                                 @viewingVeterinary.Website <i class="fa fa-external-link-alt fa-xs"></i>
                                             </a>
@@ -426,11 +430,11 @@
                             <div class="col-md-6">
                                 <div class="card">
                                     <div class="card-header bg-light">
-                                        <strong><i class="fa fa-map me-2"></i>Google Maps Location</strong>
+                                        <strong><i class="fa fa-map me-2"></i>@Localizer["GoogleMapsLocation"]</strong>
                                     </div>
                                     <div class="card-body">
                                         <a href="@viewingVeterinary.GoogleMapsLocation" target="_blank" rel="noopener noreferrer" class="btn btn-success w-100">
-                                            <i class="fa fa-directions me-2"></i>Open in Google Maps
+                                            <i class="fa fa-directions me-2"></i>@Localizer["OpenInGoogleMaps"]
                                         </a>
                                     </div>
                                 </div>
@@ -439,10 +443,10 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" @onclick="CloseViewModal">
-                            <i class="fa fa-times"></i> Close
+                            <i class="fa fa-times"></i> @Localizer["Close"]
                         </button>
                         <button type="button" class="btn btn-primary" @onclick="() => ShowEditModal(viewingVeterinary)">
-                            <i class="fa fa-edit"></i> Edit Veterinary
+                            <i class="fa fa-edit"></i> @Localizer["EditVeterinary"]
                         </button>
                     </div>
                 </div>
@@ -459,28 +463,28 @@
                 <div class="modal-content">
                     <div class="modal-header bg-danger text-white">
                         <h5 class="modal-title">
-                            <i class="fa fa-exclamation-triangle"></i> Confirm Delete
+                            <i class="fa fa-exclamation-triangle"></i> @Localizer["ConfirmDelete"]
                         </h5>
                         <button type="button" class="btn-close btn-close-white" @onclick="CloseDeleteModal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <p>Are you sure you want to delete the following veterinary?</p>
+                        <p>@Localizer["DeleteConfirmationMessage"]</p>
                         <div class="alert alert-warning">
-                            <strong>Name:</strong> @deletingVeterinary.VeterinaryName<br />
-                            <strong>Location:</strong> @deletingVeterinary.CityTown
+                            <strong>@Localizer["Name"]</strong> @deletingVeterinary.VeterinaryName<br />
+                            <strong>@Localizer["Location"]</strong> @deletingVeterinary.CityTown
                         </div>
-                        <p class="text-danger"><strong>This action cannot be undone!</strong></p>
+                        <p class="text-danger"><strong>@Localizer["CannotBeUndone"]</strong></p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" @onclick="CloseDeleteModal">
-                            <i class="fa fa-times"></i> Cancel
+                            <i class="fa fa-times"></i> @Localizer["Cancel"]
                         </button>
                         <button type="button" class="btn btn-danger" @onclick="ConfirmDelete" disabled="@isDeleting">
                             @if (isDeleting)
                             {
                                 <span class="spinner-border spinner-border-sm me-2"></span>
                             }
-                            <i class="fa fa-trash"></i> Delete Veterinary
+                            <i class="fa fa-trash"></i> @Localizer["DeleteVeterinary"]
                         </button>
                     </div>
                 </div>
@@ -539,6 +543,19 @@
     protected override async Task OnInitializedAsync()
     {
         await LoadVeterinaries();
+
+        // Subscribe to culture change
+        LocalizationService.OnCultureChanged += OnCultureChanged;
+    }
+
+    private void OnCultureChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        LocalizationService.OnCultureChanged -= OnCultureChanged;
     }
 
     private async Task LoadVeterinaries()
@@ -646,7 +663,6 @@
 
         try
         {
-            // Use Google Places API to extract place details
             var placeDetails = await GooglePlacesService.GetPlaceDetailsFromUrlAsync(googleMapsLink);
 
             if (placeDetails == null)
@@ -656,21 +672,15 @@
                 return;
             }
 
-            // Extract city from address
             var city = ExtractCityFromAddress(placeDetails.FormattedAddress) ?? "Unknown";
-
-            // Get default country from configuration
             var defaultCountry = Configuration["DefaultCountryValue"] ?? "Portugal";
-
-            // Format opening hours
             var openingTimes = FormatOpeningHours(placeDetails.OpeningHours?.WeekdayText);
 
-            // Create veterinary entry with extracted info
             editingVeterinary = new Veterinary
             {
                 PartitionKey = CleanVeterinaryName(placeDetails.Name),
                 RowKey = city,
-                GoogleMapsLocation = googleMapsLink.Trim(), // Store original link
+                GoogleMapsLocation = googleMapsLink.Trim(),
                 Country = defaultCountry,
                 Address = placeDetails.FormattedAddress,
                 PhoneNumber = placeDetails.PhoneNumber,
@@ -694,15 +704,11 @@
 
     private string CleanVeterinaryName(string name)
     {
-        // Remove common suffixes/prefixes if needed
         name = name.Trim();
-
-        // Ensure it's within the character limit
         if (name.Length > 100)
         {
             name = name.Substring(0, 100);
         }
-
         return name;
     }
 
@@ -710,7 +716,6 @@
     {
         if (string.IsNullOrEmpty(address)) return null;
 
-        // Common Madeira cities
         var cityPatterns = new[]
         {
             "Funchal", "Câmara de Lobos", "Ribeira Brava", "Machico",
@@ -726,7 +731,6 @@
             }
         }
 
-        // Fallback: try to extract from address format "Street, City, Postal Code, Country"
         var parts = address.Split(',');
         if (parts.Length >= 2)
         {
@@ -737,7 +741,7 @@
             }
         }
 
-        return "Funchal"; // Default
+        return "Funchal";
     }
 
     private string? FormatOpeningHours(List<string>? weekdayText)
@@ -746,8 +750,6 @@
         {
             return null;
         }
-
-        // Join with line breaks or commas for better readability
         return string.Join(", ", weekdayText.Take(7));
     }
 

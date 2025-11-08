@@ -1,7 +1,10 @@
 @using Microsoft.AspNetCore.Components.Forms
 @using PetAdoption.Services.Interfaces
+@using PetAdoption.Services.Web
 @inject ILogger<MediaInput> Logger
 @inject IAzureBlobStorageService BlobStorageService
+@inject LocalizationService LocalizationService
+@inject DynamicLocalizer<MediaInput> Localizer
 @implements IAsyncDisposable
 
 <div class="mb-4 border-bottom pb-3">
@@ -15,13 +18,13 @@
                     <input type="radio" class="btn-check" name="@InputName" id="@($"{InputName}_upload")"
                            checked="@IsUploadMode" @onchange="@(() => SetInputMode(true))" />
                     <label class="btn btn-outline-primary" for="@($"{InputName}_upload")">
-                        <i class="fas fa-upload me-1"></i> Upload File
+                        <i class="fas fa-upload me-1"></i> @Localizer["UploadFile"]
                     </label>
 
                     <input type="radio" class="btn-check" name="@InputName" id="@($"{InputName}_url")"
                            checked="@(!IsUploadMode)" @onchange="@(() => SetInputMode(false))" />
                     <label class="btn btn-outline-primary" for="@($"{InputName}_url")">
-                        <i class="fas fa-link me-1"></i> Enter URL
+                        <i class="fas fa-link me-1"></i> @Localizer["EnterURL"]
                     </label>
                 </div>
             </div>
@@ -38,7 +41,7 @@
                             }
                             else
                             {
-                                <span class="text-muted">Choose @MediaType file...</span>
+                                <span class="text-muted">@string.Format(Localizer["ChooseMediaFile"], MediaType)</span>
                             }
                             <InputFile OnChange="HandleFileSelected" 
                                       class="position-absolute opacity-0 w-100 h-100 top-0 start-0" 
@@ -49,7 +52,7 @@
                         </label>
                     </div>
                     <small class="text-muted d-block">
-                        Max file size: @MaxSizeText (@(IsVideo ? "videos" : "images") only)
+                        @string.Format(Localizer["MaxFileSizeHelp"], MaxSizeText, (IsVideo ? Localizer["Videos"] : Localizer["Images"]))
                     </small>
                     
                     @if (selectedFile != null && !IsUploading)
@@ -60,7 +63,7 @@
                                 @selectedFile.Name (@FormatFileSize(selectedFile.Size))
                             </span>
                             <button type="button" class="btn btn-sm btn-primary" @onclick="HandleUploadClick" disabled="@IsUploading">
-                                <i class="fas fa-cloud-upload-alt me-1"></i> Upload Now
+                                <i class="fas fa-cloud-upload-alt me-1"></i> @Localizer["UploadNow"]
                             </button>
                         </div>
                     }
@@ -72,10 +75,10 @@
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-link"></i></span>
                         <input type="url" class="form-control" 
-                               placeholder="@($"Enter {MediaType} URL (e.g., https://example.com/{MediaType}.jpg)")"
+                               placeholder="@string.Format(Localizer["EnterMediaURL"], MediaType, MediaType)"
                                value="@UrlInput" @oninput="HandleUrlInput" />
                     </div>
-                    <small class="text-muted">Enter a valid URL starting with http:// or https://</small>
+                    <small class="text-muted">@Localizer["ValidURLHelp"]</small>
                 </div>
             }
 
@@ -91,7 +94,7 @@
             {
                 <div class="alert alert-info d-flex align-items-center mt-3 mb-0">
                     <div class="spinner-border spinner-border-sm me-2"></div>
-                    <div>Uploading @MediaType to Azure Blob Storage...</div>
+                    <div>@string.Format(Localizer["UploadingToAzure"], MediaType)</div>
                 </div>
             }
             else if (!string.IsNullOrEmpty(CurrentUrl))
@@ -99,10 +102,10 @@
                 <div class="alert alert-success d-flex align-items-center justify-content-between mt-3 mb-0">
                     <div>
                         <i class="fas fa-check-circle me-2"></i>
-                        @MediaType uploaded successfully
+                        @string.Format(Localizer["MediaUploadedSuccessfully"], MediaType)
                     </div>
                     <button type="button" class="btn btn-sm btn-outline-danger" @onclick="ClearMedia">
-                        <i class="fas fa-times me-1"></i> Clear
+                        <i class="fas fa-times me-1"></i> @Localizer["Clear"]
                     </button>
                 </div>
 
@@ -113,7 +116,7 @@
                     }
                     else
                     {
-                        <img src="@CurrentUrl" class="img-thumbnail" style="max-width: 200px; max-height: 150px;" alt="@Label preview" />
+                        <img src="@CurrentUrl" class="img-thumbnail" style="max-width: 200px; max-height: 150px;" alt="@string.Format(Localizer["PreviewAlt"], Label)" />
                     }
                 </div>
             }
@@ -138,10 +141,20 @@
 
     private string InputId => $"fileInput_{SanitizeForId(Label)}";
     private string InputName => $"mediaInput_{SanitizeForId(Label)}";
-    private string MediaType => IsVideo ? "video" : "image";
+    private string MediaType => IsVideo ? Localizer["Video"] : Localizer["Image"];
     private string AcceptTypes => IsVideo ? "video/mp4,video/webm,video/ogg" : "image/jpeg,image/jpg,image/png,image/gif,image/webp";
     private string MaxSizeText => IsVideo ? "50MB" : "5MB";
     private long MaxFileSize => IsVideo ? 52428800 : 5242880;
+
+    protected override void OnInitialized()
+    {
+        LocalizationService.OnCultureChanged += OnCultureChanged;
+    }
+
+    private void OnCultureChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
 
     protected override void OnParametersSet()
     {
@@ -306,6 +319,7 @@
 
     public async ValueTask DisposeAsync()
     {
+        LocalizationService.OnCultureChanged -= OnCultureChanged;
         _uploadCancellation?.Cancel();
         _uploadCancellation?.Dispose();
         _uploadLock.Dispose();

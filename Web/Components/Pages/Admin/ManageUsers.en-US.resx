@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" msdata:Ordinal="5" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="PageTitle" xml:space="preserve">
+    <value>Manage Users - Admin</value>
+  </data>
+  <data name="UserManagement" xml:space="preserve">
+    <value>User Management</value>
+  </data>
+  <data name="AddNewUser" xml:space="preserve">
+    <value>Add New User</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="LoadingUsers" xml:space="preserve">
+    <value>Loading users...</value>
+  </data>
+  <data name="SearchUsers" xml:space="preserve">
+    <value>Search users...</value>
+  </data>
+  <data name="AllRoles" xml:space="preserve">
+    <value>All Roles</value>
+  </data>
+  <data name="AllStatus" xml:space="preserve">
+    <value>All Status</value>
+  </data>
+  <data name="Active" xml:space="preserve">
+    <value>Active</value>
+  </data>
+  <data name="Disabled" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="UserName" xml:space="preserve">
+    <value>User Name</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Phone" xml:space="preserve">
+    <value>Phone</value>
+  </data>
+  <data name="Shelter" xml:space="preserve">
+    <value>Shelter</value>
+  </data>
+  <data name="Role" xml:space="preserve">
+    <value>Role</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="ViewDetails" xml:space="preserve">
+    <value>View Details</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Enable" xml:space="preserve">
+    <value>Enable</value>
+  </data>
+  <data name="Disable" xml:space="preserve">
+    <value>Disable</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Foster" xml:space="preserve">
+    <value>Foster</value>
+  </data>
+  <data name="TotalUsers" xml:space="preserve">
+    <value>Total Users:</value>
+  </data>
+  <data name="Filtered" xml:space="preserve">
+    <value>Filtered:</value>
+  </data>
+  <data name="NoUsersFound" xml:space="preserve">
+    <value>No users found in the system.</value>
+  </data>
+  <data name="CreateNewUser" xml:space="preserve">
+    <value>Create New User</value>
+  </data>
+  <data name="EditUser" xml:space="preserve">
+    <value>Edit User</value>
+  </data>
+  <data name="BasicInformation" xml:space="preserve">
+    <value>Basic Information</value>
+  </data>
+  <data name="EnterUserName" xml:space="preserve">
+    <value>Enter user name</value>
+  </data>
+  <data name="UserEmailPlaceholder" xml:space="preserve">
+    <value>user@example.com</value>
+  </data>
+  <data name="PhoneNumber" xml:space="preserve">
+    <value>Phone Number</value>
+  </data>
+  <data name="Country" xml:space="preserve">
+    <value>Country</value>
+  </data>
+  <data name="Address" xml:space="preserve">
+    <value>Address</value>
+  </data>
+  <data name="StreetAddressCityStateZip" xml:space="preserve">
+    <value>Street address, city, state, zip</value>
+  </data>
+  <data name="AccountSettings" xml:space="preserve">
+    <value>Account Settings</value>
+  </data>
+  <data name="AccountStatus" xml:space="preserve">
+    <value>Account Status</value>
+  </data>
+  <data name="AccountDisabled" xml:space="preserve">
+    <value>Account Disabled</value>
+  </data>
+  <data name="IsFoster" xml:space="preserve">
+    <value>Is Foster</value>
+  </data>
+  <data name="ProfileStatus" xml:space="preserve">
+    <value>Profile Status</value>
+  </data>
+  <data name="ProfileCompleted" xml:space="preserve">
+    <value>Profile Completed</value>
+  </data>
+  <data name="ProfileCompletedHelp" xml:space="preserve">
+    <value>Automatically set by user profile completion</value>
+  </data>
+  <data name="ShelterAssociation" xml:space="preserve">
+    <value>Shelter Association</value>
+  </data>
+  <data name="SelectShelter" xml:space="preserve">
+    <value>Select Shelter</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>-- None --</value>
+  </data>
+  <data name="SelectShelterHelp" xml:space="preserve">
+    <value>Optional: Link user to a shelter</value>
+  </data>
+  <data name="SelectedShelter" xml:space="preserve">
+    <value>Selected Shelter:</value>
+  </data>
+  <data name="Location" xml:space="preserve">
+    <value>Location:</value>
+  </data>
+  <data name="SocialMediaWebsite" xml:space="preserve">
+    <value>Social Media &amp; Website</value>
+  </data>
+  <data name="Website" xml:space="preserve">
+    <value>Website</value>
+  </data>
+  <data name="Facebook" xml:space="preserve">
+    <value>Facebook</value>
+  </data>
+  <data name="Instagram" xml:space="preserve">
+    <value>Instagram</value>
+  </data>
+  <data name="X" xml:space="preserve">
+    <value>X</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="CreateUser" xml:space="preserve">
+    <value>Create User</value>
+  </data>
+  <data name="UpdateUser" xml:space="preserve">
+    <value>Update User</value>
+  </data>
+  <data name="UserDetails" xml:space="preserve">
+    <value>User Details</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name:</value>
+  </data>
+  <data name="AccountInformation" xml:space="preserve">
+    <value>Account Information</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="Complete" xml:space="preserve">
+    <value>Complete</value>
+  </data>
+  <data name="Incomplete" xml:space="preserve">
+    <value>Incomplete</value>
+  </data>
+  <data name="LastUpdated" xml:space="preserve">
+    <value>Last Updated:</value>
+  </data>
+  <data name="ShelterInformation" xml:space="preserve">
+    <value>Shelter Information</value>
+  </data>
+  <data name="ShelterName" xml:space="preserve">
+    <value>Shelter Name:</value>
+  </data>
+  <data name="NoSocialMediaLinks" xml:space="preserve">
+    <value>No social media links available</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="ConfirmDelete" xml:space="preserve">
+    <value>Confirm Delete</value>
+  </data>
+  <data name="DeleteConfirmationMessage" xml:space="preserve">
+    <value>Are you sure you want to delete the following user?</value>
+  </data>
+  <data name="CannotBeUndone" xml:space="preserve">
+    <value>This action cannot be undone!</value>
+  </data>
+  <data name="DeleteUser" xml:space="preserve">
+    <value>Delete User</value>
+  </data>
+  <data name="HttpsExampleCom" xml:space="preserve">
+    <value>https://example.com</value>
+  </data>
+  <data name="HttpsFacebookCom" xml:space="preserve">
+    <value>https://facebook.com/...</value>
+  </data>
+  <data name="HttpsInstagramCom" xml:space="preserve">
+    <value>https://instagram.com/...</value>
+  </data>
+  <data name="HttpsXCom" xml:space="preserve">
+    <value>https://x.com/...</value>
+  </data>
+  <data name="Plus1234567890" xml:space="preserve">
+    <value>+1234567890</value>
+  </data>
+  <data name="XTwitter" xml:space="preserve">
+    <value>X (Twitter)</value>
+  </data>
+</root>

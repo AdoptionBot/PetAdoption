@@ -1,8 +1,11 @@
 @using Microsoft.AspNetCore.Components.Forms
 @using PetAdoption.Services.Interfaces
 @using PetAdoption.Services.Data
+@using PetAdoption.Services.Web
 @inject ILogger<DocumentInput> Logger
 @inject IServiceProvider ServiceProvider
+@inject LocalizationService LocalizationService
+@inject DynamicLocalizer<DocumentInput> Localizer
 @implements IAsyncDisposable
 
 <div class="mb-4 border-bottom pb-3">
@@ -16,13 +19,13 @@
                     <input type="radio" class="btn-check" name="@InputName" id="@($"{InputName}_upload")"
                            checked="@IsUploadMode" @onchange="@(() => SetInputMode(true))" />
                     <label class="btn btn-outline-primary" for="@($"{InputName}_upload")">
-                        <i class="fas fa-upload me-1"></i> Upload File
+                        <i class="fas fa-upload me-1"></i> @Localizer["UploadFile"]
                     </label>
 
                     <input type="radio" class="btn-check" name="@InputName" id="@($"{InputName}_url")"
                            checked="@(!IsUploadMode)" @onchange="@(() => SetInputMode(false))" />
                     <label class="btn btn-outline-primary" for="@($"{InputName}_url")">
-                        <i class="fas fa-link me-1"></i> Enter URL
+                        <i class="fas fa-link me-1"></i> @Localizer["EnterURL"]
                     </label>
                 </div>
             </div>
@@ -39,7 +42,7 @@
                             }
                             else
                             {
-                                <span class="text-muted">Choose document file...</span>
+                                <span class="text-muted">@Localizer["ChooseDocumentFile"]</span>
                             }
                             <InputFile OnChange="HandleFileSelected" 
                                       class="position-absolute opacity-0 w-100 h-100 top-0 start-0" 
@@ -50,7 +53,7 @@
                         </label>
                     </div>
                     <small class="text-muted d-block">
-                        Max file size: @MaxSizeText (PDF, Word, or Text documents only)
+                        @string.Format(Localizer["MaxFileSize"], MaxSizeText)
                     </small>
                     
                     @if (selectedFile != null && !IsUploading)
@@ -61,7 +64,7 @@
                                 @selectedFile.Name (@FormatFileSize(selectedFile.Size))
                             </span>
                             <button type="button" class="btn btn-sm btn-primary" @onclick="HandleUploadClick" disabled="@IsUploading">
-                                <i class="fas fa-cloud-upload-alt me-1"></i> Upload Now
+                                <i class="fas fa-cloud-upload-alt me-1"></i> @Localizer["UploadNow"]
                             </button>
                         </div>
                     }
@@ -73,10 +76,10 @@
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-link"></i></span>
                         <input type="url" class="form-control" 
-                               placeholder="Enter document URL (e.g., https://example.com/document.pdf)"
+                               placeholder="@Localizer["EnterDocumentURL"]"
                                value="@UrlInput" @oninput="HandleUrlInput" />
                     </div>
-                    <small class="text-muted">Enter a valid URL starting with http:// or https://</small>
+                    <small class="text-muted">@Localizer["ValidURLHelp"]</small>
                 </div>
             }
 
@@ -92,7 +95,7 @@
             {
                 <div class="alert alert-info d-flex align-items-center mt-3 mb-0">
                     <div class="spinner-border spinner-border-sm me-2"></div>
-                    <div>Uploading document to Azure Blob Storage...</div>
+                    <div>@Localizer["UploadingToAzure"]</div>
                 </div>
             }
             else if (!string.IsNullOrEmpty(CurrentUrl))
@@ -100,14 +103,14 @@
                 <div class="alert alert-success d-flex align-items-center justify-content-between mt-3 mb-0">
                     <div>
                         <i class="fas fa-check-circle me-2"></i>
-                        Document uploaded successfully
+                        @Localizer["DocumentUploadedSuccessfully"]
                     </div>
                     <div>
                         <a href="@CurrentUrl" target="_blank" class="btn btn-sm btn-outline-primary me-2">
-                            <i class="fas fa-external-link-alt me-1"></i> View
+                            <i class="fas fa-external-link-alt me-1"></i> @Localizer["View"]
                         </a>
                         <button type="button" class="btn btn-sm btn-outline-danger" @onclick="ClearDocument">
-                            <i class="fas fa-times me-1"></i> Clear
+                            <i class="fas fa-times me-1"></i> @Localizer["Clear"]
                         </button>
                     </div>
                 </div>
@@ -115,7 +118,7 @@
                 <div class="mt-2 p-2 bg-light rounded">
                     <small class="text-muted">
                         <i class="fas fa-file me-1"></i>
-                        Document saved: @GetFileNameFromUrl(CurrentUrl)
+                        @Localizer["DocumentSaved"] @GetFileNameFromUrl(CurrentUrl)
                     </small>
                 </div>
             }
@@ -142,21 +145,26 @@
     private string InputName => $"documentInput_{SanitizeForId(Label)}";
     private string AcceptTypes => ".pdf,.doc,.docx,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain";
     private string MaxSizeText => "10MB";
-    private long MaxFileSize => 10485760; // 10MB
+    private long MaxFileSize => 10485760;
 
     protected override void OnInitialized()
     {
-        // Get all IAzureBlobStorageService instances and find the one for shelter-documents
         var services = ServiceProvider.GetServices<IAzureBlobStorageService>();
         _blobStorageService = services.FirstOrDefault(s => s.ContainerName == "shelter-documents");
 
         if (_blobStorageService == null)
         {
-            // Fallback: create a new instance for shelter-documents
             var factory = ServiceProvider.GetRequiredService<AzureBlobStorageClientFactory>();
             var logger = ServiceProvider.GetRequiredService<ILogger<AzureBlobStorageService>>();
             _blobStorageService = new AzureBlobStorageService(factory, "shelter-documents", logger);
         }
+
+        LocalizationService.OnCultureChanged += OnCultureChanged;
+    }
+
+    private void OnCultureChanged()
+    {
+        InvokeAsync(StateHasChanged);
     }
 
     protected override void OnParametersSet()
@@ -190,7 +198,6 @@
                 return;
             }
 
-            // Validate file type by extension and content type
             var fileName = selectedFile.Name.ToLowerInvariant();
             var allowedExtensions = new[] { ".pdf", ".doc", ".docx", ".txt" };
             var hasValidExtension = allowedExtensions.Any(ext => fileName.EndsWith(ext));
@@ -256,7 +263,6 @@
             
             await using var stream = selectedFile.OpenReadStream(MaxFileSize);
             
-            // Upload to shelter-documents container
             var url = await _blobStorageService.UploadImageAsync(
                 stream,
                 selectedFile.Name,
@@ -361,6 +367,7 @@
 
     public async ValueTask DisposeAsync()
     {
+        LocalizationService.OnCultureChanged -= OnCultureChanged;
         _uploadCancellation?.Cancel();
         _uploadCancellation?.Dispose();
         _uploadLock.Dispose();

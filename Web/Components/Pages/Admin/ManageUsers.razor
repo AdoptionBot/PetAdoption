@@ -4,22 +4,26 @@
 @using PetAdoption.Data.TableStorage
 @using System.ComponentModel.DataAnnotations
 @using PetAdoption.Web.Components.Shared
+@using PetAdoption.Services.Web
 @using Azure
 @attribute [Authorize(Policy = "AdminOnly")]
 @inject IUserService UserService
 @inject IShelterService ShelterService
 @inject IConfiguration Configuration
+@inject LocalizationService LocalizationService
+@inject DynamicLocalizer<ManageUsers> Localizer
+@implements IDisposable
 @rendermode InteractiveServer
 
-<PageTitle>Manage Users - Admin</PageTitle>
+<PageTitle>@Localizer["PageTitle"]</PageTitle>
 
 <div class="user-management-page">
     <div class="container mt-5 mb-5">
         <div class="card shadow">
             <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                <h3 class="mb-0">User Management</h3>
+                <h3 class="mb-0">@Localizer["UserManagement"]</h3>
                 <button class="btn btn-light btn-sm" @onclick="ShowCreateModal">
-                    <i class="fa fa-plus"></i> Add New User
+                    <i class="fa fa-plus"></i> @Localizer["AddNewUser"]
                 </button>
             </div>
             <div class="card-body">
@@ -27,9 +31,9 @@
                 {
                     <div class="text-center py-5">
                         <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
+                            <span class="visually-hidden">@Localizer["Loading"]</span>
                         </div>
-                        <p class="mt-3 text-muted">Loading users...</p>
+                        <p class="mt-3 text-muted">@Localizer["LoadingUsers"]</p>
                     </div>
                 }
                 else if (userWithShelters != null && userWithShelters.Any())
@@ -57,13 +61,13 @@
                         <div class="col-md-6">
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-search"></i></span>
-                                <input type="text" class="form-control" placeholder="Search users..." 
+                                <input type="text" class="form-control" placeholder="@Localizer["SearchUsers"]" 
                                        @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterUsers" />
                             </div>
                         </div>
                         <div class="col-md-3">
                             <select class="form-select" @onchange="FilterByRole">
-                                <option value="">All Roles</option>
+                                <option value="">@Localizer["AllRoles"]</option>
                                 @foreach (UserRole role in Enum.GetValues(typeof(UserRole)))
                                 {
                                     <option value="@role">@role</option>
@@ -72,9 +76,9 @@
                         </div>
                         <div class="col-md-3">
                             <select class="form-select" @onchange="FilterByStatus">
-                                <option value="">All Status</option>
-                                <option value="active">Active</option>
-                                <option value="disabled">Disabled</option>
+                                <option value="">@Localizer["AllStatus"]</option>
+                                <option value="active">@Localizer["Active"]</option>
+                                <option value="disabled">@Localizer["Disabled"]</option>
                             </select>
                         </div>
                     </div>
@@ -83,13 +87,13 @@
                         <table class="table table-hover table-striped">
                             <thead class="table-light">
                                 <tr>
-                                    <th>User Name</th>
-                                    <th>Email</th>
-                                    <th>Phone</th>
-                                    <th>Shelter</th>
-                                    <th>Role</th>
-                                    <th>Status</th>
-                                    <th class="text-center">Actions</th>
+                                    <th>@Localizer["UserName"]</th>
+                                    <th>@Localizer["Email"]</th>
+                                    <th>@Localizer["Phone"]</th>
+                                    <th>@Localizer["Shelter"]</th>
+                                    <th>@Localizer["Role"]</th>
+                                    <th>@Localizer["Status"]</th>
+                                    <th class="text-center">@Localizer["Actions"]</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -100,7 +104,7 @@
                                             <strong>@item.UserName</strong>
                                             @if (item.IsFoster)
                                             {
-                                                <text>&nbsp;</text><span class="badge bg-info ms-1">Foster</span>
+                                                <text>&nbsp;</text><span class="badge bg-info ms-1">@Localizer["Foster"]</span>
                                             }
                                         </td>
                                         <td>@item.Email</td>
@@ -127,32 +131,32 @@
                                             @if (item.IsAccountDisabled)
                                             {
                                                 <span class="badge bg-danger">
-                                                    <i class="fa fa-ban"></i> Disabled
+                                                    <i class="fa fa-ban"></i> @Localizer["Disabled"]
                                                 </span>
                                             }
                                             else
                                             {
                                                 <span class="badge bg-success">
-                                                    <i class="fa fa-check"></i> Active
+                                                    <i class="fa fa-check"></i> @Localizer["Active"]
                                                 </span>
                                             }
                                         </td>
                                         <td class="text-center">
                                             <div class="btn-group btn-group-sm" role="group">
-                                                <button class="btn btn-outline-primary action-view" title="View Details"
+                                                <button class="btn btn-outline-primary action-view" title="@Localizer["ViewDetails"]"
                                                         @onclick="() => ShowViewModal(item)">
                                                     <i class="fa fa-eye"></i>
                                                 </button>
-                                                <button class="btn btn-outline-success action-edit" title="Edit"
+                                                <button class="btn btn-outline-success action-edit" title="@Localizer["Edit"]"
                                                         @onclick="() => ShowEditModal(item)">
                                                     <i class="fa fa-edit"></i>
                                                 </button>
                                                 <button class="btn btn-outline-@(item.IsAccountDisabled ? "success" : "warning") action-toggle" 
-                                                        title="@(item.IsAccountDisabled ? "Enable" : "Disable")"
+                                                        title="@(item.IsAccountDisabled ? Localizer["Enable"] : Localizer["Disable"])"
                                                         @onclick="() => ToggleUserStatus(item)">
                                                     <i class="fa fa-@(item.IsAccountDisabled ? "check" : "ban")"></i>
                                                 </button>
-                                                <button class="btn btn-outline-danger action-delete" title="Delete"
+                                                <button class="btn btn-outline-danger action-delete" title="@Localizer["Delete"]"
                                                         @onclick="() => ShowDeleteConfirmation(item)">
                                                     <i class="fa fa-trash"></i>
                                                 </button>
@@ -166,10 +170,10 @@
 
                     <div class="mt-3 d-flex justify-content-between align-items-center">
                         <p class="text-muted mb-0">
-                            <i class="fa fa-users"></i> Total Users: <strong>@userWithShelters.Count()</strong>
+                            <i class="fa fa-users"></i> @Localizer["TotalUsers"] <strong>@userWithShelters.Count()</strong>
                             @if (filteredUsers != null)
                             {
-                                <span> | Filtered: <strong>@filteredUsers.Count()</strong></span>
+                                <span> | @Localizer["Filtered"] <strong>@filteredUsers.Count()</strong></span>
                             }
                         </p>
                     </div>
@@ -178,7 +182,7 @@
                 {
                     <div class="text-center py-5">
                         <div class="alert alert-info d-inline-block">
-                            <i class="fa fa-info-circle"></i> No users found in the system.
+                            <i class="fa fa-info-circle"></i> @Localizer["NoUsersFound"]
                         </div>
                     </div>
                 }
@@ -196,7 +200,7 @@
                     <div class="modal-header bg-primary text-white">
                         <h5 class="modal-title">
                             <i class="fa fa-@(isEditMode ? "edit" : "plus-circle")"></i>
-                            @(isEditMode ? "Edit User" : "Create New User")
+                            @(isEditMode ? Localizer["EditUser"] : Localizer["CreateNewUser"])
                         </h5>
                         <button type="button" class="btn-close btn-close-white" @onclick="CloseModal" aria-label="Close">
                         </button>
@@ -208,13 +212,13 @@
                             <!-- Basic Information Section -->
                             <div class="card mb-3">
                                 <div class="card-header bg-light">
-                                    <h6 class="mb-0"><i class="fa fa-user"></i> Basic Information</h6>
+                                    <h6 class="mb-0"><i class="fa fa-user"></i> @Localizer["BasicInformation"]</h6>
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">
-                                                User Name
+                                                @Localizer["UserName"]
                                                 @if (!isEditMode)
                                                 {
                                                     <span class="text-danger">*</span>
@@ -226,13 +230,13 @@
                                             }
                                             else
                                             {
-                                                <InputText @bind-Value="editingUser!.PartitionKey" class="form-control" placeholder="Enter user name" />
+                                                <InputText @bind-Value="editingUser!.PartitionKey" class="form-control" placeholder="@Localizer["EnterUserName"]" />
                                                 <ValidationMessage For="@(() => editingUser!.PartitionKey)" class="text-danger" />
                                             }
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">
-                                                Email
+                                                @Localizer["Email"]
                                                 @if (!isEditMode)
                                                 {
                                                     <span class="text-danger">*</span>
@@ -244,28 +248,28 @@
                                             }
                                             else
                                             {
-                                                <InputText @bind-Value="editingUser!.RowKey" class="form-control" type="email" placeholder="user@example.com" />
+                                                <InputText @bind-Value="editingUser!.RowKey" class="form-control" type="email" placeholder="@Localizer["UserEmailPlaceholder"]" />
                                                 <ValidationMessage For="@(() => editingUser!.RowKey)" class="text-danger" />
                                             }
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                            <label class="form-label">@Localizer["PhoneNumber"] <span class="text-danger">*</span></label>
                                             <InputText @bind-Value="editingUser!.PhoneNumber" class="form-control" 
-                                                       placeholder="+1234567890" />
+                                                       placeholder="@Localizer["Plus1234567890"]" />
                                             <ValidationMessage For="@(() => editingUser!.PhoneNumber)" class="text-danger" />
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Country <span class="text-danger">*</span></label>
+                                            <label class="form-label">@Localizer["Country"] <span class="text-danger">*</span></label>
                                             <CountryDropdown @bind-Value="editingUser!.Country" CssClass="form-select" />
                                             <ValidationMessage For="@(() => editingUser!.Country)" class="text-danger" />
                                         </div>
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">Address <span class="text-danger">*</span></label>
+                                        <label class="form-label">@Localizer["Address"] <span class="text-danger">*</span></label>
                                         <InputTextArea @bind-Value="editingUser!.Address" class="form-control" rows="2" 
-                                                       placeholder="Street address, city, state, zip" />
+                                                       placeholder="@Localizer["StreetAddressCityStateZip"]" />
                                         <ValidationMessage For="@(() => editingUser!.Address)" class="text-danger" />
                                     </div>
                                 </div>
@@ -274,12 +278,12 @@
                             <!-- Account Settings Section -->
                             <div class="card mb-3">
                                 <div class="card-header bg-light">
-                                    <h6 class="mb-0"><i class="fa fa-cog"></i> Account Settings</h6>
+                                    <h6 class="mb-0"><i class="fa fa-cog"></i> @Localizer["AccountSettings"]</h6>
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Role <span class="text-danger">*</span></label>
+                                            <label class="form-label">@Localizer["Role"] <span class="text-danger">*</span></label>
                                             <InputSelect @bind-Value="editingUser!.Role" class="form-select">
                                                 @foreach (UserRole role in Enum.GetValues(typeof(UserRole)))
                                                 {
@@ -289,12 +293,12 @@
                                             <ValidationMessage For="@(() => editingUser!.Role)" class="text-danger" />
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Account Status</label>
+                                            <label class="form-label">@Localizer["AccountStatus"]</label>
                                             <div class="form-check form-switch mt-2">
                                                 <InputCheckbox @bind-Value="editingUser!.IsAccountDisabled" 
                                                               class="form-check-input" id="accountDisabled" />
                                                 <label class="form-check-label" for="accountDisabled">
-                                                    Account Disabled
+                                                    @Localizer["AccountDisabled"]
                                                 </label>
                                             </div>
                                         </div>
@@ -305,22 +309,22 @@
                                                 <InputCheckbox @bind-Value="editingUser!.IsFoster" 
                                                               class="form-check-input" id="isFoster" />
                                                 <label class="form-check-label" for="isFoster">
-                                                    <i class="fa fa-heart"></i> Is Foster
+                                                    <i class="fa fa-heart"></i> @Localizer["IsFoster"]
                                                 </label>
                                             </div>
                                         </div>
                                         @if (isEditMode)
                                         {
                                             <div class="col-md-6 mb-3">
-                                                <label class="form-label">Profile Status</label>
+                                                <label class="form-label">@Localizer["ProfileStatus"]</label>
                                                 <div class="form-check form-switch mt-2">
                                                     <input type="checkbox" class="form-check-input" id="profileCompleted"
                                                            checked="@editingUser!.IsProfileCompleted" disabled />
                                                     <label class="form-check-label" for="profileCompleted">
-                                                        Profile Completed
+                                                        @Localizer["ProfileCompleted"]
                                                     </label>
                                                 </div>
-                                                <small class="form-text text-muted">Automatically set by user profile completion</small>
+                                                <small class="form-text text-muted">@Localizer["ProfileCompletedHelp"]</small>
                                             </div>
                                         }
                                     </div>
@@ -330,13 +334,13 @@
                             <!-- Shelter Association Section -->
                             <div class="card mb-3">
                                 <div class="card-header bg-light">
-                                    <h6 class="mb-0"><i class="fa fa-home"></i> Shelter Association</h6>
+                                    <h6 class="mb-0"><i class="fa fa-home"></i> @Localizer["ShelterAssociation"]</h6>
                                 </div>
                                 <div class="card-body">
                                     <div class="mb-3">
-                                        <label class="form-label">Select Shelter</label>
+                                        <label class="form-label">@Localizer["SelectShelter"]</label>
                                         <select class="form-select" @onchange="OnShelterSelectionChanged">
-                                            <option value="">-- None --</option>
+                                            <option value="">@Localizer["None"]</option>
                                             @if (availableShelters != null)
                                             {
                                                 @foreach (var shelter in availableShelters)
@@ -350,13 +354,13 @@
                                                 }
                                             }
                                         </select>
-                                        <small class="form-text text-muted">Optional: Link user to a shelter</small>
+                                        <small class="form-text text-muted">@Localizer["SelectShelterHelp"]</small>
                                     </div>
                                     @if (!string.IsNullOrEmpty(editingUser?.ShelterName))
                                     {
                                         <div class="alert alert-info">
-                                            <strong>Selected Shelter:</strong> @editingUser.ShelterName<br />
-                                            <strong>Location:</strong> @editingUser.ShelterLocation
+                                            <strong>@Localizer["SelectedShelter"]</strong> @editingUser.ShelterName<br />
+                                            <strong>@Localizer["Location"]</strong> @editingUser.ShelterLocation
                                         </div>
                                     }
                                 </div>
@@ -365,45 +369,45 @@
                             <!-- Social Media Section -->
                             <div class="card mb-3">
                                 <div class="card-header bg-light">
-                                    <h6 class="mb-0"><i class="fa fa-share-alt"></i> Social Media & Website</h6>
+                                    <h6 class="mb-0"><i class="fa fa-share-alt"></i> @Localizer["SocialMediaWebsite"]</h6>
                                 </div>
                                 <div class="card-body">
                                     <div class="mb-3">
-                                        <label class="form-label">Website</label>
+                                        <label class="form-label">@Localizer["Website"]</label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fa fa-globe"></i></span>
                                             <InputText @bind-Value="editingUser!.Website" class="form-control" 
-                                                       placeholder="https://example.com" />
+                                                       placeholder="@Localizer["HttpsExampleCom"]" />
                                         </div>
                                         <ValidationMessage For="@(() => editingUser!.Website)" class="text-danger" />
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Facebook</label>
+                                            <label class="form-label">@Localizer["Facebook"]</label>
                                             <div class="input-group">
                                                 <span class="input-group-text"><i class="fa-brands fa-facebook"></i></span>
                                                 <InputText @bind-Value="editingUser!.Facebook" class="form-control" 
-                                                           placeholder="https://facebook.com/..." />
+                                                           placeholder="@Localizer["HttpsFacebookCom"]" />
                                             </div>
                                             <ValidationMessage For="@(() => editingUser!.Facebook)" class="text-danger" />
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Instagram</label>
+                                            <label class="form-label">@Localizer["Instagram"]</label>
                                             <div class="input-group">
                                                 <span class="input-group-text"><i class="fa-brands fa-instagram"></i></span>
                                                 <InputText @bind-Value="editingUser!.Instagram" class="form-control" 
-                                                           placeholder="https://instagram.com/..." />
+                                                           placeholder="@Localizer["HttpsInstagramCom"]" />
                                             </div>
                                             <ValidationMessage For="@(() => editingUser!.Instagram)" class="text-danger" />
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">X</label>
+                                            <label class="form-label">@Localizer["X"]</label>
                                             <div class="input-group">
                                                 <span class="input-group-text"><i class="fa-brands fa-x-twitter"></i></span>
                                                 <InputText @bind-Value="editingUser!.X" class="form-control"
-                                                           placeholder="https://x.com/..." />
+                                                           placeholder="@Localizer["HttpsXCom"]" />
                                             </div>
                                             <ValidationMessage For="@(() => editingUser!.X)" class="text-danger" />
                                         </div>
@@ -415,14 +419,14 @@
                             
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" @onclick="CloseModal">
-                                    <i class="fa fa-times"></i> Cancel
+                                    <i class="fa fa-times"></i> @Localizer["Cancel"]
                                 </button>
                                 <button type="submit" class="btn btn-primary" disabled="@isSaving">
                                     @if (isSaving)
                                     {
                                         <span class="spinner-border spinner-border-sm me-2"></span>
                                     }
-                                    <i class="fa fa-save"></i> @(isEditMode ? "Update" : "Create") User
+                                    <i class="fa fa-save"></i> @(isEditMode ? Localizer["UpdateUser"] : Localizer["CreateUser"])
                                 </button>
                             </div>
                         </ValidatedForm>
@@ -441,7 +445,7 @@
                 <div class="modal-content">
                     <div class="modal-header bg-primary text-white">
                         <h5 class="modal-title">
-                            <i class="fa fa-user-circle"></i> User Details
+                            <i class="fa fa-user-circle"></i> @Localizer["UserDetails"]
                         </h5>
                         <button type="button" class="btn-close btn-close-white" @onclick="CloseViewModal" aria-label="Close">
                         </button>
@@ -451,49 +455,49 @@
                             <div class="col-md-6">
                                 <div class="card mb-3">
                                     <div class="card-header bg-light">
-                                        <strong>Basic Information</strong>
+                                        <strong>@Localizer["BasicInformation"]</strong>
                                     </div>
                                     <ul class="list-group list-group-flush">
-                                        <li class="list-group-item"><strong>Name:</strong> @viewingUser.UserName</li>
-                                        <li class="list-group-item"><strong>Email:</strong> @viewingUser.Email</li>
-                                        <li class="list-group-item"><strong>Phone:</strong> @viewingUser.PhoneNumber</li>
-                                        <li class="list-group-item"><strong>Country:</strong> @viewingUser.Country</li>
-                                        <li class="list-group-item"><strong>Address:</strong> @viewingUser.Address</li>
+                                        <li class="list-group-item"><strong>@Localizer["Name"]</strong> @viewingUser.UserName</li>
+                                        <li class="list-group-item"><strong>@Localizer["Email"]</strong> @viewingUser.Email</li>
+                                        <li class="list-group-item"><strong>@Localizer["Phone"]</strong> @viewingUser.PhoneNumber</li>
+                                        <li class="list-group-item"><strong>@Localizer["Country"]</strong> @viewingUser.Country</li>
+                                        <li class="list-group-item"><strong>@Localizer["Address"]</strong> @viewingUser.Address</li>
                                     </ul>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="card mb-3">
                                     <div class="card-header bg-light">
-                                        <strong>Account Information</strong>
+                                        <strong>@Localizer["AccountInformation"]</strong>
                                     </div>
                                     <ul class="list-group list-group-flush">
                                         <li class="list-group-item">
-                                            <strong>Role:</strong> 
+                                            <strong>@Localizer["Role"]</strong> 
                                             <span class="badge @GetRoleBadgeClass(viewingUser.Role) ms-2">@viewingUser.Role</span>
                                         </li>
                                         <li class="list-group-item">
-                                            <strong>Status:</strong> 
+                                            <strong>@Localizer["Status"]</strong> 
                                             <span class="badge @(viewingUser.IsAccountDisabled ? "bg-danger" : "bg-success") ms-2">
-                                                @(viewingUser.IsAccountDisabled ? "Disabled" : "Active")
+                                                @(viewingUser.IsAccountDisabled ? Localizer["Disabled"] : Localizer["Active"])
                                             </span>
                                         </li>
                                         <li class="list-group-item">
-                                            <strong>Foster:</strong> 
+                                            <strong>@Localizer["Foster"]</strong> 
                                             <span class="badge @(viewingUser.IsFoster ? "bg-info" : "bg-secondary") ms-2">
-                                                @(viewingUser.IsFoster ? "Yes" : "No")
+                                                @(viewingUser.IsFoster ? Localizer["Yes"] : Localizer["No"])
                                             </span>
                                         </li>
                                         <li class="list-group-item">
-                                            <strong>Profile:</strong> 
+                                            <strong>@Localizer["ProfileStatus"]</strong> 
                                             <span class="badge @(viewingUser.IsProfileCompleted ? "bg-success" : "bg-warning") ms-2">
-                                                @(viewingUser.IsProfileCompleted ? "Complete" : "Incomplete")
+                                                @(viewingUser.IsProfileCompleted ? Localizer["Complete"] : Localizer["Incomplete"])
                                             </span>
                                         </li>
                                         @if (viewingUser.LastUpdated.HasValue)
                                         {
                                             <li class="list-group-item">
-                                                <strong>Last Updated:</strong> @viewingUser.LastUpdated.Value.ToString("g")
+                                                <strong>@Localizer["LastUpdated"]</strong> @viewingUser.LastUpdated.Value.ToString("g")
                                             </li>
                                         }
                                     </ul>
@@ -505,18 +509,18 @@
                         {
                             <div class="card mb-3">
                                 <div class="card-header bg-light">
-                                    <strong><i class="fa fa-home"></i> Shelter Information</strong>
+                                    <strong><i class="fa fa-home"></i> @Localizer["ShelterInformation"]</strong>
                                 </div>
                                 <ul class="list-group list-group-flush">
-                                    <li class="list-group-item"><strong>Shelter Name:</strong> @viewingUser.ShelterName</li>
-                                    <li class="list-group-item"><strong>Location:</strong> @viewingUser.ShelterLocation</li>
+                                    <li class="list-group-item"><strong>@Localizer["ShelterName"]</strong> @viewingUser.ShelterName</li>
+                                    <li class="list-group-item"><strong>@Localizer["Location"]</strong> @viewingUser.ShelterLocation</li>
                                 </ul>
                             </div>
                         }
 
                         <div class="card mb-3">
                             <div class="card-header bg-light">
-                                <strong><i class="fa fa-share-alt"></i> Social Media & Website</strong>
+                                <strong><i class="fa fa-share-alt"></i> @Localizer["SocialMediaWebsite"]</strong>
                             </div>
                             <div class="card-body">
                                 @if (!string.IsNullOrEmpty(viewingUser.Website) || 
@@ -533,7 +537,7 @@
                                                         <i class="fa fa-globe fa-lg text-primary"></i>
                                                     </div>
                                                     <div class="flex-grow-1 ms-3">
-                                                        <small class="text-muted d-block mb-1">Website</small>
+                                                        <small class="text-muted d-block mb-1">@Localizer["Website"]</small>
                                                         <a href="@viewingUser.Website" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-break">
                                                             @viewingUser.Website <i class="fa fa-external-link-alt fa-xs ms-1"></i>
                                                         </a>
@@ -549,7 +553,7 @@
                                                         <i class="fa-brands fa-facebook fa-lg text-primary"></i>
                                                     </div>
                                                     <div class="flex-grow-1 ms-3">
-                                                        <small class="text-muted d-block mb-1">Facebook</small>
+                                                        <small class="text-muted d-block mb-1">@Localizer["Facebook"]</small>
                                                         <a href="@viewingUser.Facebook" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-break">
                                                             @viewingUser.Facebook <i class="fa fa-external-link-alt fa-xs ms-1"></i>
                                                         </a>
@@ -565,7 +569,7 @@
                                                         <i class="fa-brands fa-instagram fa-lg text-danger"></i>
                                                     </div>
                                                     <div class="flex-grow-1 ms-3">
-                                                        <small class="text-muted d-block mb-1">Instagram</small>
+                                                        <small class="text-muted d-block mb-1">@Localizer["Instagram"]</small>
                                                         <a href="@viewingUser.Instagram" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-break">
                                                             @viewingUser.Instagram <i class="fa fa-external-link-alt fa-xs ms-1"></i>
                                                         </a>
@@ -581,7 +585,7 @@
                                                         <i class="fa-brands fa-x-twitter fa-lg text-dark"></i>
                                                     </div>
                                                     <div class="flex-grow-1 ms-3">
-                                                        <small class="text-muted d-block mb-1">X (Twitter)</small>
+                                                        <small class="text-muted d-block mb-1">@Localizer["XTwitter"]</small>
                                                         <a href="@viewingUser.X" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-break">
                                                             @viewingUser.X <i class="fa fa-external-link-alt fa-xs ms-1"></i>
                                                         </a>
@@ -593,17 +597,17 @@
                                 }
                                 else
                                 {
-                                    <p class="text-muted mb-0"><i class="fa fa-info-circle"></i> No social media links available</p>
+                                    <p class="text-muted mb-0"><i class="fa fa-info-circle"></i> @Localizer["NoSocialMediaLinks"]</p>
                                 }
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" @onclick="CloseViewModal">
-                            <i class="fa fa-times"></i> Close
+                            <i class="fa fa-times"></i> @Localizer["Close"]
                         </button>
                         <button type="button" class="btn btn-primary" @onclick="() => ShowEditModal(viewingUser)">
-                            <i class="fa fa-edit"></i> Edit User
+                            <i class="fa fa-edit"></i> @Localizer["EditUser"]
                         </button>
                     </div>
                 </div>
@@ -620,29 +624,29 @@
                 <div class="modal-content">
                     <div class="modal-header bg-danger text-white">
                         <h5 class="modal-title">
-                            <i class="fa fa-exclamation-triangle"></i> Confirm Delete
+                            <i class="fa fa-exclamation-triangle"></i> @Localizer["ConfirmDelete"]
                         </h5>
                         <button type="button" class="btn-close btn-close-white" @onclick="CloseDeleteModal" aria-label="Close">
                         </button>
                     </div>
                     <div class="modal-body">
-                        <p>Are you sure you want to delete the following user?</p>
+                        <p>@Localizer["DeleteConfirmationMessage"]</p>
                         <div class="alert alert-warning">
-                            <strong>Name:</strong> @deletingUser.UserName<br />
-                            <strong>Email:</strong> @deletingUser.Email
+                            <strong>@Localizer["Name"]</strong> @deletingUser.UserName<br />
+                            <strong>@Localizer["Email"]</strong> @deletingUser.Email
                         </div>
-                        <p class="text-danger"><strong>This action cannot be undone!</strong></p>
+                        <p class="text-danger"><strong>@Localizer["CannotBeUndone"]</strong></p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" @onclick="CloseDeleteModal">
-                            <i class="fa fa-times"></i> Cancel
+                            <i class="fa fa-times"></i> @Localizer["Cancel"]
                         </button>
                         <button type="button" class="btn btn-danger" @onclick="ConfirmDelete" disabled="@isDeleting">
                             @if (isDeleting)
                             {
                                 <span class="spinner-border spinner-border-sm me-2"></span>
                             }
-                            <i class="fa fa-trash"></i> Delete User
+                            <i class="fa fa-trash"></i> @Localizer["DeleteUser"]
                         </button>
                     </div>
                 </div>
@@ -652,6 +656,47 @@
 </div>
 
 @code {
+    private List<UserWithShelter>? userWithShelters;
+    private List<UserWithShelter>? filteredUsers;
+    private List<Shelter>? availableShelters;
+    private bool isLoading = true;
+    private string? successMessage;
+    private string? errorMessage;
+    
+    private bool showModal = false;
+    private bool showViewModal = false;
+    private bool showDeleteModal = false;
+    private bool isEditMode = false;
+    private bool isSaving = false;
+    private bool isDeleting = false;
+    
+    private User? editingUser;
+    private UserWithShelter? viewingUser;
+    private UserWithShelter? deletingUser;
+    
+    private string searchTerm = string.Empty;
+    private string? selectedRole;
+    private string? selectedStatus;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUsers();
+        await LoadShelters();
+
+        // Subscribe to culture change
+        LocalizationService.OnCultureChanged += OnCultureChanged;
+    }
+
+    private void OnCultureChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        LocalizationService.OnCultureChanged -= OnCultureChanged;
+    }
+
     // Serialization-safe DTO class
     private class UserWithShelter
     {
@@ -672,37 +717,6 @@
         public string? X { get; set; }
         public DateTimeOffset? LastUpdated { get; set; }
         public ETag OriginalETag { get; set; }
-    }
-
-    private List<UserWithShelter>? userWithShelters;
-    private List<UserWithShelter>? filteredUsers;
-    private List<Shelter>? availableShelters;
-    private bool isLoading = true;
-    private string? successMessage;
-    private string? errorMessage;
-    
-    // Modal states
-    private bool showModal = false;
-    private bool showViewModal = false;
-    private bool showDeleteModal = false;
-    private bool isEditMode = false;
-    private bool isSaving = false;
-    private bool isDeleting = false;
-    
-    // Edit/Create state - simplified
-    private User? editingUser;
-    private UserWithShelter? viewingUser;
-    private UserWithShelter? deletingUser;
-    
-    // Filter states
-    private string searchTerm = string.Empty;
-    private string? selectedRole;
-    private string? selectedStatus;
-
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadUsers();
-        await LoadShelters();
     }
 
     private async Task LoadUsers()
@@ -729,7 +743,6 @@
                     }
                 }
 
-                // Create serialization-safe DTO
                 userWithShelters.Add(new UserWithShelter
                 {
                     UserName = user.PartitionKey,

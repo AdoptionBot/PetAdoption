@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" msdata:Ordinal="5" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="PageTitle" xml:space="preserve">
+    <value>Gerir Veterinários - Admin</value>
+  </data>
+  <data name="VeterinaryManagement" xml:space="preserve">
+    <value>Gestão de Veterinários</value>
+  </data>
+  <data name="AddNewVeterinary" xml:space="preserve">
+    <value>Adicionar Novo Veterinário</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>A carregar...</value>
+  </data>
+  <data name="LoadingVeterinaries" xml:space="preserve">
+    <value>A carregar veterinários...</value>
+  </data>
+  <data name="SearchVeterinaries" xml:space="preserve">
+    <value>Pesquisar veterinários...</value>
+  </data>
+  <data name="AllCountries" xml:space="preserve">
+    <value>Todos os Países</value>
+  </data>
+  <data name="VeterinaryName" xml:space="preserve">
+    <value>Nome do Veterinário</value>
+  </data>
+  <data name="Location" xml:space="preserve">
+    <value>Localização</value>
+  </data>
+  <data name="Country" xml:space="preserve">
+    <value>País</value>
+  </data>
+  <data name="Phone" xml:space="preserve">
+    <value>Telefone</value>
+  </data>
+  <data name="OpeningTimes" xml:space="preserve">
+    <value>Horário de Funcionamento</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>Ações</value>
+  </data>
+  <data name="ViewDetails" xml:space="preserve">
+    <value>Ver Detalhes</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Editar</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Eliminar</value>
+  </data>
+  <data name="TotalVeterinaries" xml:space="preserve">
+    <value>Total de Veterinários:</value>
+  </data>
+  <data name="Filtered" xml:space="preserve">
+    <value>Filtrados:</value>
+  </data>
+  <data name="NoVeterinariesFound" xml:space="preserve">
+    <value>Não foram encontrados veterinários no sistema.</value>
+  </data>
+  <data name="QuickAdd" xml:space="preserve">
+    <value>Adição Rápida:</value>
+  </data>
+  <data name="QuickAddMessage" xml:space="preserve">
+    <value>Cole o link do Google Maps e extrairemos todas as informações automaticamente!</value>
+  </data>
+  <data name="Extracting" xml:space="preserve">
+    <value>A extrair...</value>
+  </data>
+  <data name="ExtractingMessage" xml:space="preserve">
+    <value>A extrair informações do veterinário do Google Maps...</value>
+  </data>
+  <data name="ExtractionSuccess" xml:space="preserve">
+    <value>Informações extraídas com sucesso! Reveja e guarde abaixo.</value>
+  </data>
+  <data name="ExtractedInformation" xml:space="preserve">
+    <value>Informação Extraída</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Nome:</value>
+  </data>
+  <data name="CityTown" xml:space="preserve">
+    <value>Cidade/Localidade:</value>
+  </data>
+  <data name="Address" xml:space="preserve">
+    <value>Morada:</value>
+  </data>
+  <data name="Website" xml:space="preserve">
+    <value>Website:</value>
+  </data>
+  <data name="NotFound" xml:space="preserve">
+    <value>Não encontrado</value>
+  </data>
+  <data name="GoogleMapsLink" xml:space="preserve">
+    <value>Link do Google Maps</value>
+  </data>
+  <data name="GoogleMapsPlaceholder" xml:space="preserve">
+    <value>https://www.google.com/maps/place/...</value>
+  </data>
+  <data name="GoogleMapsHelp" xml:space="preserve">
+    <value>Cole o URL completo do Google Maps (ex.: de Partilhar → Copiar link)</value>
+  </data>
+  <data name="ExtractInformation" xml:space="preserve">
+    <value>Extrair Informação</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="CreateVeterinary" xml:space="preserve">
+    <value>Criar Veterinário</value>
+  </data>
+  <data name="EditVeterinary" xml:space="preserve">
+    <value>Editar Veterinário</value>
+  </data>
+  <data name="BasicInformation" xml:space="preserve">
+    <value>Informação Básica</value>
+  </data>
+  <data name="CannotBeChanged" xml:space="preserve">
+    <value>Não pode ser alterado (usado como chave primária)</value>
+  </data>
+  <data name="GoogleMapsLocation" xml:space="preserve">
+    <value>Localização Google Maps</value>
+  </data>
+  <data name="PhoneNumber" xml:space="preserve">
+    <value>Número de Telefone</value>
+  </data>
+  <data name="UpdateVeterinary" xml:space="preserve">
+    <value>Atualizar Veterinário</value>
+  </data>
+  <data name="VeterinaryDetails" xml:space="preserve">
+    <value>Detalhes do Veterinário</value>
+  </data>
+  <data name="OpenInGoogleMaps" xml:space="preserve">
+    <value>Abrir no Google Maps</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Fechar</value>
+  </data>
+  <data name="ConfirmDelete" xml:space="preserve">
+    <value>Confirmar Eliminação</value>
+  </data>
+  <data name="DeleteConfirmationMessage" xml:space="preserve">
+    <value>Tem a certeza de que deseja eliminar o seguinte veterinário?</value>
+  </data>
+  <data name="CannotBeUndone" xml:space="preserve">
+    <value>Esta ação não pode ser revertida!</value>
+  </data>
+  <data name="DeleteVeterinary" xml:space="preserve">
+    <value>Eliminar Veterinário</value>
+  </data>
+  <data name="FullGoogleMapsUrl" xml:space="preserve">
+    <value>URL completo do Google Maps</value>
+  </data>
+  <data name="Plus1234567890" xml:space="preserve">
+    <value>+351 291 123 456</value>
+  </data>
+  <data name="StreetAddressCityPostalCode" xml:space="preserve">
+    <value>Morada, cidade, código postal</value>
+  </data>
+  <data name="MonFri900To1800Sat900To1300" xml:space="preserve">
+    <value>Seg-Sex: 9:00-18:00, Sáb: 9:00-13:00</value>
+  </data>
+  <data name="HttpsExampleCom" xml:space="preserve">
+    <value>https://exemplo.com</value>
+  </data>
+</root>

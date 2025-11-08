@@ -1,6 +1,10 @@
 @using PetAdoption.Data.TableStorage.Validation
 @using Microsoft.AspNetCore.Components.Forms
+@using PetAdoption.Services.Web
 @inject IConfiguration Configuration
+@inject LocalizationService LocalizationService
+@inject DynamicLocalizer<CountryDropdown> Localizer
+@implements IDisposable
 
 <div class="country-dropdown-wrapper">
     <select @ref="selectElement" 
@@ -11,7 +15,7 @@
             @attributes="AdditionalAttributes">
         @if (string.IsNullOrEmpty(CurrentValue))
         {
-            <option value="">-- Select Country --</option>
+            <option value="">@Localizer["SelectCountry"]</option>
         }
         @foreach (var country in countries)
         {
@@ -53,17 +57,14 @@
 
     protected override void OnInitialized()
     {
-        // Load countries from IcaoCountryLoader
         countries = IcaoCountryLoader.GetCountryList();
 
-        // Set default value from configuration if no value is provided
         if (string.IsNullOrEmpty(Value))
         {
             var defaultCountry = Configuration["DefaultCountryValue"];
             if (!string.IsNullOrEmpty(defaultCountry) && countries.Contains(defaultCountry))
             {
                 currentValue = defaultCountry;
-                // Invoke ValueChanged to update parent component
                 _ = ValueChanged.InvokeAsync(currentValue);
             }
         }
@@ -71,18 +72,29 @@
         {
             currentValue = Value;
         }
+
+        // Subscribe to culture change
+        LocalizationService.OnCultureChanged += OnCultureChanged;
+    }
+
+    private void OnCultureChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        LocalizationService.OnCultureChanged -= OnCultureChanged;
     }
 
     protected override void OnParametersSet()
     {
-        // Only update if the incoming Value is different and not null/empty
         if (!string.IsNullOrEmpty(Value) && Value != currentValue)
         {
             currentValue = Value;
         }
         else if (string.IsNullOrEmpty(Value) && string.IsNullOrEmpty(currentValue))
         {
-            // If both are empty, try to set default again
             var defaultCountry = Configuration["DefaultCountryValue"];
             if (!string.IsNullOrEmpty(defaultCountry) && countries.Contains(defaultCountry))
             {
@@ -101,43 +113,35 @@
 
     private async Task HandleKeyDown(KeyboardEventArgs e)
     {
-        // Only handle single letter keys
         if (e.Key.Length != 1 || !char.IsLetter(e.Key[0]))
             return;
 
         var key = e.Key.ToUpperInvariant();
         var now = DateTime.Now;
 
-        // If same key pressed within 1 second, cycle through matches
         if (key == lastKeyPressed && (now - lastKeyPressTime).TotalMilliseconds < 1000)
         {
             currentMatchIndex++;
         }
         else
         {
-            // New key or timeout, reset to first match
             currentMatchIndex = 0;
             lastKeyPressed = key;
         }
 
         lastKeyPressTime = now;
 
-        // Find all countries starting with the pressed letter
         var matches = countries
             .Where(c => c.StartsWith(key, StringComparison.OrdinalIgnoreCase))
             .ToList();
 
         if (matches.Any())
         {
-            // Cycle through matches
             var selectedCountry = matches[currentMatchIndex % matches.Count];
             CurrentValue = selectedCountry;
-            
-            // Force UI update
             StateHasChanged();
         }
 
-        // Small delay to ensure the component processes the change
         await Task.Delay(10);
     }
 }
