@@ -15,10 +15,6 @@ namespace PetAdoption.Web
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Enable detailed logging for localization (temporary for debugging)
-            builder.Logging.AddFilter("PetAdoption.Services.Web.DynamicLocalizer", LogLevel.Information);
-            builder.Logging.AddFilter("Microsoft.Extensions.Web.Localization", LogLevel.Debug);
-
             // Add Razor Components with Interactive Server
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
