@@ -13,18 +13,15 @@
 @inject DynamicLocalizer<NavBar> Localizer
 
 <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
-    <div class="container">
-        <a class="navbar-brand" href="/" @onclick="HandleNavigation" @onclick:preventDefault="@(!isProfileComplete)">
-            <span class="flaticon-pawprint-1 mr-2"></span>Pet Adoption
+    <div class="container position-relative">
+        <a class="navbar-brand logo-brand" href="/" @onclick="HandleNavigation" @onclick:preventDefault="@(!isProfileComplete)">
+            <img src="/images/CAM_Logo.png" alt="CAM Logo" class="navbar-logo" />
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="fas fa-bars"></span> Menu
         </button>
         <div class="collapse navbar-collapse" id="ftco-nav">
             <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link @GetDisabledClass()" href="/" @onclick='() => HandleNavigationClick("/")' @onclick:preventDefault="true">@Localizer["Home"]</a>
-                </li>
                 <li class="nav-item">
                     <a class="nav-link @GetDisabledClass()" href="/pets" @onclick='() => HandleNavigationClick("/pets")' @onclick:preventDefault="true">@Localizer["Pets"]</a>
                 </li>
@@ -125,6 +122,131 @@
         </div>
     </div>
 </nav>
+
+<style>
+    /* Compact navbar - MAIN FIX HERE */
+    .ftco_navbar {
+        padding-top: 0.15rem !important;  /* Drastically reduced */
+        padding-bottom: 0.15rem !important; /* Drastically reduced */
+        min-height: 50px !important; /* Reduced from 60px */
+        position: relative;
+        overflow: visible !important;
+        z-index: 1030;
+    }
+
+        .ftco_navbar .container {
+            padding-left: 140px; /* Slightly reduced from 160px */
+            position: relative;
+            overflow: visible !important;
+        }
+
+    /* Tighter navbar nav items */
+    .ftco_navbar .navbar-nav {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+    .ftco_navbar .nav-item {
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+
+    .ftco_navbar .nav-link {
+        padding-top: 0.5rem !important; /* Reduced from default */
+        padding-bottom: 0.5rem !important;
+        font-size: 0.95rem; /* Slightly smaller text */
+    }
+
+    /* Logo positioning - overlaps contact bar */
+    .logo-brand {
+        padding: 0 !important;
+        margin-right: 0;
+        position: absolute;
+        left: 15px;
+        top: -45px; /* Fine-tuned from -50px */
+        z-index: 1050;
+        line-height: 0;
+    }
+
+    /* Slightly smaller logo for better proportions */
+    .navbar-logo {
+        height: 120px; /* Reduced from 130px */
+        width: 120px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 4px solid #fff;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background-color: #fff;
+        display: block;
+    }
+
+        .navbar-logo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+    /* Navbar navigation items */
+    .navbar-collapse {
+        margin-left: 0;
+    }
+
+    /* Mobile responsiveness */
+    @@media (max-width: 991px) {
+        .ftco_navbar {
+            min-height: 45px !important;
+            padding-top: 0.15rem !important;
+            padding-bottom: 0.15rem !important;
+        }
+
+        .navbar-logo {
+            height: 85px;
+            width: 85px;
+            border-width: 3px;
+        }
+
+        .logo-brand {
+            left: 10px;
+            top: -32px;
+        }
+
+        .ftco_navbar .container {
+            padding-left: 100px;
+        }
+
+        .ftco_navbar .nav-link {
+            font-size: 0.9rem;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .ftco_navbar {
+            min-height: 42px !important;
+            padding-top: 0.1rem !important;
+            padding-bottom: 0.1rem !important;
+        }
+
+        .navbar-logo {
+            height: 65px;
+            width: 65px;
+            border-width: 3px;
+        }
+
+        .logo-brand {
+            top: -22px;
+        }
+
+        .ftco_navbar .container {
+            padding-left: 80px;
+        }
+
+        .ftco_navbar .nav-link {
+            padding-top: 0.4rem !important;
+            padding-bottom: 0.4rem !important;
+            font-size: 0.85rem;
+        }
+    }
+</style>
 
 @code {
     private bool isProfileComplete = true;

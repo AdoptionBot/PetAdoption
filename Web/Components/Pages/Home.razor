@@ -17,17 +17,23 @@
 <div class="wrap">
     <div class="container">
         <div class="row">
-            <div class="col-md-6 d-flex align-items-center">
-                <p class="mb-0 phone pl-md-2">
-                    <a href="mailto:@organizationEmail?subject=Pet%20Adoption%20Inquiry"><span class="fa fa-paper-plane mr-1"></span> @organizationEmail</a>
+            <div class="col-md-12 d-flex justify-content-end align-items-center">
+                <p class="mb-0 phone me-3">
+                    <a href="mailto:@organizationEmail?subject=Pet%20Adoption%20Inquiry">
+                        <span class="fa fa-paper-plane mr-1"></span> @organizationEmail
+                    </a>
                 </p>
-            </div>
-            <div class="col-md-6 d-flex justify-content-md-end">
                 <div class="social-media">
                     <p class="mb-0 d-flex">
-                        <a href="@facebookUrl" target="_blank" rel="noopener noreferrer" class="d-flex align-items-center justify-content-center"><span class="fa-brands fa-facebook"><i class="sr-only">Facebook</i></span></a>
-                        <a href="@xUrl" target="_blank" rel="noopener noreferrer" class="d-flex align-items-center justify-content-center"><span class="fa-brands fa-x-twitter"><i class="sr-only">X</i></span></a>
-                        <a href="@instagramUrl" target="_blank" rel="noopener noreferrer" class="d-flex align-items-center justify-content-center"><span class="fa-brands fa-instagram"><i class="sr-only">Instagram</i></span></a>
+                        <a href="@facebookUrl" target="_blank" rel="noopener noreferrer" class="d-flex align-items-center justify-content-center">
+                            <span class="fa-brands fa-facebook"><i class="sr-only">Facebook</i></span>
+                        </a>
+                        <a href="@xUrl" target="_blank" rel="noopener noreferrer" class="d-flex align-items-center justify-content-center">
+                            <span class="fa-brands fa-x-twitter"><i class="sr-only">X</i></span>
+                        </a>
+                        <a href="@instagramUrl" target="_blank" rel="noopener noreferrer" class="d-flex align-items-center justify-content-center">
+                            <span class="fa-brands fa-instagram"><i class="sr-only">Instagram</i></span>
+                        </a>
                     </p>
                 </div>
             </div>
@@ -749,6 +755,106 @@
         </div>
     </div>
 </section>
+
+<style>
+    /* Very compact contact bar */
+    .wrap {
+        position: relative;
+        padding-top: 3px !important; /* Drastically reduced */
+        padding-bottom: 3px !important; /* Drastically reduced */
+        overflow: visible !important;
+        z-index: 1000;
+        min-height: 30px !important; /* Reduced from 35px */
+        line-height: 1 !important; /* Tighter line height */
+    }
+
+    /* Compact contact bar content */
+    .wrap .container {
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+
+    .wrap .row {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+    .wrap .phone {
+        font-size: 0.85rem !important; /* Smaller text */
+        margin-bottom: 0 !important;
+        line-height: 1 !important;
+    }
+
+    .wrap .phone a {
+        padding: 0;
+    }
+
+    .wrap .social-media {
+        margin-bottom: 0 !important;
+    }
+
+    .wrap .social-media p {
+        margin-bottom: 0 !important;
+        line-height: 1 !important;
+    }
+
+    .wrap .social-media a {
+        font-size: 0.95rem !important; /* Smaller icons */
+        padding: 0 0.3rem;
+    }
+
+    /* Hero section - reduced top spacing */
+    .hero-wrap {
+        position: relative;
+        overflow: visible !important;
+        margin-top: -10px !important; /* Negative margin to pull up */
+        padding-top: 20px !important; /* Reduced padding */
+    }
+
+    /* Responsive adjustments */
+    @@media (max-width: 991px) {
+        .wrap {
+            min-height: 28px !important;
+            padding-top: 2px !important;
+            padding-bottom: 2px !important;
+        }
+
+        .wrap .phone {
+            font-size: 0.8rem !important;
+        }
+
+        .wrap .social-media a {
+            font-size: 0.9rem !important;
+        }
+        
+        .hero-wrap {
+            margin-top: -8px !important;
+            padding-top: 18px !important;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .wrap {
+            padding-top: 2px !important;
+            padding-bottom: 2px !important;
+            min-height: 26px !important;
+        }
+
+        .wrap .phone {
+            font-size: 0.75rem !important;
+        }
+
+        .wrap .social-media a {
+            font-size: 0.85rem !important;
+            padding: 0 0.2rem;
+        }
+        
+        .hero-wrap {
+            margin-top: -5px !important;
+            padding-top: 15px !important;
+        }
+    }
+</style>
 
 @code {
     private string organizationEmail = string.Empty;
