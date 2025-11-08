@@ -4,28 +4,32 @@
 @using PetAdoption.Data.TableStorage
 @using PetAdoption.Data.TableStorage.Enums
 @using PetAdoption.Web.Components.Shared
+@using PetAdoption.Services.Web
 @attribute [Authorize(Roles = "Shelter,Admin")]
 @inject IUserService UserService
 @inject IShelterService ShelterService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IJSRuntime JSRuntime
+@inject LocalizationService LocalizationService
+@inject DynamicLocalizer<ShelterProfile> Localizer
+@implements IDisposable
 @rendermode InteractiveServer
 
-<PageTitle>Shelter Registration - Madeira Pet Adoption</PageTitle>
+<PageTitle>@Localizer["PageTitle"]</PageTitle>
 
 <div class="container mt-5 mb-5">
     <div class="row">
         <div class="col-md-8 mx-auto">
             <div class="card shadow">
                 <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">Shelter Registration</h3>
+                    <h3 class="mb-0">@Localizer["ShelterRegistration"]</h3>
                 </div>
                 <div class="card-body p-4">
                     @if (isLoading)
                     {
                         <div class="text-center">
                             <div class="spinner-border" role="status">
-                                <span class="visually-hidden">Loading...</span>
+                                <span class="visually-hidden">@Localizer["Loading"]</span>
                             </div>
                         </div>
                     }
@@ -46,10 +50,16 @@
                             }
 
                             <div class="mb-4">
-                                <h5 class="border-bottom pb-2">Shelter Information</h5>
+                                <h5 class="border-bottom pb-2">@Localizer["ShelterInformation"]</h5>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Shelter Name @(!IsExistingShelter ? "<span class=\"text-danger\">*</span>" : "")</label>
+                                    <label class="form-label">
+                                        @Localizer["ShelterName"]
+                                        @if (!IsExistingShelter)
+                                        {
+                                            <span class="text-danger">*</span>
+                                        }
+                                    </label>
                                     @if (IsExistingShelter)
                                     {
                                         <input type="text" class="form-control" value="@currentShelter.PartitionKey" disabled />
@@ -62,7 +72,13 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Shelter City/Town @(!IsExistingShelter ? "<span class=\"text-danger\">*</span>" : "")</label>
+                                    <label class="form-label">
+                                        @Localizer["ShelterCityTown"]
+                                        @if (!IsExistingShelter)
+                                        {
+                                            <span class="text-danger">*</span>
+                                        }
+                                    </label>
                                     @if (IsExistingShelter)
                                     {
                                         <input type="text" class="form-control" value="@currentShelter.RowKey" disabled />
@@ -75,63 +91,63 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Country <span class="text-danger">*</span></label>
+                                    <label class="form-label">@Localizer["Country"] <span class="text-danger">*</span></label>
                                     <CountryDropdown @bind-Value="currentShelter.Country" CssClass="form-select" />
                                     <ValidationMessage For="@(() => currentShelter.Country)" />
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                    <label class="form-label">@Localizer["PhoneNumber"] <span class="text-danger">*</span></label>
                                     <InputText @bind-Value="currentShelter.PhoneNumber" class="form-control" />
                                     <ValidationMessage For="@(() => currentShelter.PhoneNumber)" />
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Address <span class="text-danger">*</span></label>
+                                    <label class="form-label">@Localizer["Address"] <span class="text-danger">*</span></label>
                                     <InputTextArea @bind-Value="currentShelter.Address" class="form-control" rows="3" />
                                     <ValidationMessage For="@(() => currentShelter.Address)" />
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Email <span class="text-danger">*</span></label>
+                                    <label class="form-label">@Localizer["Email"] <span class="text-danger">*</span></label>
                                     <InputText @bind-Value="currentShelter.Email" class="form-control" type="email" />
                                     <ValidationMessage For="@(() => currentShelter.Email)" />
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Google Maps Location (Optional)</label>
-                                    <InputText @bind-Value="currentShelter.GoogleMapsLocation" class="form-control" placeholder="https://maps.google.com/..." />
-                                    <small class="form-text text-muted">Paste the full Google Maps URL</small>
+                                    <label class="form-label">@Localizer["GoogleMapsLocation"]</label>
+                                    <InputText @bind-Value="currentShelter.GoogleMapsLocation" class="form-control" placeholder="@Localizer["GoogleMapsPlaceholder"]" />
+                                    <small class="form-text text-muted">@Localizer["GoogleMapsHelp"]</small>
                                     <ValidationMessage For="@(() => currentShelter.GoogleMapsLocation)" />
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Opening Times (Optional)</label>
+                                    <label class="form-label">@Localizer["OpeningTimes"]</label>
                                     <InputTextArea @bind-Value="currentShelter.OpeningTimes" class="form-control" rows="2" 
-                                                   placeholder="Mon-Fri: 9:00-18:00, Sat: 9:00-13:00" />
+                                                   placeholder="@Localizer["OpeningTimesPlaceholder"]" />
                                     <ValidationMessage For="@(() => currentShelter.OpeningTimes)" />
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Website (Optional)</label>
+                                    <label class="form-label">@Localizer["Website"]</label>
                                     <InputText @bind-Value="currentShelter.Website" class="form-control" />
                                     <ValidationMessage For="@(() => currentShelter.Website)" />
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Facebook (Optional)</label>
+                                    <label class="form-label">@Localizer["Facebook"]</label>
                                     <InputText @bind-Value="currentShelter.Facebook" class="form-control" />
                                     <ValidationMessage For="@(() => currentShelter.Facebook)" />
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Instagram (Optional)</label>
+                                    <label class="form-label">@Localizer["Instagram"]</label>
                                     <InputText @bind-Value="currentShelter.Instagram" class="form-control" />
                                     <ValidationMessage For="@(() => currentShelter.Instagram)" />
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">X (Optional)</label>
+                                    <label class="form-label">@Localizer["X"]</label>
                                     <InputText @bind-Value="currentShelter.X" class="form-control" />
                                     <ValidationMessage For="@(() => currentShelter.X)" />
                                 </div>
@@ -143,7 +159,7 @@
                                     {
                                         <span class="spinner-border spinner-border-sm me-2"></span>
                                     }
-                                    Save Shelter
+                                    @Localizer["SaveShelter"]
                                 </button>
                             </div>
                         </ValidatedForm>
@@ -151,7 +167,7 @@
                     else
                     {
                         <div class="alert alert-warning">
-                            Unable to load shelter information. Please try again later.
+                            @Localizer["UnableToLoadShelter"]
                         </div>
                     }
                 </div>
@@ -204,12 +220,25 @@
         }
         catch (Exception ex)
         {
-            errorMessage = "Failed to load shelter information: " + ex.Message;
+            errorMessage = Localizer["ErrorLoadingShelter"] + ex.Message;
         }
         finally
         {
             isLoading = false;
         }
+
+        // Subscribe to culture change
+        LocalizationService.OnCultureChanged += OnCultureChanged;
+    }
+
+    private void OnCultureChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        LocalizationService.OnCultureChanged -= OnCultureChanged;
     }
 
     private async Task HandleValidSubmit()
@@ -239,11 +268,11 @@
 
             await UserService.UpdateUserAsync(currentUser);
 
-            successMessage = "Shelter information saved successfully!";
+            successMessage = Localizer["ShelterSavedSuccess"];
         }
         catch (Exception ex)
         {
-            errorMessage = "Failed to save shelter information: " + ex.Message;
+            errorMessage = Localizer["ErrorSavingShelter"] + ex.Message;
         }
         finally
         {

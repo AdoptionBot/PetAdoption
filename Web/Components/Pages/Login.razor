@@ -1,39 +1,61 @@
 @page "/login"
+@using PetAdoption.Services.Web
+@inject LocalizationService LocalizationService
+@inject DynamicLocalizer<Login> Localizer
+@implements IDisposable
 
-<PageTitle>Login - Madeira Pet Adoption</PageTitle>
+<PageTitle>@Localizer["PageTitle"]</PageTitle>
 
 <div class="container mt-5 mb-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card shadow">
                 <div class="card-body p-5">
-                    <h2 class="text-center mb-4">Welcome Back!</h2>
-                    <p class="text-center text-muted mb-4">Sign in to manage your pet adoption journey</p>
+                    <h2 class="text-center mb-4">@Localizer["WelcomeBack"]</h2>
+                    <p class="text-center text-muted mb-4">@Localizer["SignInMessage"]</p>
                     
                     <div class="d-flex flex-column align-items-center gap-3">
                         <a href="/signin-google" class="btn btn-outline-danger btn-lg w-100" style="max-width: 350px;">
                             <i class="fab fa-google me-2"></i>
-                            Continue with Google
+                            @Localizer["ContinueWithGoogle"]
                         </a>
                         
                         <a href="/signin-microsoft" class="btn btn-outline-primary btn-lg w-100" style="max-width: 350px;">
                             <i class="fab fa-microsoft me-2"></i>
-                            Continue with Microsoft
+                            @Localizer["ContinueWithMicrosoft"]
                         </a>
                         
                         @* <a href="/signin-apple" class="btn btn-outline-dark btn-lg">
                             <i class="fab fa-apple me-2"></i>
-                            Continue with Apple
+                            @Localizer["ContinueWithApple"]
                         </a> *@
                     </div>
                     
                     <hr class="my-4">
                     
                     <p class="text-center text-muted small">
-                        By continuing, you agree to our Terms of Service and Privacy Policy
+                        @Localizer["TermsAgreement"]
                     </p>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        // Subscribe to culture change
+        LocalizationService.OnCultureChanged += OnCultureChanged;
+    }
+
+    private void OnCultureChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        LocalizationService.OnCultureChanged -= OnCultureChanged;
+    }
+}

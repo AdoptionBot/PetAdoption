@@ -1,6 +1,10 @@
 @page "/access-denied"
+@using PetAdoption.Services.Web
+@inject LocalizationService LocalizationService
+@inject DynamicLocalizer<AccessDenied> Localizer
+@implements IDisposable
 
-<PageTitle>Access Denied</PageTitle>
+<PageTitle>@Localizer["PageTitle"]</PageTitle>
 
 <div class="container mt-5 mb-5">
     <div class="row justify-content-center">
@@ -8,13 +12,33 @@
             <div class="card shadow">
                 <div class="card-body p-5">
                     <i class="fa fa-lock fa-5x text-danger mb-4"></i>
-                    <h2>Access Denied</h2>
+                    <h2>@Localizer["AccessDenied"]</h2>
                     <p class="text-muted">
-                        You don't have permission to access this page or your account has been disabled.
+                        @Localizer["AccessDeniedMessage"]
                     </p>
-                    <a href="/" class="btn btn-primary mt-3">Go to Home</a>
+                    <a href="/" class="btn btn-primary mt-3">
+                        <i class="fa fa-home me-2"></i>@Localizer["GoToHome"]
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        // Subscribe to culture change
+        LocalizationService.OnCultureChanged += OnCultureChanged;
+    }
+
+    private void OnCultureChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        LocalizationService.OnCultureChanged -= OnCultureChanged;
+    }
+}

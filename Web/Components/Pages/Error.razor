@@ -1,28 +1,46 @@
 ﻿@page "/Error"
 @using System.Diagnostics
+@using PetAdoption.Services.Web
+@inject LocalizationService LocalizationService
+@inject DynamicLocalizer<Error> Localizer
+@implements IDisposable
 
-<PageTitle>Error</PageTitle>
+<PageTitle>@Localizer["PageTitle"]</PageTitle>
 
-<h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request.</h2>
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body p-5 text-center">
+                    <i class="fa fa-exclamation-triangle fa-5x text-danger mb-4"></i>
+                    <h1 class="text-danger">@Localizer["ErrorTitle"]</h1>
+                    <h2 class="text-danger mb-4">@Localizer["ErrorMessage"]</h2>
 
-@if (ShowRequestId)
-{
-    <p>
-        <strong>Request ID:</strong> <code>@RequestId</code>
-    </p>
-}
+                    @if (ShowRequestId)
+                    {
+                        <div class="alert alert-secondary">
+                            <strong>@Localizer["RequestId"]</strong> <code>@RequestId</code>
+                        </div>
+                    }
 
-<h3>Development Mode</h3>
-<p>
-    Swapping to <strong>Development</strong> environment will display more detailed information about the error that occurred.
-</p>
-<p>
-    <strong>The Development environment shouldn't be enabled for deployed applications.</strong>
-    It can result in displaying sensitive information from exceptions to end users.
-    For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>
-    and restarting the app.
-</p>
+                    <div class="alert alert-info text-start mt-4">
+                        <h5>@Localizer["DevelopmentMode"]</h5>
+                        <p>@Localizer["DevelopmentModeMessage1"]</p>
+                        <p>
+                            <strong>@Localizer["DevelopmentModeWarning"]</strong>
+                            @Localizer["DevelopmentModeMessage2"]
+                        </p>
+                        <p class="mb-0">@Localizer["DevelopmentModeMessage3"]</p>
+                    </div>
+
+                    <a href="/" class="btn btn-primary btn-lg mt-3">
+                        <i class="fa fa-home me-2"></i>@Localizer["GoToHome"]
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @code{
     [CascadingParameter]
@@ -31,6 +49,21 @@
     private string? RequestId { get; set; }
     private bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
 
-    protected override void OnInitialized() =>
+    protected override void OnInitialized()
+    {
         RequestId = Activity.Current?.Id ?? HttpContext?.TraceIdentifier;
+
+        // Subscribe to culture change
+        LocalizationService.OnCultureChanged += OnCultureChanged;
+    }
+
+    private void OnCultureChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        LocalizationService.OnCultureChanged -= OnCultureChanged;
+    }
 }

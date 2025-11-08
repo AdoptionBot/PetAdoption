@@ -4,23 +4,27 @@
 @using PetAdoption.Data.TableStorage
 @using System.ComponentModel.DataAnnotations
 @using PetAdoption.Web.Components.Shared
+@using PetAdoption.Services.Web
 @using Azure
 @attribute [Authorize(Policy = "AdminOnly")]
 @inject IShelterService ShelterService
 @inject IGooglePlacesService GooglePlacesService
 @inject IConfiguration Configuration
 @inject IHttpClientFactory HttpClientFactory
+@inject LocalizationService LocalizationService
+@inject DynamicLocalizer<ManageShelters> Localizer
+@implements IDisposable
 @rendermode InteractiveServer
 
-<PageTitle>Manage Shelters - Admin</PageTitle>
+<PageTitle>@Localizer["PageTitle"]</PageTitle>
 
 <div class="shelter-management-page">
     <div class="container mt-5 mb-5">
         <div class="card shadow">
             <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                <h3 class="mb-0">Shelter Management</h3>
+                <h3 class="mb-0">@Localizer["ShelterManagement"]</h3>
                 <button class="btn btn-light btn-sm" @onclick="ShowCreateModal">
-                    <i class="fa fa-plus"></i> Add New Shelter
+                    <i class="fa fa-plus"></i> @Localizer["AddNewShelter"]
                 </button>
             </div>
             <div class="card-body">
@@ -28,9 +32,9 @@
                 {
                     <div class="text-center py-5">
                         <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
+                            <span class="visually-hidden">@Localizer["Loading"]</span>
                         </div>
-                        <p class="mt-3 text-muted">Loading shelters...</p>
+                        <p class="mt-3 text-muted">@Localizer["LoadingShelters"]</p>
                     </div>
                 }
                 else if (shelters != null && shelters.Any())
@@ -56,13 +60,13 @@
                         <div class="col-md-6">
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-search"></i></span>
-                                <input type="text" class="form-control" placeholder="Search shelters..." 
+                                <input type="text" class="form-control" placeholder="@Localizer["SearchShelters"]"
                                        @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterShelters" />
                             </div>
                         </div>
                         <div class="col-md-6">
                             <select class="form-select" @onchange="FilterByCountry">
-                                <option value="">All Countries</option>
+                                <option value="">@Localizer["AllCountries"]</option>
                                 @if (availableCountries != null)
                                 {
                                     @foreach (var country in availableCountries)
@@ -78,12 +82,12 @@
                         <table class="table table-hover table-striped">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Shelter Name</th>
-                                    <th>Location</th>
-                                    <th>Country</th>
-                                    <th>Contact</th>
-                                    <th>Email</th>
-                                    <th class="text-center">Actions</th>
+                                    <th>@Localizer["ShelterName"]</th>
+                                    <th>@Localizer["Location"]</th>
+                                    <th>@Localizer["Country"]</th>
+                                    <th>@Localizer["Contact"]</th>
+                                    <th>@Localizer["Email"]</th>
+                                    <th class="text-center">@Localizer["Actions"]</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -97,15 +101,15 @@
                                         <td>@shelter.Email</td>
                                         <td class="text-center">
                                             <div class="btn-group btn-group-sm" role="group">
-                                                <button class="btn btn-outline-primary" title="View Details"
+                                                <button class="btn btn-outline-primary" title="@Localizer["ViewDetails"]"
                                                         @onclick="() => ShowViewModal(shelter)">
                                                     <i class="fa fa-eye"></i>
                                                 </button>
-                                                <button class="btn btn-outline-success" title="Edit"
+                                                <button class="btn btn-outline-success" title="@Localizer["Edit"]"
                                                         @onclick="() => ShowEditModal(shelter)">
                                                     <i class="fa fa-edit"></i>
                                                 </button>
-                                                <button class="btn btn-outline-danger" title="Delete"
+                                                <button class="btn btn-outline-danger" title="@Localizer["Delete"]"
                                                         @onclick="() => ShowDeleteConfirmation(shelter)">
                                                     <i class="fa fa-trash"></i>
                                                 </button>
@@ -119,10 +123,10 @@
 
                     <div class="mt-3 d-flex justify-content-between align-items-center">
                         <p class="text-muted mb-0">
-                            <i class="fa fa-home"></i> Total Shelters: <strong>@shelters.Count()</strong>
+                            <i class="fa fa-home"></i> @Localizer["TotalShelters"] <strong>@shelters.Count()</strong>
                             @if (filteredShelters != null)
                             {
-                                <span> | Filtered: <strong>@filteredShelters.Count()</strong></span>
+                                <span> | @Localizer["Filtered"] <strong>@filteredShelters.Count()</strong></span>
                             }
                         </p>
                     </div>
@@ -131,7 +135,7 @@
                 {
                     <div class="text-center py-5">
                         <div class="alert alert-info d-inline-block">
-                            <i class="fa fa-info-circle"></i> No shelters found in the system.
+                            <i class="fa fa-info-circle"></i> @Localizer["NoSheltersFound"]
                         </div>
                     </div>
                 }
@@ -148,49 +152,49 @@
                 <div class="modal-content">
                     <div class="modal-header bg-primary text-white">
                         <h5 class="modal-title">
-                            <i class="fa fa-plus-circle"></i> Add New Shelter
+                            <i class="fa fa-plus-circle"></i> @Localizer["AddNewShelter"]
                         </h5>
                         <button type="button" class="btn-close btn-close-white" @onclick="CloseModal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <div class="alert alert-info">
-                            <i class="fa fa-info-circle"></i> 
-                            <strong>Quick Add:</strong> Paste a Google Maps link to auto-fill information, or skip to fill manually.
+                            <i class="fa fa-info-circle"></i>
+                            <strong>@Localizer["QuickAdd"]</strong> @Localizer["QuickAddMessage"]
                         </div>
 
                         @if (isExtracting)
                         {
                             <div class="text-center py-4">
                                 <div class="spinner-border text-primary mb-3" role="status">
-                                    <span class="visually-hidden">Extracting...</span>
+                                    <span class="visually-hidden">@Localizer["Extracting"]</span>
                                 </div>
-                                <p class="text-muted">Extracting shelter information from Google Maps...</p>
+                                <p class="text-muted">@Localizer["ExtractingMessage"]</p>
                             </div>
                         }
                         else if (extractionComplete)
                         {
                             <div class="alert alert-success">
                                 <i class="fa fa-check-circle"></i>
-                                Information extracted successfully! Review and save below.
+                                @Localizer["ExtractionSuccess"]
                             </div>
 
                             <!-- Preview extracted data -->
                             <div class="card mb-3">
                                 <div class="card-header bg-light">
-                                    <h6 class="mb-0"><i class="fa fa-eye"></i> Extracted Information</h6>
+                                    <h6 class="mb-0"><i class="fa fa-eye"></i> @Localizer["ExtractedInformation"]</h6>
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <p class="mb-2"><strong>Name:</strong> <span class="text-primary">@editingShelter?.PartitionKey</span></p>
-                                            <p class="mb-2"><strong>City/Town:</strong> <span class="text-primary">@editingShelter?.RowKey</span></p>
-                                            <p class="mb-2"><strong>Country:</strong> <span class="text-primary">@editingShelter?.Country</span></p>
-                                            <p class="mb-2"><strong>Address:</strong> <span class="text-secondary">@(editingShelter?.Address ?? "Not found")</span></p>
+                                            <p class="mb-2"><strong>@Localizer["Name"]</strong> <span class="text-primary">@editingShelter?.PartitionKey</span></p>
+                                            <p class="mb-2"><strong>@Localizer["CityTown"]</strong> <span class="text-primary">@editingShelter?.RowKey</span></p>
+                                            <p class="mb-2"><strong>@Localizer["Country"]</strong> <span class="text-primary">@editingShelter?.Country</span></p>
+                                            <p class="mb-2"><strong>@Localizer["Address"]</strong> <span class="text-secondary">@(editingShelter?.Address ?? Localizer["NotFound"])</span></p>
                                         </div>
                                         <div class="col-md-6">
-                                            <p class="mb-2"><strong>Phone:</strong> <span class="text-secondary">@(editingShelter?.PhoneNumber ?? "Not found")</span></p>
+                                            <p class="mb-2"><strong>@Localizer["Phone"]</strong> <span class="text-secondary">@(editingShelter?.PhoneNumber ?? Localizer["NotFound"])</span></p>
                                             <p class="mb-2">
-                                                <strong>Website:</strong>
+                                                <strong>@Localizer["Website"]</strong>
                                                 @if (!string.IsNullOrEmpty(editingShelter?.Website))
                                                 {
                                                     <a href="@editingShelter.Website" target="_blank" rel="noopener noreferrer">
@@ -199,17 +203,17 @@
                                                 }
                                                 else
                                                 {
-                                                    <span class="text-secondary">Not found</span>
+                                                    <span class="text-secondary">@Localizer["NotFound"]</span>
                                                 }
                                             </p>
-                                            <p class="mb-0"><strong>Opening Times:</strong></p>
+                                            <p class="mb-0"><strong>@Localizer["OpeningTimes"]</strong></p>
                                             @if (!string.IsNullOrEmpty(editingShelter?.OpeningTimes))
                                             {
                                                 <small class="text-secondary d-block mt-1" style="white-space: pre-line;">@editingShelter.OpeningTimes</small>
                                             }
                                             else
                                             {
-                                                <span class="text-secondary"><small>Not found</small></span>
+                                                <span class="text-secondary"><small>@Localizer["NotFound"]</small></span>
                                             }
                                         </div>
                                     </div>
@@ -219,37 +223,37 @@
                         else
                         {
                             <div class="mb-3">
-                                <label class="form-label">Google Maps Link (Optional)</label>
+                                <label class="form-label">@Localizer["GoogleMapsLink"]</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-map-marker-alt"></i></span>
-                                    <input type="text" 
-                                           class="form-control" 
-                                           placeholder="https://www.google.com/maps/place/..." 
+                                    <input type="text"
+                                           class="form-control"
+                                           placeholder="@Localizer["GoogleMapsPlaceholder"]"
                                            @bind="googleMapsLink"
                                            @bind:event="oninput" />
                                 </div>
                                 <small class="form-text text-muted">
-                                    Paste the full Google Maps URL (e.g., from Share ? Copy link)
+                                    @Localizer["GoogleMapsHelp"]
                                 </small>
                             </div>
 
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="d-grid">
-                                        <button type="button" 
-                                                class="btn btn-primary" 
+                                        <button type="button"
+                                                class="btn btn-primary"
                                                 @onclick="ExtractShelterInfo"
                                                 disabled="@(string.IsNullOrWhiteSpace(googleMapsLink))">
-                                            <i class="fa fa-magic"></i> Extract Information
+                                            <i class="fa fa-magic"></i> @Localizer["ExtractInformation"]
                                         </button>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="d-grid">
-                                        <button type="button" 
-                                                class="btn btn-outline-primary" 
+                                        <button type="button"
+                                                class="btn btn-outline-primary"
                                                 @onclick="SkipToManualEntry">
-                                            <i class="fa fa-keyboard"></i> Skip & Enter Manually
+                                            <i class="fa fa-keyboard"></i> @Localizer["SkipManualEntry"]
                                         </button>
                                     </div>
                                 </div>
@@ -265,12 +269,12 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" @onclick="CloseModal">
-                            <i class="fa fa-times"></i> Cancel
+                            <i class="fa fa-times"></i> @Localizer["Cancel"]
                         </button>
                         @if (extractionComplete)
                         {
                             <button type="button" class="btn btn-primary" @onclick="ProceedToEdit" disabled="@isSaving">
-                                <i class="fa fa-arrow-right"></i> Continue to Edit
+                                <i class="fa fa-arrow-right"></i> @Localizer["ContinueToEdit"]
                             </button>
                         }
                     </div>
@@ -288,24 +292,24 @@
                 <div class="modal-content">
                     <div class="modal-header bg-primary text-white">
                         <h5 class="modal-title">
-                            <i class="fa fa-edit"></i> @(isCreatingNew ? "Create Shelter" : "Edit Shelter")
+                            <i class="fa fa-edit"></i> @(isCreatingNew? Localizer["CreateShelter"] : Localizer["EditShelter"])
                         </h5>
                         <button type="button" class="btn-close btn-close-white" @onclick="CloseModal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <ValidatedForm Model="editingShelter" OnValidSubmit="SaveShelter">
                             <DataAnnotationsValidator />
-                            
+
                             <!-- Basic Information Section -->
                             <div class="card mb-3">
                                 <div class="card-header bg-light">
-                                    <h6 class="mb-0"><i class="fa fa-home"></i> Basic Information</h6>
+                                    <h6 class="mb-0"><i class="fa fa-home"></i> @Localizer["BasicInformation"]</h6>
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">
-                                                Shelter Name
+                                                @Localizer["ShelterName"]
                                                 @if (isCreatingNew)
                                                 {
                                                     <span class="text-danger">*</span>
@@ -314,17 +318,17 @@
                                             @if (!isCreatingNew)
                                             {
                                                 <input type="text" class="form-control" value="@editingShelter!.PartitionKey" disabled />
-                                                <small class="text-muted">Cannot be changed (used as primary key)</small>
+                                                <small class="text-muted">@Localizer["CannotBeChanged"]</small>
                                             }
                                             else
                                             {
-                                                <InputText @bind-Value="editingShelter!.PartitionKey" class="form-control" placeholder="Enter shelter name" />
+                                                <InputText @bind-Value="editingShelter!.PartitionKey" class="form-control" placeholder="@Localizer["EnterShelterName"]" />
                                                 <ValidationMessage For="@(() => editingShelter!.PartitionKey)" class="text-danger" />
                                             }
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">
-                                                City/Town
+                                                @Localizer["CityTown"]
                                                 @if (isCreatingNew)
                                                 {
                                                     <span class="text-danger">*</span>
@@ -333,51 +337,51 @@
                                             @if (!isCreatingNew)
                                             {
                                                 <input type="text" class="form-control" value="@editingShelter!.RowKey" disabled />
-                                                <small class="text-muted">Cannot be changed (used as primary key)</small>
+                                                <small class="text-muted">@Localizer["CannotBeChanged"]</small>
                                             }
                                             else
                                             {
-                                                <InputText @bind-Value="editingShelter!.RowKey" class="form-control" placeholder="Enter city/town" />
+                                                <InputText @bind-Value="editingShelter!.RowKey" class="form-control" placeholder="@Localizer["EnterCityTown"]" />
                                                 <ValidationMessage For="@(() => editingShelter!.RowKey)" class="text-danger" />
                                             }
                                         </div>
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">Google Maps Location</label>
-                                        <InputText @bind-Value="editingShelter!.GoogleMapsLocation" class="form-control" 
-                                                   placeholder="https://maps.google.com/..." />
-                                        <small class="form-text text-muted">Full Google Maps URL</small>
+                                        <label class="form-label">@Localizer["GoogleMapsLocation"]</label>
+                                        <InputText @bind-Value="editingShelter!.GoogleMapsLocation" class="form-control"
+                                                   placeholder="@Localizer["GoogleMapsPlaceholder"]" />
+                                        <small class="form-text text-muted">@Localizer["FullGoogleMapsUrl"]</small>
                                         <ValidationMessage For="@(() => editingShelter!.GoogleMapsLocation)" class="text-danger" />
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Country <span class="text-danger">*</span></label>
+                                            <label class="form-label">@Localizer["Country"] <span class="text-danger">*</span></label>
                                             <CountryDropdown @bind-Value="editingShelter!.Country" CssClass="form-select" />
                                             <ValidationMessage For="@(() => editingShelter!.Country)" class="text-danger" />
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Phone Number <span class="text-danger">*</span></label>
-                                            <InputText @bind-Value="editingShelter!.PhoneNumber" class="form-control" 
-                                                       placeholder="+1234567890" />
+                                            <label class="form-label">@Localizer["Phone"] <span class="text-danger">*</span></label>
+                                            <InputText @bind-Value="editingShelter!.PhoneNumber" class="form-control"
+                                                       placeholder="@Localizer["Plus1234567890"]" />
                                             <ValidationMessage For="@(() => editingShelter!.PhoneNumber)" class="text-danger" />
                                         </div>
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">Email <span class="text-danger">*</span></label>
-                                        <InputText @bind-Value="editingShelter!.Email" class="form-control" 
-                                                   type="email" placeholder="shelter@example.com" />
+                                        <label class="form-label">@Localizer["Email"] <span class="text-danger">*</span></label>
+                                        <InputText @bind-Value="editingShelter!.Email" class="form-control"
+                                                   type="email" placeholder="@Localizer["ShelterExampleCom"]" />
                                         <ValidationMessage For="@(() => editingShelter!.Email)" class="text-danger" />
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">Address <span class="text-danger">*</span></label>
-                                        <InputTextArea @bind-Value="editingShelter!.Address" class="form-control" rows="2" 
-                                                       placeholder="Street address, city, state, zip" />
+                                        <label class="form-label">@Localizer["Address"] <span class="text-danger">*</span></label>
+                                        <InputTextArea @bind-Value="editingShelter!.Address" class="form-control" rows="2"
+                                                       placeholder="@Localizer["StreetAddressCityStateZip"]" />
                                         <ValidationMessage For="@(() => editingShelter!.Address)" class="text-danger" />
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">Opening Times</label>
-                                        <InputTextArea @bind-Value="editingShelter!.OpeningTimes" class="form-control" rows="2" 
-                                                       placeholder="Mon-Fri: 9:00-18:00, Sat: 9:00-13:00" />
+                                        <label class="form-label">@Localizer["OpeningTimes"]</label>
+                                        <InputTextArea @bind-Value="editingShelter!.OpeningTimes" class="form-control" rows="2"
+                                                       placeholder="@Localizer["MonFri900To1800Sat900To1300"]" />
                                         <ValidationMessage For="@(() => editingShelter!.OpeningTimes)" class="text-danger" />
                                     </div>
                                 </div>
@@ -386,45 +390,45 @@
                             <!-- Social Media Section -->
                             <div class="card mb-3">
                                 <div class="card-header bg-light">
-                                    <h6 class="mb-0"><i class="fa fa-share-alt"></i> Social Media & Website</h6>
+                                    <h6 class="mb-0"><i class="fa fa-share-alt"></i> @Localizer["SocialMediaWebsite"]</h6>
                                 </div>
                                 <div class="card-body">
                                     <div class="mb-3">
-                                        <label class="form-label">Website</label>
+                                        <label class="form-label">@Localizer["Website"]</label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fa fa-globe"></i></span>
-                                            <InputText @bind-Value="editingShelter!.Website" class="form-control" 
-                                                       placeholder="https://example.com" />
+                                            <InputText @bind-Value="editingShelter!.Website" class="form-control"
+                                                       placeholder="@Localizer["HttpsExampleCom"]" />
                                         </div>
                                         <ValidationMessage For="@(() => editingShelter!.Website)" class="text-danger" />
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Facebook</label>
+                                            <label class="form-label">@Localizer["Facebook"]</label>
                                             <div class="input-group">
                                                 <span class="input-group-text"><i class="fa-brands fa-facebook"></i></span>
-                                                <InputText @bind-Value="editingShelter!.Facebook" class="form-control" 
-                                                           placeholder="https://facebook.com/..." />
+                                                <InputText @bind-Value="editingShelter!.Facebook" class="form-control"
+                                                           placeholder="@Localizer["HttpsFacebookCom"]" />
                                             </div>
                                             <ValidationMessage For="@(() => editingShelter!.Facebook)" class="text-danger" />
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Instagram</label>
+                                            <label class="form-label">@Localizer["Instagram"]</label>
                                             <div class="input-group">
                                                 <span class="input-group-text"><i class="fa-brands fa-instagram"></i></span>
-                                                <InputText @bind-Value="editingShelter!.Instagram" class="form-control" 
-                                                           placeholder="https://instagram.com/..." />
+                                                <InputText @bind-Value="editingShelter!.Instagram" class="form-control"
+                                                           placeholder="@Localizer["HttpsInstagramCom"]" />
                                             </div>
                                             <ValidationMessage For="@(() => editingShelter!.Instagram)" class="text-danger" />
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">X</label>
+                                            <label class="form-label">@Localizer["X"]</label>
                                             <div class="input-group">
                                                 <span class="input-group-text"><i class="fa-brands fa-x-twitter"></i></span>
                                                 <InputText @bind-Value="editingShelter!.X" class="form-control"
-                                                           placeholder="https://x.com/..." />
+                                                           placeholder="@Localizer["HttpsXCom"]" />
                                             </div>
                                             <ValidationMessage For="@(() => editingShelter!.X)" class="text-danger" />
                                         </div>
@@ -433,17 +437,17 @@
                             </div>
 
                             <ValidationSummary class="text-danger" />
-                            
+
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" @onclick="CloseModal">
-                                    <i class="fa fa-times"></i> Cancel
+                                    <i class="fa fa-times"></i> @Localizer["Cancel"]
                                 </button>
                                 <button type="submit" class="btn btn-primary" disabled="@isSaving">
                                     @if (isSaving)
                                     {
                                         <span class="spinner-border spinner-border-sm me-2"></span>
                                     }
-                                    <i class="fa fa-save"></i> @(isCreatingNew ? "Create" : "Update") Shelter
+                                    <i class="fa fa-save"></i> @(isCreatingNew? Localizer["CreateShelter"] : Localizer["UpdateShelter"])
                                 </button>
                             </div>
                         </ValidatedForm>
@@ -462,7 +466,7 @@
                 <div class="modal-content">
                     <div class="modal-header bg-primary text-white">
                         <h5 class="modal-title">
-                            <i class="fa fa-home"></i> Shelter Details
+                            <i class="fa fa-home"></i> @Localizer["ShelterDetails"]
                         </h5>
                         <button type="button" class="btn-close btn-close-white" @onclick="CloseViewModal" aria-label="Close"></button>
                     </div>
@@ -471,18 +475,18 @@
                             <div class="col-md-6">
                                 <div class="card mb-3">
                                     <div class="card-header bg-light">
-                                        <strong>Basic Information</strong>
+                                        <strong>@Localizer["BasicInformation"]</strong>
                                     </div>
                                     <ul class="list-group list-group-flush">
-                                        <li class="list-group-item"><strong>Name:</strong> @viewingShelter.ShelterName</li>
-                                        <li class="list-group-item"><strong>Location:</strong> @viewingShelter.Location</li>
-                                        <li class="list-group-item"><strong>Country:</strong> @viewingShelter.Country</li>
-                                        <li class="list-group-item"><strong>Phone:</strong> @viewingShelter.PhoneNumber</li>
-                                        <li class="list-group-item"><strong>Email:</strong> @viewingShelter.Email</li>
-                                        <li class="list-group-item"><strong>Address:</strong> @viewingShelter.Address</li>
+                                        <li class="list-group-item"><strong>@Localizer["Name"]</strong> @viewingShelter.ShelterName</li>
+                                        <li class="list-group-item"><strong>@Localizer["Location"]</strong> @viewingShelter.Location</li>
+                                        <li class="list-group-item"><strong>@Localizer["Country"]</strong> @viewingShelter.Country</li>
+                                        <li class="list-group-item"><strong>@Localizer["Phone"]</strong> @viewingShelter.PhoneNumber</li>
+                                        <li class="list-group-item"><strong>@Localizer["Email"]</strong> @viewingShelter.Email</li>
+                                        <li class="list-group-item"><strong>@Localizer["Address"]</strong> @viewingShelter.Address</li>
                                         @if (!string.IsNullOrEmpty(viewingShelter.OpeningTimes))
                                         {
-                                            <li class="list-group-item"><strong>Opening Times:</strong> @viewingShelter.OpeningTimes</li>
+                                            <li class="list-group-item"><strong>@Localizer["OpeningTimes"]</strong> @viewingShelter.OpeningTimes</li>
                                         }
                                     </ul>
                                 </div>
@@ -490,11 +494,11 @@
                                 {
                                     <div class="card">
                                         <div class="card-header bg-light">
-                                            <strong><i class="fa fa-map me-2"></i>Google Maps Location</strong>
+                                            <strong><i class="fa fa-map me-2"></i>@Localizer["GoogleMapsLocation"]</strong>
                                         </div>
                                         <div class="card-body">
                                             <a href="@viewingShelter.GoogleMapsLocation" target="_blank" rel="noopener noreferrer" class="btn btn-success w-100">
-                                                <i class="fa fa-directions me-2"></i>Open in Google Maps
+                                                <i class="fa fa-directions me-2"></i>@Localizer["OpenInGoogleMaps"]
                                             </a>
                                         </div>
                                     </div>
@@ -503,13 +507,13 @@
                             <div class="col-md-6">
                                 <div class="card mb-3">
                                     <div class="card-header bg-light">
-                                        <strong><i class="fa fa-share-alt"></i> Social Media & Website</strong>
+                                        <strong><i class="fa fa-share-alt"></i> @Localizer["SocialMediaWebsite"]</strong>
                                     </div>
                                     <div class="card-body">
-                                        @if (!string.IsNullOrEmpty(viewingShelter.Website) || 
-                                             !string.IsNullOrEmpty(viewingShelter.Facebook) || 
-                                             !string.IsNullOrEmpty(viewingShelter.Instagram) || 
-                                             !string.IsNullOrEmpty(viewingShelter.X))
+                                        @if (!string.IsNullOrEmpty(viewingShelter.Website) ||
+                                                                            !string.IsNullOrEmpty(viewingShelter.Facebook) ||
+                                                                            !string.IsNullOrEmpty(viewingShelter.Instagram) ||
+                                                                            !string.IsNullOrEmpty(viewingShelter.X))
                                         {
                                             @if (!string.IsNullOrEmpty(viewingShelter.Website))
                                             {
@@ -519,7 +523,7 @@
                                                             <i class="fa fa-globe fa-lg text-primary"></i>
                                                         </div>
                                                         <div class="flex-grow-1 ms-3">
-                                                            <small class="text-muted d-block mb-1">Website</small>
+                                                            <small class="text-muted d-block mb-1">@Localizer["Website"]</small>
                                                             <a href="@viewingShelter.Website" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-break">
                                                                 @viewingShelter.Website <i class="fa fa-external-link-alt fa-xs ms-1"></i>
                                                             </a>
@@ -535,7 +539,7 @@
                                                             <i class="fa-brands fa-facebook fa-lg text-primary"></i>
                                                         </div>
                                                         <div class="flex-grow-1 ms-3">
-                                                            <small class="text-muted d-block mb-1">Facebook</small>
+                                                            <small class="text-muted d-block mb-1">@Localizer["Facebook"]</small>
                                                             <a href="@viewingShelter.Facebook" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-break">
                                                                 @viewingShelter.Facebook <i class="fa fa-external-link-alt fa-xs ms-1"></i>
                                                             </a>
@@ -551,7 +555,7 @@
                                                             <i class="fa-brands fa-instagram fa-lg text-danger"></i>
                                                         </div>
                                                         <div class="flex-grow-1 ms-3">
-                                                            <small class="text-muted d-block mb-1">Instagram</small>
+                                                            <small class="text-muted d-block mb-1">@Localizer["Instagram"]</small>
                                                             <a href="@viewingShelter.Instagram" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-break">
                                                                 @viewingShelter.Instagram <i class="fa fa-external-link-alt fa-xs ms-1"></i>
                                                             </a>
@@ -567,7 +571,7 @@
                                                             <i class="fa-brands fa-x-twitter fa-lg text-dark"></i>
                                                         </div>
                                                         <div class="flex-grow-1 ms-3">
-                                                            <small class="text-muted d-block mb-1">X (Twitter)</small>
+                                                            <small class="text-muted d-block mb-1">@Localizer["XTwitter"]</small>
                                                             <a href="@viewingShelter.X" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-break">
                                                                 @viewingShelter.X <i class="fa fa-external-link-alt fa-xs ms-1"></i>
                                                             </a>
@@ -578,7 +582,7 @@
                                         }
                                         else
                                         {
-                                            <p class="text-muted mb-0"><i class="fa fa-info-circle"></i> No social media links available</p>
+                                            <p class="text-muted mb-0"><i class="fa fa-info-circle"></i> @Localizer["NoSocialMediaLinks"]</p>
                                         }
                                     </div>
                                 </div>
@@ -587,10 +591,10 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" @onclick="CloseViewModal">
-                            <i class="fa fa-times"></i> Close
+                            <i class="fa fa-times"></i> @Localizer["Close"]
                         </button>
                         <button type="button" class="btn btn-primary" @onclick="() => ShowEditModal(viewingShelter)">
-                            <i class="fa fa-edit"></i> Edit Shelter
+                            <i class="fa fa-edit"></i> @Localizer["EditShelter"]
                         </button>
                     </div>
                 </div>
@@ -607,28 +611,28 @@
                 <div class="modal-content">
                     <div class="modal-header bg-danger text-white">
                         <h5 class="modal-title">
-                            <i class="fa fa-exclamation-triangle"></i> Confirm Delete
+                            <i class="fa fa-exclamation-triangle"></i> @Localizer["ConfirmDelete"]
                         </h5>
                         <button type="button" class="btn-close btn-close-white" @onclick="CloseDeleteModal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <p>Are you sure you want to delete the following shelter?</p>
+                        <p>@Localizer["DeleteConfirmationMessage"]</p>
                         <div class="alert alert-warning">
-                            <strong>Name:</strong> @deletingShelter.ShelterName<br />
-                            <strong>Location:</strong> @deletingShelter.Location
+                            <strong>@Localizer["Name"]</strong> @deletingShelter.ShelterName<br />
+                            <strong>@Localizer["Location"]</strong> @deletingShelter.Location
                         </div>
-                        <p class="text-danger"><strong>This action cannot be undone!</strong></p>
+                        <p class="text-danger"><strong>@Localizer["CannotBeUndone"]</strong></p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" @onclick="CloseDeleteModal">
-                            <i class="fa fa-times"></i> Cancel
+                            <i class="fa fa-times"></i> @Localizer["Cancel"]
                         </button>
                         <button type="button" class="btn btn-danger" @onclick="ConfirmDelete" disabled="@isDeleting">
                             @if (isDeleting)
                             {
                                 <span class="spinner-border spinner-border-sm me-2"></span>
                             }
-                            <i class="fa fa-trash"></i> Delete Shelter
+                            <i class="fa fa-trash"></i> @Localizer["DeleteShelter"]
                         </button>
                     </div>
                 </div>
@@ -663,7 +667,7 @@
     private bool isLoading = true;
     private string? successMessage;
     private string? errorMessage;
-    
+
     // Modal states
     private bool showModal = false;
     private bool showViewModal = false;
@@ -672,12 +676,12 @@
     private bool isCreatingNew = false;
     private bool isSaving = false;
     private bool isDeleting = false;
-    
+
     // Edit/Create state
     private Shelter? editingShelter;
     private ShelterDto? viewingShelter;
     private ShelterDto? deletingShelter;
-    
+
     // Filter states
     private string searchTerm = string.Empty;
     private string? selectedCountry;
@@ -691,6 +695,19 @@
     protected override async Task OnInitializedAsync()
     {
         await LoadShelters();
+
+        // Subscribe to culture change
+        LocalizationService.OnCultureChanged += OnCultureChanged;
+    }
+
+    private void OnCultureChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        LocalizationService.OnCultureChanged -= OnCultureChanged;
     }
 
     private async Task LoadShelters()
@@ -724,7 +741,7 @@
 
             // Extract unique countries for filter
             availableCountries = shelters.Select(s => s.Country).Distinct().OrderBy(c => c).ToList();
-            
+
             filteredShelters = null;
         }
         catch (Exception ex)
@@ -757,7 +774,7 @@
         // Search filter
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            filtered = filtered.Where(x => 
+            filtered = filtered.Where(x =>
                 x.ShelterName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
                 x.Location.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
                 x.Country.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
@@ -860,7 +877,7 @@
             Address = string.Empty,
             Email = string.Empty
         };
-        
+
         isEditMode = true;
         isCreatingNew = true;
         extractionComplete = false;

@@ -1,13 +1,17 @@
 @page "/vet"
 @using PetAdoption.Services.Interfaces
 @using PetAdoption.Data.TableStorage
+@using PetAdoption.Services.Web
 @inject IVeterinaryService VeterinaryService
 @inject IConfiguration Configuration
 @inject NavigationManager Navigation
 @inject IJSRuntime JSRuntime
+@inject LocalizationService LocalizationService
+@inject DynamicLocalizer<Vet> Localizer
+@implements IDisposable
 @rendermode InteractiveServer
 
-<PageTitle>Veterinarians - Madeira Pet Adoption</PageTitle>
+<PageTitle>@Localizer["PageTitle"]</PageTitle>
 
 <section class="hero-wrap hero-wrap-2" style="background-image: url('images/bg_2.jpg');" data-stellar-background-ratio="0.5">
     <div class="overlay"></div>
@@ -15,10 +19,10 @@
         <div class="row no-gutters slider-text align-items-end">
             <div class="col-md-9 ftco-animate pb-5">
                 <p class="breadcrumbs mb-2">
-                    <span class="mr-2"><a href="/">Home <i class="ion-ios-arrow-forward"></i></a></span> 
-                    <span>Veterinarians <i class="ion-ios-arrow-forward"></i></span>
+                    <span class="mr-2"><a href="/">@Localizer["Home"] <i class="ion-ios-arrow-forward"></i></a></span> 
+                    <span>@Localizer["Veterinarians"] <i class="ion-ios-arrow-forward"></i></span>
                 </p>
-                <h1 class="mb-0 bread">Veterinary Services in Madeira</h1>
+                <h1 class="mb-0 bread">@Localizer["VeterinaryServicesInMadeira"]</h1>
             </div>
         </div>
     </div>
@@ -31,9 +35,9 @@
             <div class="row">
                 <div class="col-md-12 text-center py-5">
                     <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
+                        <span class="visually-hidden">@Localizer["Loading"]</span>
                     </div>
-                    <p class="mt-3 text-muted">Loading veterinary clinics...</p>
+                    <p class="mt-3 text-muted">@Localizer["LoadingVeterinaries"]</p>
                 </div>
             </div>
         }
@@ -52,7 +56,7 @@
             <div class="row">
                 <div class="col-md-12 text-center py-5">
                     <div class="alert alert-info d-inline-block">
-                        <i class="fa fa-info-circle"></i> No veterinary clinics found at the moment.
+                        <i class="fa fa-info-circle"></i> @Localizer["NoVeterinariesFound"]
                     </div>
                 </div>
             </div>
@@ -61,8 +65,8 @@
         {
             <div class="row mb-4">
                 <div class="col-md-12">
-                    <h2 class="mb-4">Professional Veterinary Care</h2>
-                    <p class="lead">Find trusted veterinary clinics across Madeira to care for your beloved pets.</p>
+                    <h2 class="mb-4">@Localizer["ProfessionalVeterinaryCare"]</h2>
+                    <p class="lead">@Localizer["FindTrustedVeterinaries"]</p>
                 </div>
             </div>
 
@@ -130,7 +134,7 @@
                                             </p>
                                         }
                                         <button class="btn btn-primary btn-sm" @onclick:stopPropagation="true" @onclick="() => ShowDetails(veterinary)">
-                                            <i class="fa fa-info-circle me-1"></i> View Details
+                                            <i class="fa fa-info-circle me-1"></i> @Localizer["ViewDetails"]
                                         </button>
                                     </div>
                                 </div>
@@ -157,23 +161,23 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <h6 class="text-primary mb-3"><i class="fa fa-info-circle me-2"></i>Contact Information</h6>
+                            <h6 class="text-primary mb-3"><i class="fa fa-info-circle me-2"></i>@Localizer["ContactInformation"]</h6>
                             <ul class="list-unstyled">
                                 <li class="mb-2">
-                                    <strong><i class="fa fa-map-marker-alt me-2 text-danger"></i>Location:</strong> 
+                                    <strong><i class="fa fa-map-marker-alt me-2 text-danger"></i>@Localizer["Location"]</strong> 
                                     @selectedVeterinary.RowKey, @selectedVeterinary.Country
                                 </li>
                                 @if (!string.IsNullOrEmpty(selectedVeterinary.Address))
                                 {
                                     <li class="mb-2">
-                                        <strong><i class="fa fa-location-dot me-2 text-secondary"></i>Address:</strong> 
+                                        <strong><i class="fa fa-location-dot me-2 text-secondary"></i>@Localizer["Address"]</strong> 
                                         @selectedVeterinary.Address
                                     </li>
                                 }
                                 @if (!string.IsNullOrEmpty(selectedVeterinary.PhoneNumber))
                                 {
                                     <li class="mb-2">
-                                        <strong><i class="fa fa-phone me-2 text-success"></i>Phone:</strong> 
+                                        <strong><i class="fa fa-phone me-2 text-success"></i>@Localizer["Phone"]</strong> 
                                         <a href="tel:@selectedVeterinary.PhoneNumber" class="text-decoration-none">
                                             @selectedVeterinary.PhoneNumber
                                         </a>
@@ -182,23 +186,23 @@
                                 @if (!string.IsNullOrEmpty(selectedVeterinary.Website))
                                 {
                                     <li class="mb-2">
-                                        <strong><i class="fa fa-globe me-2 text-primary"></i>Website:</strong> 
+                                        <strong><i class="fa fa-globe me-2 text-primary"></i>@Localizer["Website"]</strong> 
                                         <a href="@selectedVeterinary.Website" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
-                                            Visit Website <i class="fa fa-external-link-alt fa-xs"></i>
+                                            @Localizer["VisitWebsite"] <i class="fa fa-external-link-alt fa-xs"></i>
                                         </a>
                                     </li>
                                 }
                                 @if (!string.IsNullOrEmpty(selectedVeterinary.OpeningTimes))
                                 {
                                     <li class="mb-2">
-                                        <strong><i class="fa fa-clock me-2 text-info"></i>Opening Times:</strong> 
+                                        <strong><i class="fa fa-clock me-2 text-info"></i>@Localizer["OpeningTimes"]</strong> 
                                         @selectedVeterinary.OpeningTimes
                                     </li>
                                 }
                             </ul>
                         </div>
                         <div class="col-md-6">
-                            <h6 class="text-primary mb-3"><i class="fa fa-map me-2"></i>Location Map</h6>
+                            <h6 class="text-primary mb-3"><i class="fa fa-map me-2"></i>@Localizer["LocationMap"]</h6>
                             @if (!string.IsNullOrEmpty(selectedVeterinary.GoogleMapsLocation))
                             {
                                 <div class="ratio ratio-4x3">
@@ -214,7 +218,7 @@
                                        target="_blank" 
                                        rel="noopener noreferrer" 
                                        class="btn btn-success btn-sm w-100">
-                                        <i class="fa fa-directions me-2"></i>Get Directions
+                                        <i class="fa fa-directions me-2"></i>@Localizer["GetDirections"]
                                     </a>
                                 </div>
                             }
@@ -223,7 +227,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" @onclick="CloseDetails">
-                        <i class="fa fa-times me-1"></i> Close
+                        <i class="fa fa-times me-1"></i> @Localizer["Close"]
                     </button>
                 </div>
             </div>
@@ -264,6 +268,19 @@
         googleApiKey = Configuration["GoogleApiKey"] ?? string.Empty;
         
         await LoadVeterinaries();
+
+        // Subscribe to culture change
+        LocalizationService.OnCultureChanged += OnCultureChanged;
+    }
+
+    private void OnCultureChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        LocalizationService.OnCultureChanged -= OnCultureChanged;
     }
 
     private async Task LoadVeterinaries()

@@ -234,7 +234,7 @@
                     <i class="fas fa-heart fa-5x text-danger mb-4 adoption-animated-heartbeat"></i>
                     <h3 class="mb-3">@Localizer["Congratulations"]</h3>
                     <p class="lead mb-4">
-                        @Localizer["RequestSubmittedSuccess", selectedPet?.PartitionKey, shelter?.PartitionKey]
+                        @Localizer["RequestSubmittedSuccess", selectedPet?.PartitionKey ?? string.Empty, shelter?.PartitionKey ?? string.Empty]
                     </p>
                     <div class="alert alert-info">
                         <p class="mb-0">
@@ -244,7 +244,7 @@
                     </div>
                     <p class="text-muted small mt-3">
                         <i class="fas fa-paw me-1"></i>
-                        @Localizer["ThankYouForAdopting", selectedPet?.PartitionKey]
+                        @Localizer["ThankYouForAdopting", selectedPet?.PartitionKey ?? string.Empty]
                     </p>
                 </div>
                 <div class="modal-footer justify-content-center">
