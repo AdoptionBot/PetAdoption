@@ -8,9 +8,9 @@
 <div class="language-switcher">
     <button class="btn btn-sm btn-link language-flag @(LocalizationService.IsPortuguese() ? "active" : "")" 
             @onclick='() => SetCultureAsync("pt-PT")' 
-            title="Português"
+            title="Portugu&ecirc;s"
             disabled="@LocalizationService.IsPortuguese()">
-        <img src="/images/flags/pt.png" alt="Português" class="flag-icon" />
+        <img src="/images/flags/pt.png" alt="Portugu&ecirc;s" class="flag-icon" />
     </button>
     <span class="separator">|</span>
     <button class="btn btn-sm btn-link language-flag @(LocalizationService.IsEnglish() ? "active" : "")" 
