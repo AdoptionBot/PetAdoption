@@ -555,7 +555,7 @@
 <!-- Media Carousel Viewer -->
 @if (showImageViewer && carouselMedia.Any())
 {
-    <div class="image-carousel-overlay" @onclick="CloseImageViewer" @onkeydown="HandleCarouselKeyDown" tabindex="0">
+    <div @ref="carouselOverlayElement" class="image-carousel-overlay" @onclick="CloseImageViewer" @onkeydown="HandleCarouselKeyDown" tabindex="0">
         <div class="carousel-container" @onclick:stopPropagation="true">
             <button type="button" class="carousel-close" @onclick="CloseImageViewer" aria-label="Close">
                 <i class="fas fa-times"></i>
@@ -1155,6 +1155,7 @@
     private bool showImageViewer = false;
     private List<CarouselMediaItem> carouselMedia = new();
     private int currentCarouselIndex = 0;
+    private ElementReference carouselOverlayElement;
 
     // Helper class to track media type
     private class CarouselMediaItem
@@ -1475,7 +1476,7 @@
     }
 
     // Media carousel methods - Updated to support videos
-    private void OpenCarouselForCardImage(Pet pet)
+    private async void OpenCarouselForCardImage(Pet pet)
     {
         carouselMedia = new List<CarouselMediaItem>();
 
@@ -1495,10 +1496,21 @@
             currentCarouselIndex = 0;
             showImageViewer = true;
             StateHasChanged();
+
+            // Focus the overlay element to enable immediate keyboard navigation
+            await Task.Delay(50); // Small delay to ensure DOM is rendered
+            try
+            {
+                await carouselOverlayElement.FocusAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning(ex, "Failed to focus carousel overlay element");
+            }
         }
     }
 
-    private void OpenCarousel(int startIndex)
+    private async void OpenCarousel(int startIndex)
     {
         if (selectedPet == null) return;
 
@@ -1520,6 +1532,17 @@
             currentCarouselIndex = Math.Min(startIndex, carouselMedia.Count - 1);
             showImageViewer = true;
             StateHasChanged();
+
+            // Focus the overlay element to enable immediate keyboard navigation
+            await Task.Delay(50); // Small delay to ensure DOM is rendered
+            try
+            {
+                await carouselOverlayElement.FocusAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning(ex, "Failed to focus carousel overlay element");
+            }
         }
     }
 

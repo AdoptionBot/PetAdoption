@@ -280,7 +280,7 @@
                         <div class="alert alert-info fade-in mb-4">
                             <h5><i class="fas fa-heart text-danger heartbeat me-2"></i>@Localizer["About"] @selectedPet.PartitionKey</h5>
                             <p class="mb-0">
-                                <strong>@selectedPet.PartitionKey</strong> @Localizer["AboutMessage"] <strong>@GetPetAge(selectedPet.RowKey)</strong> 
+                                <strong>@selectedPet.PartitionKey</strong> @Localizer["AboutMessage"] <strong>@GetPetAge(selectedPet.RowKey)</strong>
                                 @selectedPet.Species.ToString().ToLower() @Localizer["OldLookingForHome"]
                             </p>
                         </div>
@@ -619,17 +619,17 @@
     <!-- Image Carousel Viewer -->
     @if (showImageViewer && carouselMedia.Any())
     {
-        <div class="image-carousel-overlay" @onclick="CloseImageViewer" @onkeydown="HandleCarouselKeyDown" tabindex="0">
+        <div @ref="carouselOverlayElement" class="image-carousel-overlay" @onclick="CloseImageViewer" @onkeydown="HandleCarouselKeyDown" tabindex="0">
             <div class="carousel-container" @onclick:stopPropagation="true">
                 <button type="button" class="carousel-close" @onclick="CloseImageViewer" aria-label="Close">
                     <i class="fas fa-times"></i>
                 </button>
-                
+
                 @if (carouselMedia.Count > 1)
                 {
-                    <button type="button" 
-                            class="carousel-nav carousel-prev" 
-                            @onclick="PreviousImage" 
+                    <button type="button"
+                            class="carousel-nav carousel-prev"
+                            @onclick="PreviousImage"
                             aria-label="Previous media">
                         <i class="fas fa-chevron-left"></i>
                     </button>
@@ -638,8 +638,8 @@
                 <div class="carousel-image-wrapper">
                     @if (carouselMedia[currentCarouselIndex].IsVideo)
                     {
-                        <video src="@carouselMedia[currentCarouselIndex].Url" 
-                               class="carousel-video" 
+                        <video src="@carouselMedia[currentCarouselIndex].Url"
+                               class="carousel-video"
                                controls
                                autoplay
                                @onclick:stopPropagation="true">
@@ -648,18 +648,18 @@
                     }
                     else
                     {
-                        <img src="@carouselMedia[currentCarouselIndex].Url" 
-                             alt="Pet Media" 
-                             class="carousel-image" 
+                        <img src="@carouselMedia[currentCarouselIndex].Url"
+                             alt="Pet Media"
+                             class="carousel-image"
                              @onclick:stopPropagation="true" />
                     }
                 </div>
 
                 @if (carouselMedia.Count > 1)
                 {
-                    <button type="button" 
-                            class="carousel-nav carousel-next" 
-                            @onclick="NextImage" 
+                    <button type="button"
+                            class="carousel-nav carousel-next"
+                            @onclick="NextImage"
                             aria-label="Next media">
                         <i class="fas fa-chevron-right"></i>
                     </button>
@@ -974,6 +974,7 @@
     private bool showImageViewer = false;
     private List<CarouselMediaItem> carouselMedia = new();
     private int currentCarouselIndex = 0;
+    private ElementReference carouselOverlayElement;
 
     // Helper class to track media type
     private class CarouselMediaItem
@@ -1270,13 +1271,13 @@
     }
 
     // Image carousel methods - Updated to support videos
-    private void OpenCarousel(int startIndex)
+    private async void OpenCarousel(int startIndex)
     {
         if (selectedPet == null) return;
 
         // Build list of available images and videos
         carouselMedia = new List<CarouselMediaItem>();
-        
+
         if (!string.IsNullOrEmpty(selectedPet.Image1Url))
             carouselMedia.Add(new CarouselMediaItem { Url = selectedPet.Image1Url, IsVideo = false });
         if (!string.IsNullOrEmpty(selectedPet.Image2Url))
@@ -1293,6 +1294,17 @@
             currentCarouselIndex = Math.Min(startIndex, carouselMedia.Count - 1);
             showImageViewer = true;
             StateHasChanged();
+
+            // Focus the overlay element to enable immediate keyboard navigation
+            await Task.Delay(50); // Small delay to ensure DOM is rendered
+            try
+            {
+                await carouselOverlayElement.FocusAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning(ex, "Failed to focus carousel overlay element");
+            }
         }
     }
 
