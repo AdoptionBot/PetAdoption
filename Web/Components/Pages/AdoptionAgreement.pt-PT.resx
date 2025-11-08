@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" msdata:Ordinal="5" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="PageTitle" xml:space="preserve">
+    <value>Contrato de Adoção - Adoção de Animais Madeira</value>
+  </data>
+  <data name="AdoptionAgreement" xml:space="preserve">
+    <value>Contrato de Adoção</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>A carregar...</value>
+  </data>
+  <data name="UnableToLoad" xml:space="preserve">
+    <value>Não foi possível carregar as informações do abrigo.</value>
+  </data>
+  <data name="MustBeRegistered" xml:space="preserve">
+    <value>Deve estar registado como abrigo para gerir contratos de adoção. Por favor, complete o seu perfil primeiro.</value>
+  </data>
+  <data name="GoToProfile" xml:space="preserve">
+    <value>Ir para o Perfil</value>
+  </data>
+  <data name="ShelterInformation" xml:space="preserve">
+    <value>Informações do Abrigo</value>
+  </data>
+  <data name="ShelterName" xml:space="preserve">
+    <value>Nome do Abrigo:</value>
+  </data>
+  <data name="ShelterLocation" xml:space="preserve">
+    <value>Localização do Abrigo:</value>
+  </data>
+  <data name="AdoptionAgreementRules" xml:space="preserve">
+    <value>Regras do Contrato de Adoção</value>
+  </data>
+  <data name="RulesDescription" xml:space="preserve">
+    <value>Insira as regras e requisitos que os adotantes devem aceitar. Este texto será apresentado aos potenciais adotantes.</value>
+  </data>
+  <data name="RulesAndRequirements" xml:space="preserve">
+    <value>Regras e Requisitos</value>
+  </data>
+  <data name="RulesPlaceholder" xml:space="preserve">
+    <value>Insira as regras e requisitos do contrato de adoção do seu abrigo...
+
+Por exemplo:
+- Deve ter 18 anos ou mais
+- Deve fornecer comprovativo de residência
+- Deve concordar com consultas veterinárias anuais
+- Não deve abandonar ou realojar o animal sem aprovação do abrigo</value>
+  </data>
+  <data name="SupportingDocuments" xml:space="preserve">
+    <value>Documentos de Apoio</value>
+  </data>
+  <data name="SupportingDocumentsDescription" xml:space="preserve">
+    <value>Carregue documentos oficiais de contrato de adoção, contratos ou informações adicionais que os adotantes possam descarregar e rever. Formatos aceites: PDF, Word ou ficheiros de texto (máx. 10MB cada).</value>
+  </data>
+  <data name="Document1" xml:space="preserve">
+    <value>Documento 1</value>
+  </data>
+  <data name="Document2" xml:space="preserve">
+    <value>Documento 2</value>
+  </data>
+  <data name="Document3" xml:space="preserve">
+    <value>Documento 3</value>
+  </data>
+  <data name="Document4" xml:space="preserve">
+    <value>Documento 4</value>
+  </data>
+  <data name="DocumentName" xml:space="preserve">
+    <value>Nome do Documento</value>
+  </data>
+  <data name="DocumentNameRequired" xml:space="preserve">
+    <value>O nome do documento é obrigatório quando um documento é carregado.</value>
+  </data>
+  <data name="DocumentNamePlaceholder" xml:space="preserve">
+    <value>ex: Contrato de Adoção, Termos e Condições</value>
+  </data>
+  <data name="DocumentFile" xml:space="preserve">
+    <value>Ficheiro do Documento</value>
+  </data>
+  <data name="SaveAgreement" xml:space="preserve">
+    <value>Guardar Contrato de Adoção</value>
+  </data>
+  <data name="AgreementSavedSuccess" xml:space="preserve">
+    <value>Contrato de adoção guardado com sucesso!</value>
+  </data>
+</root>

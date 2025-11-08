@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" msdata:Ordinal="5" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="PageTitle" xml:space="preserve">
+    <value>Add Pet - Madeira Pet Adoption</value>
+  </data>
+  <data name="AddNewPet" xml:space="preserve">
+    <value>Add New Pet</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="BasicInformation" xml:space="preserve">
+    <value>Basic Information</value>
+  </data>
+  <data name="PetName" xml:space="preserve">
+    <value>Pet Name</value>
+  </data>
+  <data name="PetNamePlaceholder" xml:space="preserve">
+    <value>Enter pet name</value>
+  </data>
+  <data name="BirthDate" xml:space="preserve">
+    <value>Birth Date</value>
+  </data>
+  <data name="Species" xml:space="preserve">
+    <value>Species</value>
+  </data>
+  <data name="SelectSpecies" xml:space="preserve">
+    <value>-- Select Species --</value>
+  </data>
+  <data name="Gender" xml:space="preserve">
+    <value>Gender</value>
+  </data>
+  <data name="SelectGender" xml:space="preserve">
+    <value>-- Select Gender --</value>
+  </data>
+  <data name="Size" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="SelectSize" xml:space="preserve">
+    <value>-- Select Size --</value>
+  </data>
+  <data name="Breed" xml:space="preserve">
+    <value>Breed (Optional)</value>
+  </data>
+  <data name="BreedPlaceholder" xml:space="preserve">
+    <value>e.g., Labrador, Siamese</value>
+  </data>
+  <data name="Colour" xml:space="preserve">
+    <value>Colour (Optional)</value>
+  </data>
+  <data name="ColourPlaceholder" xml:space="preserve">
+    <value>e.g., Brown, Black</value>
+  </data>
+  <data name="About" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="AboutPlaceholder" xml:space="preserve">
+    <value>Describe the pet's personality, behavior, and any special needs...</value>
+  </data>
+  <data name="MedicalInformation" xml:space="preserve">
+    <value>Medical Information</value>
+  </data>
+  <data name="Vaccinations" xml:space="preserve">
+    <value>Vaccinations</value>
+  </data>
+  <data name="CommonVaccinations" xml:space="preserve">
+    <value>Common Vaccinations</value>
+  </data>
+  <data name="CatVaccinations" xml:space="preserve">
+    <value>Cat Vaccinations</value>
+  </data>
+  <data name="DogVaccinations" xml:space="preserve">
+    <value>Dog Vaccinations</value>
+  </data>
+  <data name="MedicalTreatments" xml:space="preserve">
+    <value>Medical Treatments (Optional)</value>
+  </data>
+  <data name="MedicalTreatmentsPlaceholder" xml:space="preserve">
+    <value>List any medical treatments the pet has received...</value>
+  </data>
+  <data name="KnownMedicalIssues" xml:space="preserve">
+    <value>Known Medical Issues (Optional)</value>
+  </data>
+  <data name="KnownMedicalIssuesPlaceholder" xml:space="preserve">
+    <value>List any known medical issues...</value>
+  </data>
+  <data name="NeuteredSpayed" xml:space="preserve">
+    <value>Neutered/Spayed</value>
+  </data>
+  <data name="Dewormed" xml:space="preserve">
+    <value>Dewormed</value>
+  </data>
+  <data name="Microchipped" xml:space="preserve">
+    <value>Microchipped</value>
+  </data>
+  <data name="ImagesVideo" xml:space="preserve">
+    <value>Images &amp; Video</value>
+  </data>
+  <data name="ImagesVideoDescription" xml:space="preserve">
+    <value>Upload files or provide URLs for pet images and videos (optional)</value>
+  </data>
+  <data name="Image1" xml:space="preserve">
+    <value>Image 1</value>
+  </data>
+  <data name="Image2" xml:space="preserve">
+    <value>Image 2</value>
+  </data>
+  <data name="Image3" xml:space="preserve">
+    <value>Image 3</value>
+  </data>
+  <data name="Image4" xml:space="preserve">
+    <value>Image 4</value>
+  </data>
+  <data name="Video1" xml:space="preserve">
+    <value>Video 1</value>
+  </data>
+  <data name="ShelterInformation" xml:space="preserve">
+    <value>Shelter Information</value>
+  </data>
+  <data name="ManagingPetsFor" xml:space="preserve">
+    <value>Managing pets for:</value>
+  </data>
+  <data name="ShelterName" xml:space="preserve">
+    <value>Shelter Name:</value>
+  </data>
+  <data name="ShelterLocation" xml:space="preserve">
+    <value>Shelter Location:</value>
+  </data>
+  <data name="AddPet" xml:space="preserve">
+    <value>Add Pet</value>
+  </data>
+  <data name="UnableToLoad" xml:space="preserve">
+    <value>Unable to load shelter information.</value>
+  </data>
+  <data name="MustBeRegistered" xml:space="preserve">
+    <value>You must be registered as a shelter to add pets. Please complete your profile first.</value>
+  </data>
+  <data name="GoToProfile" xml:space="preserve">
+    <value>Go to Profile</value>
+  </data>
+</root>

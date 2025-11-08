@@ -12,23 +12,26 @@
 @inject NavigationManager Navigation
 @inject IJSRuntime JSRuntime
 @inject ProfileStateService ProfileState
+@inject LocalizationService LocalizationService
+@inject DynamicLocalizer<UserProfile> Localizer
+@implements IDisposable
 @rendermode InteractiveServer
 
-<PageTitle>My Profile - Madeira Pet Adoption</PageTitle>
+<PageTitle>@Localizer["PageTitle"]</PageTitle>
 
 <div class="container mt-5 mb-5">
     <div class="row">
         <div class="col-md-8 mx-auto">
             <div class="card shadow">
                 <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">My Profile</h3>
+                    <h3 class="mb-0">@Localizer["MyProfile"]</h3>
                 </div>
                 <div class="card-body p-4">
                     @if (!isProfileComplete)
                     {
                         <div class="alert alert-warning">
-                            <strong>Complete Your Profile</strong>
-                            <p class="mb-0">Please complete all required fields and save your profile before you can access other parts of the website.</p>
+                            <strong>@Localizer["CompleteYourProfile"]</strong>
+                            <p class="mb-0">@Localizer["CompleteProfileMessage"]</p>
                         </div>
                     }
 
@@ -36,7 +39,7 @@
                     {
                         <div class="text-center">
                             <div class="spinner-border" role="status">
-                                <span class="visually-hidden">Loading...</span>
+                                <span class="visually-hidden">@Localizer["Loading"]</span>
                             </div>
                         </div>
                     }
@@ -59,56 +62,58 @@
 
                             <!-- User Form Section -->
                             <div class="mb-4">
-                                <h5 class="border-bottom pb-2">User Information</h5>
+                                <h5 class="border-bottom pb-2">@Localizer["UserInformation"]</h5>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Email</label>
+                                    <label class="form-label">@Localizer["Email"]</label>
                                     <input type="email" class="form-control" value="@currentUser.RowKey" disabled />
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">User Name</label>
+                                    <label class="form-label">@Localizer["UserName"]</label>
                                     <input type="text" class="form-control" value="@currentUser.PartitionKey" disabled />
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                    <label class="form-label">@Localizer["PhoneNumber"] <span class="text-danger">*</span></label>
                                     <InputText @bind-Value="currentUser.PhoneNumber" class="form-control" />
                                     <ValidationMessage For="@(() => currentUser.PhoneNumber)" />
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Address <span class="text-danger">*</span></label>
+                                    <label class="form-label">@Localizer["Address"] <span class="text-danger">*</span></label>
                                     <InputTextArea @bind-Value="currentUser.Address" class="form-control" rows="3" />
                                     <ValidationMessage For="@(() => currentUser.Address)" />
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Country <span class="text-danger">*</span></label>
+                                    <label class="form-label">@Localizer["Country"] <span class="text-danger">*</span></label>
                                     <CountryDropdown @bind-Value="currentUser.Country" CssClass="form-select" />
                                     <ValidationMessage For="@(() => currentUser.Country)" />
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Website (Optional)</label>
-                                    <InputText @bind-Value="currentUser.Website" class="form-control" />
+                                    <label class="form-label">@Localizer["Website"]</label>
+                                    <InputText @bind-Value="currentUser.Website" class="form-control" placeholder="@Localizer["WebsitePlaceholder"]" />
                                     <ValidationMessage For="@(() => currentUser.Website)" />
                                 </div>
 
+                                <h6 class="border-bottom pb-2 mt-4">@Localizer["SocialMedia"]</h6>
+
                                 <div class="mb-3">
-                                    <label class="form-label">Facebook (Optional)</label>
+                                    <label class="form-label">@Localizer["FacebookUrl"]</label>
                                     <InputText @bind-Value="currentUser.Facebook" class="form-control" />
                                     <ValidationMessage For="@(() => currentUser.Facebook)" />
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Instagram (Optional)</label>
+                                    <label class="form-label">@Localizer["InstagramUrl"]</label>
                                     <InputText @bind-Value="currentUser.Instagram" class="form-control" />
                                     <ValidationMessage For="@(() => currentUser.Instagram)" />
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">X (Optional)</label>
+                                    <label class="form-label">@Localizer["XUrl"]</label>
                                     <InputText @bind-Value="currentUser.X" class="form-control" />
                                     <ValidationMessage For="@(() => currentUser.X)" />
                                 </div>
@@ -117,8 +122,8 @@
                                     <div class="form-check">
                                         <InputCheckbox @bind-Value="currentUser.IsFoster" class="form-check-input" id="isFosterCheckbox" />
                                         <label class="form-check-label" for="isFosterCheckbox">
-                                            <strong>Foster</strong>
-                                            <div class="text-muted small">Would you like to register as an animal foster parent?</div>
+                                            <strong>@Localizer["Foster"]</strong>
+                                            <div class="text-muted small">@Localizer["FosterDescription"]</div>
                                         </label>
                                     </div>
                                 </div>
@@ -129,8 +134,12 @@
                                     @if (isSaving)
                                     {
                                         <span class="spinner-border spinner-border-sm me-2"></span>
+                                        @Localizer["Saving"]
                                     }
-                                    Save Changes
+                                    else
+                                    {
+                                        @Localizer["SaveProfile"]
+                                    }
                                 </button>
                             </div>
                         </ValidatedForm>
@@ -138,7 +147,7 @@
                     else
                     {
                         <div class="alert alert-warning">
-                            Unable to load user profile. Please try again later.
+                            @Localizer["UnableToLoadProfile"]
                         </div>
                     }
                 </div>
@@ -183,6 +192,19 @@
         {
             isLoading = false;
         }
+
+        // Subscribe to culture change
+        LocalizationService.OnCultureChanged += OnCultureChanged;
+    }
+
+    private void OnCultureChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        LocalizationService.OnCultureChanged -= OnCultureChanged;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -224,7 +246,7 @@
             await UserService.UpdateUserAsync(currentUser);
             
             isProfileComplete = true;
-            successMessage = "Profile updated successfully! You can now navigate to other pages.";
+            successMessage = Localizer["ProfileUpdateSuccess"];
             
             // Allow navigation after profile completion
             await JSRuntime.InvokeVoidAsync("eval", "window.profileCompleted = true;");

@@ -3,6 +3,7 @@
 @using PetAdoption.Services.Interfaces
 @using PetAdoption.Data.TableStorage
 @using PetAdoption.Data.TableStorage.Enums
+@using PetAdoption.Services.Web
 @attribute [Authorize(Roles = "User")]
 @inject IPetService PetService
 @inject IShelterService ShelterService
@@ -12,36 +13,39 @@
 @inject NavigationManager Navigation
 @inject IJSRuntime JSRuntime
 @inject ILogger<AdoptionRequest> Logger
+@inject LocalizationService LocalizationService
+@inject DynamicLocalizer<AdoptionRequest> Localizer
+@implements IDisposable
 @rendermode InteractiveServer
 
-<PageTitle>Adoption Request - Madeira Pet Adoption</PageTitle>
+<PageTitle>@Localizer["PageTitle"]</PageTitle>
 
 <div class="container mt-5 mb-5">
     <div class="row">
         <div class="col-md-10 mx-auto">
             <div class="card shadow">
                 <div class="card-header bg-success text-white">
-                    <h3 class="mb-0"><i class="fas fa-file-contract me-2"></i>Adoption Agreement</h3>
+                    <h3 class="mb-0"><i class="fas fa-file-contract me-2"></i>@Localizer["AdoptionAgreement"]</h3>
                 </div>
                 <div class="card-body p-4">
                     @if (isLoading)
                     {
                         <div class="text-center py-5">
                             <div class="spinner-border text-success" role="status">
-                                <span class="visually-hidden">Loading...</span>
+                                <span class="visually-hidden">@Localizer["Loading"]</span>
                             </div>
-                            <p class="mt-3">Loading adoption agreement...</p>
+                            <p class="mt-3">@Localizer["LoadingAgreement"]</p>
                         </div>
                     }
                     else if (!string.IsNullOrEmpty(errorMessage))
                     {
                         <div class="alert alert-danger">
                             <i class="fas fa-exclamation-triangle me-2"></i>
-                            <strong>Error:</strong> @errorMessage
+                            <strong>@Localizer["Error"]</strong> @errorMessage
                         </div>
                         <div class="text-center">
                             <a href="/pets" class="btn btn-primary">
-                                <i class="fas fa-arrow-left me-2"></i>Back to Pets
+                                <i class="fas fa-arrow-left me-2"></i>@Localizer["BackToPets"]
                             </a>
                         </div>
                     }
@@ -50,7 +54,7 @@
                         <!-- Pet Information -->
                         <div class="alert alert-info mb-4">
                             <h5 class="mb-3">
-                                <i class="fas fa-paw me-2"></i>You're Requesting to Adopt: <strong>@selectedPet.PartitionKey</strong>
+                                <i class="fas fa-paw me-2"></i>@Localizer["YoureRequestingToAdopt"] <strong>@selectedPet.PartitionKey</strong>
                             </h5>
                             <div class="row">
                                 <div class="col-md-6">
@@ -64,10 +68,10 @@
                                     }
                                 </div>
                                 <div class="col-md-6">
-                                    <p class="mb-1"><strong>Species:</strong> @selectedPet.Species</p>
-                                    <p class="mb-1"><strong>Age:</strong> @GetPetAge(selectedPet.RowKey)</p>
-                                    <p class="mb-1"><strong>Gender:</strong> @selectedPet.Gender</p>
-                                    <p class="mb-0"><strong>Size:</strong> @selectedPet.Size</p>
+                                    <p class="mb-1"><strong>@Localizer["Species"]</strong> @selectedPet.Species</p>
+                                    <p class="mb-1"><strong>@Localizer["Age"]</strong> @GetPetAge(selectedPet.RowKey)</p>
+                                    <p class="mb-1"><strong>@Localizer["Gender"]</strong> @selectedPet.Gender</p>
+                                    <p class="mb-0"><strong>@Localizer["Size"]</strong> @selectedPet.Size</p>
                                 </div>
                             </div>
                         </div>
@@ -75,17 +79,17 @@
                         <!-- Shelter Information -->
                         <div class="mb-4">
                             <h5 class="border-bottom pb-2">
-                                <i class="fas fa-home me-2"></i>Shelter Information
+                                <i class="fas fa-home me-2"></i>@Localizer["ShelterInformation"]
                             </h5>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <p class="mb-1"><strong>Shelter Name:</strong> @shelter.PartitionKey</p>
-                                    <p class="mb-1"><strong>Location:</strong> @shelter.RowKey, @shelter.Country</p>
-                                    <p class="mb-1"><strong>Phone:</strong> @shelter.PhoneNumber</p>
+                                    <p class="mb-1"><strong>@Localizer["ShelterName"]</strong> @shelter.PartitionKey</p>
+                                    <p class="mb-1"><strong>@Localizer["Location"]</strong> @shelter.RowKey, @shelter.Country</p>
+                                    <p class="mb-1"><strong>@Localizer["Phone"]</strong> @shelter.PhoneNumber</p>
                                 </div>
                                 <div class="col-md-6">
-                                    <p class="mb-1"><strong>Email:</strong> @shelter.Email</p>
-                                    <p class="mb-0"><strong>Address:</strong> @shelter.Address</p>
+                                    <p class="mb-1"><strong>@Localizer["Email"]</strong> @shelter.Email</p>
+                                    <p class="mb-0"><strong>@Localizer["Address"]</strong> @shelter.Address</p>
                                 </div>
                             </div>
                         </div>
@@ -95,7 +99,7 @@
                         {
                             <div class="mb-4">
                                 <h5 class="border-bottom pb-2">
-                                    <i class="fas fa-clipboard-list me-2"></i>Adoption Agreement Rules
+                                    <i class="fas fa-clipboard-list me-2"></i>@Localizer["AdoptionAgreementRules"]
                                 </h5>
                                 <div class="card bg-light">
                                     <div class="card-body">
@@ -110,10 +114,10 @@
                         {
                             <div class="mb-4">
                                 <h5 class="border-bottom pb-2">
-                                    <i class="fas fa-file-pdf me-2"></i>Supporting Documents
+                                    <i class="fas fa-file-pdf me-2"></i>@Localizer["SupportingDocuments"]
                                 </h5>
                                 <p class="text-muted small mb-3">
-                                    Please review the following documents provided by the shelter:
+                                    @Localizer["SupportingDocumentsDesc"]
                                 </p>
 
                                 <div class="list-group">
@@ -150,7 +154,7 @@
                         {
                             <div class="mb-4">
                                 <h5 class="border-bottom pb-2">
-                                    <i class="fas fa-comment me-2"></i>Your Notes
+                                    <i class="fas fa-comment me-2"></i>@Localizer["YourNotes"]
                                 </h5>
                                 <div class="alert alert-light">
                                     <p class="mb-0">@adoptionNotes</p>
@@ -168,14 +172,14 @@
                                        disabled="@isSubmitting" />
                                 <label class="form-check-label fw-bold" for="agreementCheck">
                                     <i class="fas fa-check-circle me-2 @(hasAcceptedAgreement ? "text-success" : "text-muted")"></i>
-                                    I have read and accept the adoption agreement terms and conditions
+                                    @Localizer["AgreeToTerms"]
                                 </label>
                             </div>
                             @if (!hasAcceptedAgreement)
                             {
                                 <p class="small text-muted mt-2 mb-0">
                                     <i class="fas fa-info-circle me-1"></i>
-                                    You must accept the agreement before submitting your adoption request.
+                                    @Localizer["MustAcceptAgreement"]
                                 </p>
                             }
                         </div>
@@ -185,9 +189,9 @@
                         {
                             <div class="text-center py-4">
                                 <div class="spinner-border text-success" role="status">
-                                    <span class="visually-hidden">Submitting...</span>
+                                    <span class="visually-hidden">@Localizer["Submitting"]</span>
                                 </div>
-                                <p class="mt-3">Submitting your adoption request...</p>
+                                <p class="mt-3">@Localizer["SubmittingRequest"]</p>
                             </div>
                         }
                         else
@@ -195,7 +199,7 @@
                             <div class="row g-2">
                                 <div class="col-md-6">
                                     <button type="button" class="btn btn-outline-secondary btn-lg w-100" @onclick="Cancel">
-                                        <i class="fas fa-times me-2"></i>Cancel
+                                        <i class="fas fa-times me-2"></i>@Localizer["Cancel"]
                                     </button>
                                 </div>
                                 <div class="col-md-6">
@@ -203,7 +207,7 @@
                                             class="btn btn-success btn-lg w-100" 
                                             @onclick="SubmitAdoptionRequest"
                                             disabled="@(!hasAcceptedAgreement)">
-                                        <i class="fas fa-heart me-2"></i>Request Adoption for @selectedPet.PartitionKey
+                                        <i class="fas fa-heart me-2"></i>@Localizer["RequestAdoptionFor", selectedPet.PartitionKey]
                                     </button>
                                 </div>
                             </div>
@@ -223,31 +227,29 @@
             <div class="modal-content border-success border-3">
                 <div class="modal-header bg-success text-white">
                     <h5 class="modal-title">
-                        <i class="fas fa-check-circle me-2"></i>Adoption Request Submitted!
+                        <i class="fas fa-check-circle me-2"></i>@Localizer["AdoptionRequestSubmitted"]
                     </h5>
                 </div>
                 <div class="modal-body text-center py-5">
                     <i class="fas fa-heart fa-5x text-danger mb-4 adoption-animated-heartbeat"></i>
-                    <h3 class="mb-3">Congratulations!</h3>
+                    <h3 class="mb-3">@Localizer["Congratulations"]</h3>
                     <p class="lead mb-4">
-                        Your adoption request for <strong class="text-success">@selectedPet?.PartitionKey</strong> has been successfully submitted to 
-                        <strong>@shelter?.PartitionKey</strong>!
+                        @Localizer["RequestSubmittedSuccess", selectedPet?.PartitionKey, shelter?.PartitionKey]
                     </p>
                     <div class="alert alert-info">
                         <p class="mb-0">
                             <i class="fas fa-info-circle me-2"></i>
-                            The shelter will review your application and contact you soon. You can track the status of your application 
-                            in the <strong>Adoptions</strong> section.
+                            @Localizer["ShelterWillReview"]
                         </p>
                     </div>
                     <p class="text-muted small mt-3">
                         <i class="fas fa-paw me-1"></i>
-                        Thank you for choosing to adopt and giving @selectedPet?.PartitionKey a loving home!
+                        @Localizer["ThankYouForAdopting", selectedPet?.PartitionKey]
                     </p>
                 </div>
                 <div class="modal-footer justify-content-center">
                     <button type="button" class="btn btn-success btn-lg px-5" @onclick="GoToAdoptionsPage">
-                        <i class="fas fa-check me-2"></i>OK
+                        <i class="fas fa-check me-2"></i>@Localizer["OK"]
                     </button>
                 </div>
             </div>
@@ -336,6 +338,19 @@
         {
             isLoading = false;
         }
+
+        // Subscribe to culture change
+        LocalizationService.OnCultureChanged += OnCultureChanged;
+    }
+
+    private void OnCultureChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        LocalizationService.OnCultureChanged -= OnCultureChanged;
     }
 
     private bool HasAnyDocuments()

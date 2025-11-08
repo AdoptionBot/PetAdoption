@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" msdata:Ordinal="5" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="PageTitle" xml:space="preserve">
+    <value>Adoption Request - Madeira Pet Adoption</value>
+  </data>
+  <data name="AdoptionAgreement" xml:space="preserve">
+    <value>Adoption Agreement</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="LoadingAgreement" xml:space="preserve">
+    <value>Loading adoption agreement...</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Error:</value>
+  </data>
+  <data name="BackToPets" xml:space="preserve">
+    <value>Back to Pets</value>
+  </data>
+  <data name="YoureRequestingToAdopt" xml:space="preserve">
+    <value>You're Requesting to Adopt:</value>
+  </data>
+  <data name="Species" xml:space="preserve">
+    <value>Species:</value>
+  </data>
+  <data name="Age" xml:space="preserve">
+    <value>Age:</value>
+  </data>
+  <data name="Gender" xml:space="preserve">
+    <value>Gender:</value>
+  </data>
+  <data name="Size" xml:space="preserve">
+    <value>Size:</value>
+  </data>
+  <data name="ShelterInformation" xml:space="preserve">
+    <value>Shelter Information</value>
+  </data>
+  <data name="ShelterName" xml:space="preserve">
+    <value>Shelter Name:</value>
+  </data>
+  <data name="Location" xml:space="preserve">
+    <value>Location:</value>
+  </data>
+  <data name="Phone" xml:space="preserve">
+    <value>Phone:</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Email:</value>
+  </data>
+  <data name="Address" xml:space="preserve">
+    <value>Address:</value>
+  </data>
+  <data name="AdoptionAgreementRules" xml:space="preserve">
+    <value>Adoption Agreement Rules</value>
+  </data>
+  <data name="SupportingDocuments" xml:space="preserve">
+    <value>Supporting Documents</value>
+  </data>
+  <data name="SupportingDocumentsDesc" xml:space="preserve">
+    <value>Please review the following documents provided by the shelter:</value>
+  </data>
+  <data name="YourNotes" xml:space="preserve">
+    <value>Your Notes</value>
+  </data>
+  <data name="AgreeToTerms" xml:space="preserve">
+    <value>I have read and accept the adoption agreement terms and conditions</value>
+  </data>
+  <data name="MustAcceptAgreement" xml:space="preserve">
+    <value>You must accept the agreement before submitting your adoption request.</value>
+  </data>
+  <data name="Submitting" xml:space="preserve">
+    <value>Submitting...</value>
+  </data>
+  <data name="SubmittingRequest" xml:space="preserve">
+    <value>Submitting your adoption request...</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="RequestAdoptionFor" xml:space="preserve">
+    <value>Request Adoption for {0}</value>
+  </data>
+  <data name="AdoptionRequestSubmitted" xml:space="preserve">
+    <value>Adoption Request Submitted!</value>
+  </data>
+  <data name="Congratulations" xml:space="preserve">
+    <value>Congratulations!</value>
+  </data>
+  <data name="RequestSubmittedSuccess" xml:space="preserve">
+    <value>Your adoption request for {0} has been successfully submitted to {1}!</value>
+  </data>
+  <data name="ShelterWillReview" xml:space="preserve">
+    <value>The shelter will review your application and contact you soon. You can track the status of your application in the Adoptions section.</value>
+  </data>
+  <data name="ThankYouForAdopting" xml:space="preserve">
+    <value>Thank you for choosing to adopt and giving {0} a loving home!</value>
+  </data>
+  <data name="OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+</root>

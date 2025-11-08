@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" msdata:Ordinal="5" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="PageTitle" xml:space="preserve">
+    <value>Adoption Agreement - Madeira Pet Adoption</value>
+  </data>
+  <data name="AdoptionAgreement" xml:space="preserve">
+    <value>Adoption Agreement</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="UnableToLoad" xml:space="preserve">
+    <value>Unable to load shelter information.</value>
+  </data>
+  <data name="MustBeRegistered" xml:space="preserve">
+    <value>You must be registered as a shelter to manage adoption agreements. Please complete your profile first.</value>
+  </data>
+  <data name="GoToProfile" xml:space="preserve">
+    <value>Go to Profile</value>
+  </data>
+  <data name="ShelterInformation" xml:space="preserve">
+    <value>Shelter Information</value>
+  </data>
+  <data name="ShelterName" xml:space="preserve">
+    <value>Shelter Name:</value>
+  </data>
+  <data name="ShelterLocation" xml:space="preserve">
+    <value>Shelter Location:</value>
+  </data>
+  <data name="AdoptionAgreementRules" xml:space="preserve">
+    <value>Adoption Agreement Rules</value>
+  </data>
+  <data name="RulesDescription" xml:space="preserve">
+    <value>Enter the rules and requirements that adopters must agree to. This text will be displayed to potential adopters.</value>
+  </data>
+  <data name="RulesAndRequirements" xml:space="preserve">
+    <value>Rules and Requirements</value>
+  </data>
+  <data name="RulesPlaceholder" xml:space="preserve">
+    <value>Enter your shelter's adoption agreement rules and requirements...
+
+For example:
+- Must be 18 years or older
+- Must provide proof of residence
+- Must agree to annual veterinary check-ups
+- Must not abandon or rehome the pet without shelter approval</value>
+  </data>
+  <data name="SupportingDocuments" xml:space="preserve">
+    <value>Supporting Documents</value>
+  </data>
+  <data name="SupportingDocumentsDescription" xml:space="preserve">
+    <value>Upload official adoption agreement documents, contracts, or additional information that adopters can download and review. Accepted formats: PDF, Word, or Text files (max 10MB each).</value>
+  </data>
+  <data name="Document1" xml:space="preserve">
+    <value>Document 1</value>
+  </data>
+  <data name="Document2" xml:space="preserve">
+    <value>Document 2</value>
+  </data>
+  <data name="Document3" xml:space="preserve">
+    <value>Document 3</value>
+  </data>
+  <data name="Document4" xml:space="preserve">
+    <value>Document 4</value>
+  </data>
+  <data name="DocumentName" xml:space="preserve">
+    <value>Document Name</value>
+  </data>
+  <data name="DocumentNameRequired" xml:space="preserve">
+    <value>Document name is required when a document is uploaded.</value>
+  </data>
+  <data name="DocumentNamePlaceholder" xml:space="preserve">
+    <value>e.g., Adoption Contract, Terms and Conditions</value>
+  </data>
+  <data name="DocumentFile" xml:space="preserve">
+    <value>Document File</value>
+  </data>
+  <data name="SaveAgreement" xml:space="preserve">
+    <value>Save Adoption Agreement</value>
+  </data>
+  <data name="AgreementSavedSuccess" xml:space="preserve">
+    <value>Adoption agreement saved successfully!</value>
+  </data>
+</root>

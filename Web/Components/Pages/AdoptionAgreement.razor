@@ -5,6 +5,7 @@
 @using PetAdoption.Data.TableStorage.Enums
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Components.Forms
+@using PetAdoption.Services.Web
 @using PetAdoption.Web.Components.Shared
 @attribute [Authorize(Roles = "Shelter,Admin")]
 @inject IUserService UserService
@@ -14,33 +15,36 @@
 @inject NavigationManager Navigation
 @inject IJSRuntime JSRuntime
 @inject ILogger<AdoptionAgreement> Logger
+@inject LocalizationService LocalizationService
+@inject DynamicLocalizer<AdoptionAgreement> Localizer
+@implements IDisposable
 @rendermode InteractiveServer
 @implements IAsyncDisposable
 
-<PageTitle>Adoption Agreement - Madeira Pet Adoption</PageTitle>
+<PageTitle>@Localizer["PageTitle"]</PageTitle>
 
 <div class="container mt-5 mb-5">
     <div class="row">
         <div class="col-md-10 mx-auto">
             <div class="card shadow">
                 <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0"><i class="fas fa-file-contract me-2"></i>Adoption Agreement</h3>
+                    <h3 class="mb-0"><i class="fas fa-file-contract me-2"></i>@Localizer["AdoptionAgreement"]</h3>
                 </div>
                 <div class="card-body p-4">
                     @if (isLoading)
                     {
                         <div class="text-center">
                             <div class="spinner-border" role="status">
-                                <span class="visually-hidden">Loading...</span>
+                                <span class="visually-hidden">@Localizer["Loading"]</span>
                             </div>
                         </div>
                     }
                     else if (currentShelter == null)
                     {
                         <div class="alert alert-danger">
-                            <strong>Unable to load shelter information.</strong>
-                            <p class="mb-0">You must be registered as a shelter to manage adoption agreements. Please complete your profile first.</p>
-                            <a href="/profile" class="btn btn-primary mt-2">Go to Profile</a>
+                            <strong>@Localizer["UnableToLoad"]</strong>
+                            <p class="mb-0">@Localizer["MustBeRegistered"]</p>
+                            <a href="/profile" class="btn btn-primary mt-2">@Localizer["GoToProfile"]</a>
                         </div>
                     }
                     else
@@ -67,26 +71,26 @@
 
                             <!-- Shelter Information (Read-only) -->
                             <div class="mb-4">
-                                <h5 class="border-bottom pb-2"><i class="fas fa-home me-2"></i>Shelter Information</h5>
+                                <h5 class="border-bottom pb-2"><i class="fas fa-home me-2"></i>@Localizer["ShelterInformation"]</h5>
                                 <div class="alert alert-light">
-                                    <p class="mb-1"><strong>Shelter Name:</strong> @currentShelter.PartitionKey</p>
-                                    <p class="mb-0"><strong>Shelter Location:</strong> @currentShelter.RowKey</p>
+                                    <p class="mb-1"><strong>@Localizer["ShelterName"]</strong> @currentShelter.PartitionKey</p>
+                                    <p class="mb-0"><strong>@Localizer["ShelterLocation"]</strong> @currentShelter.RowKey</p>
                                 </div>
                             </div>
 
                             <!-- Adoption Agreement Rules -->
                             <div class="mb-4">
-                                <h5 class="border-bottom pb-2"><i class="fas fa-clipboard-list me-2"></i>Adoption Agreement Rules</h5>
+                                <h5 class="border-bottom pb-2"><i class="fas fa-clipboard-list me-2"></i>@Localizer["AdoptionAgreementRules"]</h5>
                                 <p class="text-muted small mb-3">
-                                    Enter the rules and requirements that adopters must agree to. This text will be displayed to potential adopters.
+                                    @Localizer["RulesDescription"]
                                 </p>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Rules and Requirements</label>
+                                    <label class="form-label">@Localizer["RulesAndRequirements"]</label>
                                     <InputTextArea @bind-Value="currentShelter.AdoptionAgreementRules" 
                                                    class="form-control" 
                                                    rows="8"
-                                                   placeholder="Enter your shelter's adoption agreement rules and requirements...&#10;&#10;For example:&#10;- Must be 18 years or older&#10;- Must provide proof of residence&#10;- Must agree to annual veterinary check-ups&#10;- Must not abandon or rehome the pet without shelter approval" />
+                                                   placeholder="@Localizer["RulesPlaceholder"]" />
                                     <ValidationMessage For="@(() => currentShelter.AdoptionAgreementRules)" />
                                     <small class="text-muted">@(currentShelter.AdoptionAgreementRules?.Length ?? 0) / 2000 characters</small>
                                 </div>
@@ -94,96 +98,95 @@
 
                             <!-- Supporting Documents -->
                             <div class="mb-4">
-                                <h5 class="border-bottom pb-2"><i class="fas fa-file-pdf me-2"></i>Supporting Documents</h5>
+                                <h5 class="border-bottom pb-2"><i class="fas fa-file-pdf me-2"></i>@Localizer["SupportingDocuments"]</h5>
                                 <p class="text-muted small mb-3">
-                                    Upload official adoption agreement documents, contracts, or additional information that adopters can download and review.
-                                    Accepted formats: PDF, Word, or Text files (max 10MB each).
+                                    @Localizer["SupportingDocumentsDescription"]
                                 </p>
 
                                 <!-- Document 1 -->
                                 <div class="mb-4 p-3 border rounded bg-light">
-                                    <h6 class="mb-3"><i class="fas fa-file me-2"></i>Document 1</h6>
+                                    <h6 class="mb-3"><i class="fas fa-file me-2"></i>@Localizer["Document1"]</h6>
                                     
                                     <div class="mb-3">
-                                        <label class="form-label">Document Name @(HasDocumentUrl(currentShelter.Document1Url) ? "*" : "")</label>
+                                        <label class="form-label">@Localizer["DocumentName"] @(HasDocumentUrl(currentShelter.Document1Url) ? "*" : "")</label>
                                         <InputText @bind-Value="currentShelter.Document1Name" 
                                                    class="form-control" 
-                                                   placeholder="e.g., Adoption Contract, Terms and Conditions" />
+                                                   placeholder="@Localizer["DocumentNamePlaceholder"]" />
                                         @if (HasDocumentUrl(currentShelter.Document1Url) && string.IsNullOrWhiteSpace(currentShelter.Document1Name))
                                         {
-                                            <div class="text-danger small mt-1">Document name is required when a document is uploaded.</div>
+                                            <div class="text-danger small mt-1">@Localizer["DocumentNameRequired"]</div>
                                         }
                                         <small class="text-muted">@(currentShelter.Document1Name?.Length ?? 0) / 100 characters</small>
                                     </div>
 
                                     <DocumentInput @key="@($"doc1_{currentShelter.PartitionKey}")" 
-                                                 Label="Document File" 
+                                                 Label="@Localizer["DocumentFile"]" 
                                                  @bind-CurrentUrl="currentShelter.Document1Url" 
                                                  OnDocumentUploaded="TrackUploadedDocument" />
                                 </div>
 
                                 <!-- Document 2 -->
                                 <div class="mb-4 p-3 border rounded bg-light">
-                                    <h6 class="mb-3"><i class="fas fa-file me-2"></i>Document 2</h6>
+                                    <h6 class="mb-3"><i class="fas fa-file me-2"></i>@Localizer["Document2"]</h6>
                                     
                                     <div class="mb-3">
-                                        <label class="form-label">Document Name @(HasDocumentUrl(currentShelter.Document2Url) ? "*" : "")</label>
+                                        <label class="form-label">@Localizer["DocumentName"] @(HasDocumentUrl(currentShelter.Document2Url) ? "*" : "")</label>
                                         <InputText @bind-Value="currentShelter.Document2Name" 
                                                    class="form-control" 
-                                                   placeholder="e.g., Health Certificate, Vaccination Record" />
+                                                   placeholder="@Localizer["DocumentNamePlaceholder"]" />
                                         @if (HasDocumentUrl(currentShelter.Document2Url) && string.IsNullOrWhiteSpace(currentShelter.Document2Name))
                                         {
-                                            <div class="text-danger small mt-1">Document name is required when a document is uploaded.</div>
+                                            <div class="text-danger small mt-1">@Localizer["DocumentNameRequired"]</div>
                                         }
                                         <small class="text-muted">@(currentShelter.Document2Name?.Length ?? 0) / 100 characters</small>
                                     </div>
 
                                     <DocumentInput @key="@($"doc2_{currentShelter.PartitionKey}")" 
-                                                 Label="Document File" 
+                                                 Label="@Localizer["DocumentFile"]" 
                                                  @bind-CurrentUrl="currentShelter.Document2Url" 
                                                  OnDocumentUploaded="TrackUploadedDocument" />
                                 </div>
 
                                 <!-- Document 3 -->
                                 <div class="mb-4 p-3 border rounded bg-light">
-                                    <h6 class="mb-3"><i class="fas fa-file me-2"></i>Document 3</h6>
+                                    <h6 class="mb-3"><i class="fas fa-file me-2"></i>@Localizer["Document3"]</h6>
                                     
                                     <div class="mb-3">
-                                        <label class="form-label">Document Name @(HasDocumentUrl(currentShelter.Document3Url) ? "*" : "")</label>
+                                        <label class="form-label">@Localizer["DocumentName"] @(HasDocumentUrl(currentShelter.Document3Url) ? "*" : "")</label>
                                         <InputText @bind-Value="currentShelter.Document3Name" 
                                                    class="form-control" 
-                                                   placeholder="e.g., Care Instructions, Behavior Guidelines" />
+                                                   placeholder="@Localizer["DocumentNamePlaceholder"]" />
                                         @if (HasDocumentUrl(currentShelter.Document3Url) && string.IsNullOrWhiteSpace(currentShelter.Document3Name))
                                         {
-                                            <div class="text-danger small mt-1">Document name is required when a document is uploaded.</div>
+                                            <div class="text-danger small mt-1">@Localizer["DocumentNameRequired"]</div>
                                         }
                                         <small class="text-muted">@(currentShelter.Document3Name?.Length ?? 0) / 100 characters</small>
                                     </div>
 
                                     <DocumentInput @key="@($"doc3_{currentShelter.PartitionKey}")" 
-                                                 Label="Document File" 
+                                                 Label="@Localizer["DocumentFile"]" 
                                                  @bind-CurrentUrl="currentShelter.Document3Url" 
                                                  OnDocumentUploaded="TrackUploadedDocument" />
                                 </div>
 
                                 <!-- Document 4 -->
                                 <div class="mb-4 p-3 border rounded bg-light">
-                                    <h6 class="mb-3"><i class="fas fa-file me-2"></i>Document 4</h6>
+                                    <h6 class="mb-3"><i class="fas fa-file me-2"></i>@Localizer["Document4"]</h6>
                                     
                                     <div class="mb-3">
-                                        <label class="form-label">Document Name @(HasDocumentUrl(currentShelter.Document4Url) ? "*" : "")</label>
+                                        <label class="form-label">@Localizer["DocumentName"] @(HasDocumentUrl(currentShelter.Document4Url) ? "*" : "")</label>
                                         <InputText @bind-Value="currentShelter.Document4Name" 
                                                    class="form-control" 
-                                                   placeholder="e.g., Post-Adoption Support, Return Policy" />
+                                                   placeholder="@Localizer["DocumentNamePlaceholder"]" />
                                         @if (HasDocumentUrl(currentShelter.Document4Url) && string.IsNullOrWhiteSpace(currentShelter.Document4Name))
                                         {
-                                            <div class="text-danger small mt-1">Document name is required when a document is uploaded.</div>
+                                            <div class="text-danger small mt-1">@Localizer["DocumentNameRequired"]</div>
                                         }
                                         <small class="text-muted">@(currentShelter.Document4Name?.Length ?? 0) / 100 characters</small>
                                     </div>
 
                                     <DocumentInput @key="@($"doc4_{currentShelter.PartitionKey}")" 
-                                                 Label="Document File" 
+                                                 Label="@Localizer["DocumentFile"]" 
                                                  @bind-CurrentUrl="currentShelter.Document4Url" 
                                                  OnDocumentUploaded="TrackUploadedDocument" />
                                 </div>
@@ -195,7 +198,7 @@
                                     {
                                         <span class="spinner-border spinner-border-sm me-2"></span>
                                     }
-                                    <i class="fas fa-save me-2"></i>Save Adoption Agreement
+                                    <i class="fas fa-save me-2"></i>@Localizer["SaveAgreement"]
                                 </button>
                             </div>
                         </EditForm>
@@ -258,6 +261,19 @@
         {
             isLoading = false;
         }
+
+        // Subscribe to culture change
+        LocalizationService.OnCultureChanged += OnCultureChanged;
+    }
+
+    private void OnCultureChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        LocalizationService.OnCultureChanged -= OnCultureChanged;
     }
 
     private void TrackUploadedDocument(string? url)
@@ -382,7 +398,7 @@
             // Clear the uploaded document list since the shelter was saved successfully
             uploadedDocumentUrls.Clear();
 
-            successMessage = "Adoption agreement saved successfully!";
+            successMessage = Localizer["AgreementSavedSuccess"];
         }
         catch (Exception ex)
         {

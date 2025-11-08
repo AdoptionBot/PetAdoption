@@ -5,6 +5,7 @@
 @using PetAdoption.Data.TableStorage.Enums
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Components.Forms
+@using PetAdoption.Services.Web
 @using PetAdoption.Web.Components.Shared
 @attribute [Authorize(Roles = "Shelter")]
 @inject IUserService UserService
@@ -14,18 +15,21 @@
 @inject NavigationManager Navigation
 @inject IJSRuntime JSRuntime
 @inject ILogger<EditPet> Logger
+@inject LocalizationService LocalizationService
+@inject DynamicLocalizer<EditPet> Localizer
+@implements IDisposable
 @rendermode InteractiveServer
 
-<PageTitle>Edit Pet - Madeira Pet Adoption</PageTitle>
+<PageTitle>@Localizer["PageTitle"]</PageTitle>
 
 <div class="container mt-5 mb-5">
     <div class="row">
         <div class="col-md-10 mx-auto">
             <div class="card shadow">
                 <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
-                    <h3 class="mb-0">Edit Pet</h3>
+                    <h3 class="mb-0">@Localizer["EditPet"]</h3>
                     <a href="/mypets" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Back to My Pets
+                        <i class="fas fa-arrow-left"></i> @Localizer["BackToMyPets"]
                     </a>
                 </div>
                 <div class="card-body p-4">
@@ -33,7 +37,7 @@
                     {
                         <div class="text-center">
                             <div class="spinner-border" role="status">
-                                <span class="visually-hidden">Loading...</span>
+                                <span class="visually-hidden">@Localizer["Loading"]</span>
                             </div>
                         </div>
                     }
@@ -55,28 +59,28 @@
 
                             <!-- Note about name and birth date -->
                             <div class="alert alert-info">
-                                <strong>Note:</strong> Pet name and birth date cannot be changed as they are used as unique identifiers.
+                                <strong>@Localizer["Note"]</strong> @Localizer["NoteAboutIdentifiers"]
                             </div>
 
                             <!-- Pet Basic Information -->
                             <div class="mb-4">
-                                <h5 class="border-bottom pb-2">Basic Information</h5>
+                                <h5 class="border-bottom pb-2">@Localizer["BasicInformation"]</h5>
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Pet Name</label>
+                                        <label class="form-label">@Localizer["PetName"]</label>
                                         <input type="text" class="form-control" value="@currentPet.PartitionKey" disabled />
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Birth Date</label>
+                                        <label class="form-label">@Localizer["BirthDate"]</label>
                                         <input type="text" class="form-control" value="@DateTime.Parse(currentPet.RowKey).ToShortDateString()" disabled />
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
-                                        <label class="form-label">Species</label>
+                                        <label class="form-label">@Localizer["Species"]</label>
                                         <InputSelect @bind-Value="currentPet.Species" class="form-select">
                                             @foreach (Species species in Enum.GetValues(typeof(Species)))
                                             {
@@ -87,7 +91,7 @@
                                     </div>
 
                                     <div class="col-md-4 mb-3">
-                                        <label class="form-label">Gender</label>
+                                        <label class="form-label">@Localizer["Gender"]</label>
                                         <InputSelect @bind-Value="currentPet.Gender" class="form-select">
                                             @foreach (Gender gender in Enum.GetValues(typeof(Gender)))
                                             {
@@ -98,7 +102,7 @@
                                     </div>
 
                                     <div class="col-md-4 mb-3">
-                                        <label class="form-label">Size</label>
+                                        <label class="form-label">@Localizer["Size"]</label>
                                         <InputSelect @bind-Value="currentPet.Size" class="form-select">
                                             @foreach (Size size in Enum.GetValues(typeof(Size)))
                                             {
@@ -111,22 +115,22 @@
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Breed (Optional)</label>
-                                        <InputText @bind-Value="currentPet.Breed" class="form-control" placeholder="e.g., Labrador, Siamese" />
+                                        <label class="form-label">@Localizer["Breed"]</label>
+                                        <InputText @bind-Value="currentPet.Breed" class="form-control" placeholder="@Localizer["BreedPlaceholder"]" />
                                         <ValidationMessage For="@(() => currentPet.Breed)" />
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Colour (Optional)</label>
-                                        <InputText @bind-Value="currentPet.Colour" class="form-control" placeholder="e.g., Brown, Black" />
+                                        <label class="form-label">@Localizer["Colour"]</label>
+                                        <InputText @bind-Value="currentPet.Colour" class="form-control" placeholder="@Localizer["ColourPlaceholder"]" />
                                         <ValidationMessage For="@(() => currentPet.Colour)" />
                                     </div>
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">About <span class="text-danger">*</span></label>
+                                    <label class="form-label">@Localizer["About"] <span class="text-danger">*</span></label>
                                     <InputTextArea @bind-Value="currentPet.About" class="form-control" rows="4"
-                                                   placeholder="Describe the pet's personality, behavior, and any special needs..." />
+                                                   placeholder="@Localizer["AboutPlaceholder"]" />
                                     <ValidationMessage For="@(() => currentPet.About)" />
                                     <small class="text-muted">@(currentPet.About?.Length ?? 0) / 2000 characters</small>
                                 </div>
@@ -134,14 +138,14 @@
 
                             <!-- Medical Information -->
                             <div class="mb-4">
-                                <h5 class="border-bottom pb-2">Medical Information</h5>
+                                <h5 class="border-bottom pb-2">@Localizer["MedicalInformation"]</h5>
                                 
                                 <div class="mb-3">
-                                    <label class="form-label">Vaccinations</label>
+                                    <label class="form-label">@Localizer["Vaccinations"]</label>
                                     <div class="card p-3">
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <h6 class="text-muted">Common Vaccinations</h6>
+                                                <h6 class="text-muted">@Localizer["CommonVaccinations"]</h6>
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" id="vaccRabies"
                                                            checked="@currentPet.Vaccinations.HasFlag(Vaccinations.Rabies)"
@@ -150,7 +154,7 @@
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
-                                                <h6 class="text-muted">Cat Vaccinations</h6>
+                                                <h6 class="text-muted">@Localizer["CatVaccinations"]</h6>
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" id="vaccTrivalent"
                                                            checked="@currentPet.Vaccinations.HasFlag(Vaccinations.Trivalent)"
@@ -179,7 +183,7 @@
                                         </div>
                                         <div class="row mt-2">
                                             <div class="col-md-12">
-                                                <h6 class="text-muted">Dog Vaccinations</h6>
+                                                <h6 class="text-muted">@Localizer["DogVaccinations"]</h6>
                                                 <div class="row">
                                                     <div class="col-md-4">
                                                         <div class="form-check">
@@ -243,17 +247,17 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Medical Treatments (Optional)</label>
+                                    <label class="form-label">@Localizer["MedicalTreatments"]</label>
                                     <InputTextArea @bind-Value="currentPet.MedicalTreatments" class="form-control" rows="3" 
-                                                   placeholder="List any medical treatments the pet has received..." />
+                                                   placeholder="@Localizer["MedicalTreatmentsPlaceholder"]" />
                                     <ValidationMessage For="@(() => currentPet.MedicalTreatments)" />
                                     <small class="text-muted">@(currentPet.MedicalTreatments?.Length ?? 0) / 1000 characters</small>
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Known Medical Issues (Optional)</label>
+                                    <label class="form-label">@Localizer["KnownMedicalIssues"]</label>
                                     <InputTextArea @bind-Value="currentPet.KnownMedicalIssues" class="form-control" rows="3" 
-                                                   placeholder="List any known medical issues..." />
+                                                   placeholder="@Localizer["KnownMedicalIssuesPlaceholder"]" />
                                     <ValidationMessage For="@(() => currentPet.KnownMedicalIssues)" />
                                     <small class="text-muted">@(currentPet.KnownMedicalIssues?.Length ?? 0) / 1000 characters</small>
                                 </div>
@@ -263,7 +267,7 @@
                                         <div class="form-check">
                                             <InputCheckbox @bind-Value="currentPet.Neutered" class="form-check-input" id="neutered" />
                                             <label class="form-check-label" for="neutered">
-                                                Neutered
+                                                @Localizer["Neutered"]
                                             </label>
                                         </div>
                                     </div>
@@ -272,7 +276,7 @@
                                         <div class="form-check">
                                             <InputCheckbox @bind-Value="currentPet.Dewormed" class="form-check-input" id="dewormed" />
                                             <label class="form-check-label" for="dewormed">
-                                                Dewormed
+                                                @Localizer["Dewormed"]
                                             </label>
                                         </div>
                                     </div>
@@ -281,7 +285,7 @@
                                         <div class="form-check">
                                             <InputCheckbox @bind-Value="currentPet.Chipped" class="form-check-input" id="chipped" />
                                             <label class="form-check-label" for="chipped">
-                                                Microchipped
+                                                @Localizer["Microchipped"]
                                             </label>
                                         </div>
                                     </div>
@@ -290,14 +294,14 @@
 
                             <!-- Images and Video Section -->
                             <div class="mb-4">
-                                <h5 class="border-bottom pb-2">Images & Video</h5>
-                                <p class="text-muted small mb-3">Update images or videos for this pet (optional)</p>
+                                <h5 class="border-bottom pb-2">@Localizer["ImagesVideo"]</h5>
+                                <p class="text-muted small mb-3">@Localizer["UpdateImagesVideos"]</p>
 
-                                <MediaInput @key="@($"img1_{currentPet.PartitionKey}")" Label="Image 1" @bind-CurrentUrl="currentPet.Image1Url" />
-                                <MediaInput @key="@($"img2_{currentPet.PartitionKey}")" Label="Image 2" @bind-CurrentUrl="currentPet.Image2Url" />
-                                <MediaInput @key="@($"img3_{currentPet.PartitionKey}")" Label="Image 3" @bind-CurrentUrl="currentPet.Image3Url" />
-                                <MediaInput @key="@($"img4_{currentPet.PartitionKey}")" Label="Image 4" @bind-CurrentUrl="currentPet.Image4Url" />
-                                <MediaInput @key="@($"vid1_{currentPet.PartitionKey}")" Label="Video 1" @bind-CurrentUrl="currentPet.Video1Url" IsVideo="true" />
+                                <MediaInput @key="@($"img1_{currentPet.PartitionKey}")" Label="@Localizer["Image1"]" @bind-CurrentUrl="currentPet.Image1Url" />
+                                <MediaInput @key="@($"img2_{currentPet.PartitionKey}")" Label="@Localizer["Image2"]" @bind-CurrentUrl="currentPet.Image2Url" />
+                                <MediaInput @key="@($"img3_{currentPet.PartitionKey}")" Label="@Localizer["Image3"]" @bind-CurrentUrl="currentPet.Image3Url" />
+                                <MediaInput @key="@($"img4_{currentPet.PartitionKey}")" Label="@Localizer["Image4"]" @bind-CurrentUrl="currentPet.Image4Url" />
+                                <MediaInput @key="@($"vid1_{currentPet.PartitionKey}")" Label="@Localizer["Video1"]" @bind-CurrentUrl="currentPet.Video1Url" IsVideo="true" />
                             </div>
 
                             <div class="d-grid gap-2">
@@ -306,18 +310,18 @@
                                     {
                                         <span class="spinner-border spinner-border-sm me-2"></span>
                                     }
-                                    Save Changes
+                                    @Localizer["SaveChanges"]
                                 </button>
-                                <a href="/mypets" class="btn btn-secondary btn-lg">Cancel</a>
+                                <a href="/mypets" class="btn btn-secondary btn-lg">@Localizer["Cancel"]</a>
                             </div>
                         </EditForm>
                     }
                     else
                     {
                         <div class="alert alert-danger">
-                            <strong>Pet not found or unauthorized access.</strong>
-                            <p class="mb-0">The pet you're trying to edit doesn't exist or you don't have permission to edit it.</p>
-                            <a href="/mypets" class="btn btn-primary mt-2">Go to My Pets</a>
+                            <strong>@Localizer["PetNotFound"]</strong>
+                            <p class="mb-0">@Localizer["PetNotFoundMessage"]</p>
+                            <a href="/mypets" class="btn btn-primary mt-2">@Localizer["GoToMyPets"]</a>
                         </div>
                     }
                 </div>
@@ -388,6 +392,19 @@
         {
             isLoading = false;
         }
+
+        // Subscribe to culture change
+        LocalizationService.OnCultureChanged += OnCultureChanged;
+    }
+
+    private void OnCultureChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        LocalizationService.OnCultureChanged -= OnCultureChanged;
     }
 
     private void ToggleVaccination(Vaccinations vaccination, bool isChecked)

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" msdata:Ordinal="5" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="PageTitle" xml:space="preserve">
+    <value>Abrigos de Animais - Adoção de Animais Madeira</value>
+  </data>
+  <data name="Home" xml:space="preserve">
+    <value>Início</value>
+  </data>
+  <data name="Shelters" xml:space="preserve">
+    <value>Abrigos</value>
+  </data>
+  <data name="AnimalSheltersInMadeira" xml:space="preserve">
+    <value>Abrigos de Animais na Madeira</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>A carregar...</value>
+  </data>
+  <data name="LoadingShelters" xml:space="preserve">
+    <value>A carregar abrigos de animais...</value>
+  </data>
+  <data name="NoSheltersFound" xml:space="preserve">
+    <value>Não foram encontrados abrigos de animais no momento.</value>
+  </data>
+  <data name="FindYourPerfectCompanion" xml:space="preserve">
+    <value>Encontre o Seu Companheiro Perfeito</value>
+  </data>
+  <data name="ConnectWithShelters" xml:space="preserve">
+    <value>Conecte-se com abrigos de animais de confiança em toda a Madeira e dê um lar amoroso a um animal necessitado.</value>
+  </data>
+  <data name="ViewDetails" xml:space="preserve">
+    <value>Ver Detalhes</value>
+  </data>
+  <data name="ContactInformation" xml:space="preserve">
+    <value>Informações de Contacto</value>
+  </data>
+  <data name="Location" xml:space="preserve">
+    <value>Localização:</value>
+  </data>
+  <data name="Address" xml:space="preserve">
+    <value>Morada:</value>
+  </data>
+  <data name="Phone" xml:space="preserve">
+    <value>Telefone:</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Email:</value>
+  </data>
+  <data name="Website" xml:space="preserve">
+    <value>Website:</value>
+  </data>
+  <data name="VisitWebsite" xml:space="preserve">
+    <value>Visitar Website</value>
+  </data>
+  <data name="OpeningTimes" xml:space="preserve">
+    <value>Horário de Funcionamento:</value>
+  </data>
+  <data name="SocialMedia" xml:space="preserve">
+    <value>Redes Sociais</value>
+  </data>
+  <data name="Facebook" xml:space="preserve">
+    <value>Facebook</value>
+  </data>
+  <data name="Instagram" xml:space="preserve">
+    <value>Instagram</value>
+  </data>
+  <data name="X" xml:space="preserve">
+    <value>X</value>
+  </data>
+  <data name="LocationMap" xml:space="preserve">
+    <value>Mapa de Localização</value>
+  </data>
+  <data name="MapNotAvailable" xml:space="preserve">
+    <value>Localização do mapa não disponível</value>
+  </data>
+  <data name="GetDirections" xml:space="preserve">
+    <value>Obter Direções</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Fechar</value>
+  </data>
+</root>

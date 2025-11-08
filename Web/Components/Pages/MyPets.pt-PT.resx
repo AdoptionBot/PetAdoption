@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" msdata:Ordinal="5" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="PageTitle" xml:space="preserve">
+    <value>Os Meus Animais - Adoção de Animais Madeira</value>
+  </data>
+  <data name="MyPets" xml:space="preserve">
+    <value>Os Meus Animais</value>
+  </data>
+  <data name="AddNewPet" xml:space="preserve">
+    <value>Adicionar Novo Animal</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>A carregar...</value>
+  </data>
+  <data name="LoadingPets" xml:space="preserve">
+    <value>A carregar os seus animais...</value>
+  </data>
+  <data name="NoShelterFound" xml:space="preserve">
+    <value>Abrigo Não Encontrado</value>
+  </data>
+  <data name="MustBeRegistered" xml:space="preserve">
+    <value>Deve estar registado como abrigo para gerir animais. Por favor, complete o perfil do seu abrigo primeiro.</value>
+  </data>
+  <data name="GoToShelterProfile" xml:space="preserve">
+    <value>Ir para o Perfil do Abrigo</value>
+  </data>
+  <data name="ManagingPetsFor" xml:space="preserve">
+    <value>A gerir animais para:</value>
+  </data>
+  <data name="NoPetsYet" xml:space="preserve">
+    <value>Ainda Sem Animais</value>
+  </data>
+  <data name="NoPetsMessage" xml:space="preserve">
+    <value>Ainda não adicionou nenhum animal. Clique no botão "Adicionar Novo Animal" para começar.</value>
+  </data>
+  <data name="AddYourFirstPet" xml:space="preserve">
+    <value>Adicione o Seu Primeiro Animal</value>
+  </data>
+  <data name="SearchPlaceholder" xml:space="preserve">
+    <value>Pesquisar por nome do animal...</value>
+  </data>
+  <data name="AllStatus" xml:space="preserve">
+    <value>Todos os Estados</value>
+  </data>
+  <data name="AllSpecies" xml:space="preserve">
+    <value>Todas as Espécies</value>
+  </data>
+  <data name="PetsFound" xml:space="preserve">
+    <value>animal(is) encontrado(s)</value>
+  </data>
+  <data name="FilteredFrom" xml:space="preserve">
+    <value>(filtrado de {0} total)</value>
+  </data>
+  <data name="Showing" xml:space="preserve">
+    <value>A mostrar</value>
+  </data>
+  <data name="To" xml:space="preserve">
+    <value>a</value>
+  </data>
+  <data name="Of" xml:space="preserve">
+    <value>de</value>
+  </data>
+  <data name="Image" xml:space="preserve">
+    <value>Imagem</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Nome</value>
+  </data>
+  <data name="SpeciesBreed" xml:space="preserve">
+    <value>Espécie/Raça</value>
+  </data>
+  <data name="BirthDate" xml:space="preserve">
+    <value>Data de Nascimento</value>
+  </data>
+  <data name="Gender" xml:space="preserve">
+    <value>Sexo</value>
+  </data>
+  <data name="Size" xml:space="preserve">
+    <value>Tamanho</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Estado</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>Ações</value>
+  </data>
+  <data name="ViewDetails" xml:space="preserve">
+    <value>Ver Detalhes</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Editar</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Eliminar</value>
+  </data>
+  <data name="Previous" xml:space="preserve">
+    <value>Anterior</value>
+  </data>
+  <data name="Next" xml:space="preserve">
+    <value>Seguinte</value>
+  </data>
+  <data name="ImagesVideo" xml:space="preserve">
+    <value>Imagens e Vídeo</value>
+  </data>
+  <data name="BasicInformation" xml:space="preserve">
+    <value>Informações Básicas</value>
+  </data>
+  <data name="Species" xml:space="preserve">
+    <value>Espécie:</value>
+  </data>
+  <data name="Breed" xml:space="preserve">
+    <value>Raça:</value>
+  </data>
+  <data name="Colour" xml:space="preserve">
+    <value>Cor:</value>
+  </data>
+  <data name="AdoptionStatus" xml:space="preserve">
+    <value>Estado de Adoção:</value>
+  </data>
+  <data name="About" xml:space="preserve">
+    <value>Sobre</value>
+  </data>
+  <data name="MedicalInformation" xml:space="preserve">
+    <value>Informações Médicas</value>
+  </data>
+  <data name="Vaccinations" xml:space="preserve">
+    <value>Vacinas:</value>
+  </data>
+  <data name="Neutered" xml:space="preserve">
+    <value>Castrado:</value>
+  </data>
+  <data name="Dewormed" xml:space="preserve">
+    <value>Desparasitado:</value>
+  </data>
+  <data name="Microchipped" xml:space="preserve">
+    <value>Com Microchip:</value>
+  </data>
+  <data name="MedicalTreatments" xml:space="preserve">
+    <value>Tratamentos Médicos:</value>
+  </data>
+  <data name="KnownMedicalIssues" xml:space="preserve">
+    <value>Problemas Médicos Conhecidos:</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Sim</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>Não</value>
+  </data>
+  <data name="NotSpecified" xml:space="preserve">
+    <value>Não especificado</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Fechar</value>
+  </data>
+  <data name="EditPet" xml:space="preserve">
+    <value>Editar Animal</value>
+  </data>
+  <data name="ConfirmDeletion" xml:space="preserve">
+    <value>Confirmar Eliminação</value>
+  </data>
+  <data name="DeleteConfirmMessage" xml:space="preserve">
+    <value>Tem a certeza de que deseja eliminar</value>
+  </data>
+  <data name="CannotBeUndone" xml:space="preserve">
+    <value>Esta ação não pode ser desfeita! Todas as imagens e vídeos associados serão eliminados permanentemente do armazenamento.</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="DeletePet" xml:space="preserve">
+    <value>Eliminar Animal</value>
+  </data>
+  <data name="PetDeletedSuccess" xml:space="preserve">
+    <value>O animal '{0}' foi eliminado com sucesso.</value>
+  </data>
+  <data name="PetUpdatedSuccess" xml:space="preserve">
+    <value>Animal atualizado com sucesso!</value>
+  </data>
+  <data name="PetAddedSuccess" xml:space="preserve">
+    <value>Animal adicionado com sucesso!</value>
+  </data>
+</root>
