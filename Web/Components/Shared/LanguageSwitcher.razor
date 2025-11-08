@@ -1,17 +1,20 @@
 @using PetAdoption.Services.Web
+@using Microsoft.AspNetCore.Localization
 @rendermode InteractiveServer
 @inject LocalizationService LocalizationService
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
 
 <div class="language-switcher">
     <button class="btn btn-sm btn-link language-flag @(LocalizationService.IsPortuguese() ? "active" : "")" 
-            @onclick='() => SetCulture("pt-PT")' 
+            @onclick='() => SetCultureAsync("pt-PT")' 
             title="Português"
             disabled="@LocalizationService.IsPortuguese()">
         <img src="/images/flags/pt.png" alt="Português" class="flag-icon" />
     </button>
     <span class="separator">|</span>
     <button class="btn btn-sm btn-link language-flag @(LocalizationService.IsEnglish() ? "active" : "")" 
-            @onclick='() => SetCulture("en-US")' 
+            @onclick='() => SetCultureAsync("en-US")' 
             title="English"
             disabled="@LocalizationService.IsEnglish()">
         <img src="/images/flags/en.png" alt="English" class="flag-icon" />
@@ -68,8 +71,14 @@
 </style>
 
 @code {
-    private void SetCulture(string culture)
+    private async Task SetCultureAsync(string culture)
     {
+        // Set culture in the service (for current circuit)
         LocalizationService.SetCulture(culture);
+        
+        // Persist culture in cookie via JavaScript
+        var cookieValue = $"c={culture}|uic={culture}";
+        await JSRuntime.InvokeVoidAsync("eval", 
+            $"document.cookie = '.AspNetCore.Culture={cookieValue}; path=/; max-age=31536000; samesite=lax; secure';");
     }
 }

@@ -5,7 +5,7 @@ using PetAdoption.Services.Data;
 using PetAdoption.Services.Web;
 using PetAdoption.Services;
 using System.Globalization;
-
+using Microsoft.AspNetCore.Localization;
 
 namespace PetAdoption.Web
 {
@@ -29,7 +29,10 @@ namespace PetAdoption.Web
             builder.Services.AddCascadingAuthenticationState();
             builder.Services.AddScoped<ProfileStateService>();
 
+            // Configure localization - no ResourcesPath means it looks next to the type
             builder.Services.AddLocalization();
+            
+            // Simplified LocalizationService for circuit-scoped state
             builder.Services.AddScoped<LocalizationService>();
             builder.Services.AddScoped(typeof(DynamicLocalizer<>));
 
@@ -39,6 +42,23 @@ namespace PetAdoption.Web
                 new CultureInfo("pt-PT"),
                 new CultureInfo("en-US")
             };
+
+            builder.Services.Configure<RequestLocalizationOptions>(options =>
+            {
+                options.DefaultRequestCulture = new RequestCulture("pt-PT");
+                options.SupportedCultures = supportedCultures;
+                options.SupportedUICultures = supportedCultures;
+                options.ApplyCurrentCultureToResponseHeaders = true;
+                
+                // Configure culture providers - Cookie first for persistence
+                options.RequestCultureProviders.Clear();
+                options.RequestCultureProviders.Add(new CookieRequestCultureProvider
+                {
+                    CookieName = ".AspNetCore.Culture"
+                });
+                // Fallback to accept-language header
+                options.RequestCultureProviders.Add(new AcceptLanguageHeaderRequestCultureProvider());
+            });
 
             // Retrieve application secrets from Key Vault
             var appSecrets = await KeyVaultSecretService.RetrieveApplicationSecretsAsync(builder.Configuration);
@@ -122,6 +142,9 @@ namespace PetAdoption.Web
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            
+            // Use request localization middleware - CRITICAL for cookie reading
+            app.UseRequestLocalization();
             
             app.UseRouting();
             

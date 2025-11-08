@@ -2,6 +2,10 @@ using System.Globalization;
 
 namespace PetAdoption.Services.Web
 {
+    /// <summary>
+    /// Circuit-scoped service for managing culture within a Blazor Server circuit.
+    /// Culture persistence is handled by reading the .AspNetCore.Culture cookie.
+    /// </summary>
     public class LocalizationService
     {
         private const string DefaultCulture = "pt-PT";
@@ -11,7 +15,15 @@ namespace PetAdoption.Services.Web
 
         public LocalizationService()
         {
-            _currentCulture = new CultureInfo(DefaultCulture);
+            // Initialize with current thread culture (set by RequestLocalization middleware)
+            // The middleware reads the cookie and sets the thread culture before this runs
+            _currentCulture = CultureInfo.CurrentCulture;
+            
+            // If still default after middleware, explicitly set it
+            if (_currentCulture.Name == "en-US" && CultureInfo.CurrentUICulture.Name != "en-US")
+            {
+                _currentCulture = CultureInfo.CurrentUICulture;
+            }
         }
 
         public CultureInfo CurrentCulture => _currentCulture;
@@ -33,8 +45,7 @@ namespace PetAdoption.Services.Web
                 }
                 catch (CultureNotFoundException)
                 {
-                    // Fallback to default if culture is invalid
-                    _currentCulture = new CultureInfo(DefaultCulture);
+                    // Keep current culture if invalid
                 }
             }
         }
