@@ -5,7 +5,6 @@
 @using PetAdoption.Services.Interfaces
 @using PetAdoption.Services.Web
 @using PetAdoption.Web.Components.Shared
-tAdoption.Web.Components.Shared
 @attribute [Authorize(Roles = "User,Foster,Shelter,Admin")]
 @inject IAdoptionProcessService AdoptionProcessService
 @inject IUserService UserService
@@ -160,7 +159,7 @@ tAdoption.Web.Components.Shared
                                                      class="card-img-top mb-3 rounded adoption-pet-image clickable-image-card @(isAdopted ? "adopted-image" : "")"
                                                      alt="@pet.PartitionKey"
                                                      style="cursor: pointer;"
-                                                     @onclick="() => ShowImageViewer(pet.Image1Url)"
+                                                     @onclick="() => OpenCarouselForCardImage(pet)"
                                                      @onclick:stopPropagation="true"
                                                      onerror="this.src='/images/placeholder-pet.jpg';" />
                                                 @if (isAdopted)
@@ -321,7 +320,7 @@ tAdoption.Web.Components.Shared
                                                  class="img-fluid rounded mb-3 modal-pet-image clickable-image @(isAdoptedModal ? "adopted-image-modal" : "")"
                                                  alt="@selectedPet.PartitionKey"
                                                  style="cursor: pointer;"
-                                                 @onclick="() => ShowImageViewer(selectedPet.Image1Url)"
+                                                 @onclick="() => OpenCarousel(0)"
                                                  @onclick:stopPropagation="true"
                                                  onerror="this.src='/images/placeholder-pet.jpg';" />
                                             @if (isAdoptedModal)
@@ -554,17 +553,63 @@ tAdoption.Web.Components.Shared
     </div>
 }
 
-<!-- Image Viewer Overlay -->
-@if (showImageViewer && !string.IsNullOrEmpty(viewerImageUrl))
+<!-- Image Carousel Viewer -->
+@if (showImageViewer && carouselImages.Any())
 {
-    <div class="image-viewer-overlay" @onclick="CloseImageViewer">
-        <div class="image-viewer-container">
-            <button type="button" class="image-viewer-close" @onclick="CloseImageViewer" aria-label="Close">
+    <div class="image-carousel-overlay" @onclick="CloseImageViewer" @onkeydown="HandleCarouselKeyDown" tabindex="0">
+        <div class="carousel-container" @onclick:stopPropagation="true">
+            <button type="button" class="carousel-close" @onclick="CloseImageViewer" aria-label="Close">
                 <i class="fas fa-times"></i>
             </button>
-            <img src="@viewerImageUrl" alt="Pet Image" class="image-viewer-image" @onclick:stopPropagation="true" />
-            <div class="image-viewer-hint">
-                <i class="fas fa-info-circle me-2"></i>@Localizer["ClickOutsideToClose"]
+            
+            @if (carouselImages.Count > 1)
+            {
+                <button type="button" 
+                        class="carousel-nav carousel-prev @(currentCarouselIndex == 0 ? "disabled" : "")" 
+                        @onclick="PreviousImage" 
+                        disabled="@(currentCarouselIndex == 0)"
+                        aria-label="Previous image">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            }
+
+            <div class="carousel-image-wrapper">
+                <img src="@carouselImages[currentCarouselIndex]" 
+                     alt="Pet Image" 
+                     class="carousel-image" 
+                     @onclick:stopPropagation="true" />
+            </div>
+
+            @if (carouselImages.Count > 1)
+            {
+                <button type="button" 
+                        class="carousel-nav carousel-next @(currentCarouselIndex == carouselImages.Count - 1 ? "disabled" : "")" 
+                        @onclick="NextImage" 
+                        disabled="@(currentCarouselIndex == carouselImages.Count - 1)"
+                        aria-label="Next image">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            }
+
+            <div class="carousel-footer">
+                @if (carouselImages.Count > 1)
+                {
+                    <div class="carousel-counter">
+                        <i class="fas fa-images me-2"></i>
+                        <span>@(currentCarouselIndex + 1) / @carouselImages.Count</span>
+                    </div>
+                }
+                <div class="carousel-hint">
+                    <i class="fas fa-info-circle me-2"></i>
+                    @if (carouselImages.Count > 1)
+                    {
+                        <span>Use arrow keys or click arrows to navigate • Click outside to close</span>
+                    }
+                    else
+                    {
+                        <span>Click outside to close</span>
+                    }
+                </div>
             </div>
         </div>
     </div>
@@ -603,8 +648,8 @@ tAdoption.Web.Components.Shared
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
         }
 
-    /* Image Viewer Overlay */
-    .image-viewer-overlay {
+    /* Image Carousel Overlay */
+    .image-carousel-overlay {
         position: fixed;
         top: 0;
         left: 0;
@@ -617,57 +662,163 @@ tAdoption.Web.Components.Shared
         justify-content: center;
         animation: fadeIn 0.3s ease-in-out;
         cursor: pointer;
+        outline: none;
     }
 
-    .image-viewer-container {
+    .carousel-container {
         position: relative;
         max-width: 95vw;
         max-height: 95vh;
         display: flex;
-        flex-direction: column;
         align-items: center;
+        justify-content: center;
         cursor: default;
     }
 
-    .image-viewer-image {
+    .carousel-image-wrapper {
+        position: relative;
+        max-width: 90vw;
+        max-height: 85vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .carousel-image {
         max-width: 100%;
-        max-height: 90vh;
+        max-height: 85vh;
         object-fit: contain;
         border-radius: 8px;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
         animation: zoomIn 0.3s ease-in-out;
+        user-select: none;
     }
 
-    .image-viewer-close {
+    .carousel-close {
         position: absolute;
-        top: -50px;
-        right: 0;
+        top: 20px;
+        right: 20px;
         background-color: rgba(255, 255, 255, 0.2);
         border: 2px solid white;
         color: white;
-        width: 40px;
-        height: 40px;
+        width: 45px;
+        height: 45px;
         border-radius: 50%;
-        font-size: 20px;
+        font-size: 22px;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: background-color 0.2s, transform 0.2s;
+        transition: all 0.3s ease;
+        z-index: 10;
     }
 
-        .image-viewer-close:hover {
-            background-color: rgba(255, 255, 255, 0.3);
-            transform: scale(1.1);
+        .carousel-close:hover {
+            background-color: rgba(255, 59, 59, 0.9);
+            transform: scale(1.1) rotate(90deg);
+            border-color: #ff3b3b;
         }
 
-    .image-viewer-hint {
+    .carousel-nav {
         position: absolute;
-        bottom: -40px;
+        background: linear-gradient(135deg, rgba(74, 144, 226, 0.9), rgba(45, 108, 177, 0.9));
+        border: 3px solid rgba(255, 255, 255, 0.8);
         color: white;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        font-size: 24px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        z-index: 10;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+        .carousel-nav:hover:not(.disabled) {
+            background: linear-gradient(135deg, rgba(45, 108, 177, 1), rgba(74, 144, 226, 1));
+            transform: scale(1.15);
+            box-shadow: 0 6px 30px rgba(74, 144, 226, 0.5);
+            border-color: white;
+        }
+
+        .carousel-nav:active:not(.disabled) {
+            transform: scale(1.05);
+        }
+
+        .carousel-nav.disabled {
+            background: rgba(100, 100, 100, 0.5);
+            border-color: rgba(150, 150, 150, 0.5);
+            cursor: not-allowed;
+            opacity: 0.4;
+        }
+
+    .carousel-prev {
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+        .carousel-prev:hover:not(.disabled) {
+            transform: translateY(-50%) scale(1.15);
+        }
+
+        .carousel-prev:active:not(.disabled) {
+            transform: translateY(-50%) scale(1.05);
+        }
+
+    .carousel-next {
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+        .carousel-next:hover:not(.disabled) {
+            transform: translateY(-50%) scale(1.15);
+        }
+
+        .carousel-next:active:not(.disabled) {
+            transform: translateY(-50%) scale(1.05);
+        }
+
+    .carousel-footer {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        z-index: 10;
+    }
+
+    .carousel-counter {
+        background: linear-gradient(135deg, rgba(74, 144, 226, 0.95), rgba(45, 108, 177, 0.95));
+        color: white;
+        padding: 10px 24px;
+        border-radius: 25px;
+        font-size: 16px;
+        font-weight: 600;
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        animation: slideUp 0.4s ease-out;
+    }
+
+    .carousel-hint {
+        color: rgba(255, 255, 255, 0.9);
         font-size: 14px;
-        opacity: 0.8;
         text-align: center;
+        background: rgba(0, 0, 0, 0.6);
+        padding: 8px 20px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(5px);
+        animation: fadeIn 0.5s ease-out 0.2s both;
     }
 
     @@keyframes fadeIn {
@@ -689,6 +840,53 @@ tAdoption.Web.Components.Shared
         to {
             transform: scale(1);
             opacity: 1;
+        }
+    }
+
+    @@keyframes slideUp {
+        from {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    /* Responsive adjustments */
+    @@media (max-width: 768px) {
+        .carousel-nav {
+            width: 45px;
+            height: 45px;
+            font-size: 18px;
+        }
+
+        .carousel-prev {
+            left: 10px;
+        }
+
+        .carousel-next {
+            right: 10px;
+        }
+
+        .carousel-close {
+            top: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            font-size: 18px;
+        }
+
+        .carousel-counter {
+            font-size: 14px;
+            padding: 8px 18px;
+        }
+
+        .carousel-hint {
+            font-size: 12px;
+            padding: 6px 15px;
         }
     }
 
@@ -941,9 +1139,10 @@ tAdoption.Web.Components.Shared
     private Pet? selectedPet;
     private User? selectedApplicant;
 
-    // Image viewer state
+    // Image carousel state
     private bool showImageViewer = false;
-    private string? viewerImageUrl;
+    private List<string> carouselImages = new();
+    private int currentCarouselIndex = 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -1078,8 +1277,6 @@ tAdoption.Web.Components.Shared
             if (result.Success)
             {
                 successMessage = result.Message;
-
-                // Refresh the modal data instead of closing
                 await RefreshModalData();
             }
             else
@@ -1147,8 +1344,6 @@ tAdoption.Web.Components.Shared
             if (result.Success)
             {
                 successMessage = $"🎉 {Localizer["Congratulations"]}! {selectedApplication.PetName} has been successfully adopted!";
-
-                // Refresh the modal data instead of closing
                 await RefreshModalData();
             }
             else
@@ -1174,26 +1369,21 @@ tAdoption.Web.Components.Shared
 
         try
         {
-            // Reload the application list
             await LoadApplicationsAsync();
 
-            // Find the updated application in the refreshed list using the new key structure
             var updatedApplication = applications.FirstOrDefault(a =>
                 a.PartitionKey == selectedApplication.PartitionKey &&
                 a.RowKey == selectedApplication.RowKey);
 
             if (updatedApplication != null)
             {
-                // Update the selected application with the latest data
                 selectedApplication = updatedApplication;
 
-                // Update the selected pet if it exists in the dictionary
                 if (applicationPets.ContainsKey(updatedApplication))
                 {
                     selectedPet = applicationPets[updatedApplication];
                 }
 
-                // Update the selected applicant if it exists in the dictionary
                 if (!isUserRole && applicationUsers.ContainsKey(updatedApplication))
                 {
                     selectedApplicant = applicationUsers[updatedApplication];
@@ -1256,18 +1446,81 @@ tAdoption.Web.Components.Shared
         };
     }
 
-    // Image viewer methods
-    private void ShowImageViewer(string imageUrl)
+    // Image carousel methods
+    private void OpenCarouselForCardImage(Pet pet)
     {
-        viewerImageUrl = imageUrl;
-        showImageViewer = true;
-        StateHasChanged();
+        carouselImages = new List<string>();
+        
+        if (!string.IsNullOrEmpty(pet.Image1Url)) carouselImages.Add(pet.Image1Url);
+        if (!string.IsNullOrEmpty(pet.Image2Url)) carouselImages.Add(pet.Image2Url);
+        if (!string.IsNullOrEmpty(pet.Image3Url)) carouselImages.Add(pet.Image3Url);
+        if (!string.IsNullOrEmpty(pet.Image4Url)) carouselImages.Add(pet.Image4Url);
+
+        if (carouselImages.Any())
+        {
+            currentCarouselIndex = 0;
+            showImageViewer = true;
+            StateHasChanged();
+        }
     }
 
+    private void OpenCarousel(int startIndex)
+    {
+        if (selectedPet == null) return;
+
+        carouselImages = new List<string>();
+        
+        if (!string.IsNullOrEmpty(selectedPet.Image1Url)) carouselImages.Add(selectedPet.Image1Url);
+        if (!string.IsNullOrEmpty(selectedPet.Image2Url)) carouselImages.Add(selectedPet.Image2Url);
+        if (!string.IsNullOrEmpty(selectedPet.Image3Url)) carouselImages.Add(selectedPet.Image3Url);
+        if (!string.IsNullOrEmpty(selectedPet.Image4Url)) carouselImages.Add(selectedPet.Image4Url);
+
+        if (carouselImages.Any())
+        {
+            currentCarouselIndex = Math.Min(startIndex, carouselImages.Count - 1);
+            showImageViewer = true;
+            StateHasChanged();
+        }
+    }
     private void CloseImageViewer()
     {
         showImageViewer = false;
-        viewerImageUrl = null;
+        carouselImages.Clear();
+        currentCarouselIndex = 0;
         StateHasChanged();
+    }
+
+    private void NextImage()
+    {
+        if (currentCarouselIndex < carouselImages.Count - 1)
+        {
+            currentCarouselIndex++;
+            StateHasChanged();
+        }
+    }
+
+    private void PreviousImage()
+    {
+        if (currentCarouselIndex > 0)
+        {
+            currentCarouselIndex--;
+            StateHasChanged();
+        }
+    }
+
+    private void HandleCarouselKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "ArrowLeft")
+        {
+            PreviousImage();
+        }
+        else if (e.Key == "ArrowRight")
+        {
+            NextImage();
+        }
+        else if (e.Key == "Escape")
+        {
+            CloseImageViewer();
+        }
     }
 }
