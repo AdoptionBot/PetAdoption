@@ -68,7 +68,7 @@
                         <div class="alert alert-info">
                             <i class="fa fa-info-circle fa-3x mb-3"></i>
                             <h3>@Localizer["NoAdoptionApplications"]</h3>
-                            <p>@(isUserRole ? Localizer["NoApplicationsMessageUser"] : Localizer["NoApplicationsMessageShelter"])</p>
+                            <p>@(isUserRole? Localizer["NoApplicationsMessageUser"] : Localizer["NoApplicationsMessageShelter"])</p>
                             @if (isUserRole)
                             {
                                 <a href="/pets" class="btn btn-primary mt-2">
@@ -95,7 +95,7 @@
                             <div class="card-body">
                                 <h5 class="card-title">
                                     <i class="fa fa-list"></i>
-                                    @(isUserRole ? Localizer["YourAdoptionApplications"] : Localizer["AdoptionApplicationsForYourPets"])
+                                    @(isUserRole? Localizer["YourAdoptionApplications"] : Localizer["AdoptionApplicationsForYourPets"])
                                 </h5>
                                 <p class="text-muted mb-0">
                                     @Localizer["TotalApplications"]: <strong>@applications.Count</strong>
@@ -228,7 +228,7 @@
                                 <div class="card-footer @(isAdopted ? "bg-success bg-opacity-10" : "bg-light")">
                                     <button class="btn btn-sm @(isAdopted ? "btn-success" : "btn-primary") w-100" @onclick="() => ViewApplicationDetails(application, pet, applicantUser)">
                                         <i class="fa @(isAdopted ? "fa-heart" : "fa-eye")"></i>
-                                        @(isAdopted ? Localizer["ViewAdoption"] : Localizer["ViewDetails"])
+                                        @(isAdopted? Localizer["ViewAdoption"] : Localizer["ViewDetails"])
                                     </button>
                                 </div>
                             </div>
@@ -239,7 +239,6 @@
         </div>
     </section>
 </div>
-
 @* Application Details Modal *@
 @if (showDetailsModal && selectedApplication != null)
 {
@@ -262,7 +261,7 @@
                     }
                     <h5 class="modal-title">
                         <i class="fa @(isAdoptedModal ? "fa-heart" : "fa-paw")"></i>
-                        @(isAdoptedModal ? Localizer["SuccessfulAdoption"] : Localizer["AdoptionApplicationDetails"]) - @selectedApplication.PetName
+                        @(isAdoptedModal? Localizer["SuccessfulAdoption"] : Localizer["AdoptionApplicationDetails"]) - @selectedApplication.PetName
                     </h5>
                     <button type="button" class="btn-close btn-close-white" @onclick="CloseDetailsModal" aria-label="Close"></button>
                 </div>
@@ -340,9 +339,9 @@
                                     <p><strong>@Localizer["Size"]:</strong> @selectedPet.Size</p>
                                     <p><strong>@Localizer["Age"]:</strong> @GetPetAge(selectedPet.RowKey)</p>
                                     <p><strong>@Localizer["Colour"]:</strong> @(selectedPet.Colour ?? Localizer["NotSpecified"])</p>
-                                    <p><strong>@Localizer["NeuteredSpayed"]:</strong> @(selectedPet.Neutered ? Localizer["Yes"] : Localizer["No"])</p>
-                                    <p><strong>@Localizer["Dewormed"]:</strong> @(selectedPet.Dewormed ? Localizer["Yes"] : Localizer["No"])</p>
-                                    <p><strong>@Localizer["Microchipped"]:</strong> @(selectedPet.Chipped ? Localizer["Yes"] : Localizer["No"])</p>
+                                    <p><strong>@Localizer["NeuteredSpayed"]:</strong> @(selectedPet.Neutered? Localizer["Yes"] : Localizer["No"])</p>
+                                    <p><strong>@Localizer["Dewormed"]:</strong> @(selectedPet.Dewormed? Localizer["Yes"] : Localizer["No"])</p>
+                                    <p><strong>@Localizer["Microchipped"]:</strong> @(selectedPet.Chipped? Localizer["Yes"] : Localizer["No"])</p>
                                     <p><strong>@Localizer["Vaccinations"]:</strong> @selectedPet.Vaccinations</p>
 
                                     <h6 class="border-bottom pb-2 mb-2 mt-3">@Localizer["AboutPet"]</h6>
@@ -561,31 +560,29 @@
             <button type="button" class="carousel-close" @onclick="CloseImageViewer" aria-label="Close">
                 <i class="fas fa-times"></i>
             </button>
-            
+
             @if (carouselImages.Count > 1)
             {
-                <button type="button" 
-                        class="carousel-nav carousel-prev @(currentCarouselIndex == 0 ? "disabled" : "")" 
-                        @onclick="PreviousImage" 
-                        disabled="@(currentCarouselIndex == 0)"
+                <button type="button"
+                        class="carousel-nav carousel-prev"
+                        @onclick="PreviousImage"
                         aria-label="Previous image">
                     <i class="fas fa-chevron-left"></i>
                 </button>
             }
 
             <div class="carousel-image-wrapper">
-                <img src="@carouselImages[currentCarouselIndex]" 
-                     alt="Pet Image" 
-                     class="carousel-image" 
+                <img src="@carouselImages[currentCarouselIndex]"
+                     alt="Pet Image"
+                     class="carousel-image"
                      @onclick:stopPropagation="true" />
             </div>
 
             @if (carouselImages.Count > 1)
             {
-                <button type="button" 
-                        class="carousel-nav carousel-next @(currentCarouselIndex == carouselImages.Count - 1 ? "disabled" : "")" 
-                        @onclick="NextImage" 
-                        disabled="@(currentCarouselIndex == carouselImages.Count - 1)"
+                <button type="button"
+                        class="carousel-nav carousel-next"
+                        @onclick="NextImage"
                         aria-label="Next image">
                     <i class="fas fa-chevron-right"></i>
                 </button>
@@ -737,22 +734,15 @@
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     }
 
-        .carousel-nav:hover:not(.disabled) {
+        .carousel-nav:hover {
             background: linear-gradient(135deg, rgba(45, 108, 177, 1), rgba(74, 144, 226, 1));
             transform: scale(1.15);
             box-shadow: 0 6px 30px rgba(74, 144, 226, 0.5);
             border-color: white;
         }
 
-        .carousel-nav:active:not(.disabled) {
+        .carousel-nav:active {
             transform: scale(1.05);
-        }
-
-        .carousel-nav.disabled {
-            background: rgba(100, 100, 100, 0.5);
-            border-color: rgba(150, 150, 150, 0.5);
-            cursor: not-allowed;
-            opacity: 0.4;
         }
 
     .carousel-prev {
@@ -761,11 +751,11 @@
         transform: translateY(-50%);
     }
 
-        .carousel-prev:hover:not(.disabled) {
+        .carousel-prev:hover {
             transform: translateY(-50%) scale(1.15);
         }
 
-        .carousel-prev:active:not(.disabled) {
+        .carousel-prev:active {
             transform: translateY(-50%) scale(1.05);
         }
 
@@ -775,11 +765,11 @@
         transform: translateY(-50%);
     }
 
-        .carousel-next:hover:not(.disabled) {
+        .carousel-next:hover {
             transform: translateY(-50%) scale(1.15);
         }
 
-        .carousel-next:active:not(.disabled) {
+        .carousel-next:active {
             transform: translateY(-50%) scale(1.05);
         }
 
@@ -1147,7 +1137,7 @@
     protected override async Task OnInitializedAsync()
     {
         await LoadApplicationsAsync();
-        
+
         // Subscribe to culture change
         LocalizationService.OnCultureChanged += OnCultureChanged;
     }
@@ -1450,7 +1440,7 @@
     private void OpenCarouselForCardImage(Pet pet)
     {
         carouselImages = new List<string>();
-        
+
         if (!string.IsNullOrEmpty(pet.Image1Url)) carouselImages.Add(pet.Image1Url);
         if (!string.IsNullOrEmpty(pet.Image2Url)) carouselImages.Add(pet.Image2Url);
         if (!string.IsNullOrEmpty(pet.Image3Url)) carouselImages.Add(pet.Image3Url);
@@ -1469,7 +1459,7 @@
         if (selectedPet == null) return;
 
         carouselImages = new List<string>();
-        
+
         if (!string.IsNullOrEmpty(selectedPet.Image1Url)) carouselImages.Add(selectedPet.Image1Url);
         if (!string.IsNullOrEmpty(selectedPet.Image2Url)) carouselImages.Add(selectedPet.Image2Url);
         if (!string.IsNullOrEmpty(selectedPet.Image3Url)) carouselImages.Add(selectedPet.Image3Url);
@@ -1482,6 +1472,7 @@
             StateHasChanged();
         }
     }
+
     private void CloseImageViewer()
     {
         showImageViewer = false;
@@ -1492,18 +1483,20 @@
 
     private void NextImage()
     {
-        if (currentCarouselIndex < carouselImages.Count - 1)
+        if (carouselImages.Count > 0)
         {
-            currentCarouselIndex++;
+            // Circular navigation: go to first image when at the end
+            currentCarouselIndex = (currentCarouselIndex + 1) % carouselImages.Count;
             StateHasChanged();
         }
     }
 
     private void PreviousImage()
     {
-        if (currentCarouselIndex > 0)
+        if (carouselImages.Count > 0)
         {
-            currentCarouselIndex--;
+            // Circular navigation: go to last image when at the beginning
+            currentCarouselIndex = (currentCarouselIndex - 1 + carouselImages.Count) % carouselImages.Count;
             StateHasChanged();
         }
     }

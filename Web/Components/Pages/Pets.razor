@@ -628,9 +628,8 @@
                 @if (carouselImages.Count > 1)
                 {
                     <button type="button" 
-                            class="carousel-nav carousel-prev @(currentCarouselIndex == 0 ? "disabled" : "")" 
+                            class="carousel-nav carousel-prev" 
                             @onclick="PreviousImage" 
-                            disabled="@(currentCarouselIndex == 0)"
                             aria-label="Previous image">
                         <i class="fas fa-chevron-left"></i>
                     </button>
@@ -646,9 +645,8 @@
                 @if (carouselImages.Count > 1)
                 {
                     <button type="button" 
-                            class="carousel-nav carousel-next @(currentCarouselIndex == carouselImages.Count - 1 ? "disabled" : "")" 
+                            class="carousel-nav carousel-next" 
                             @onclick="NextImage" 
-                            disabled="@(currentCarouselIndex == carouselImages.Count - 1)"
                             aria-label="Next image">
                         <i class="fas fa-chevron-right"></i>
                     </button>
@@ -778,22 +776,15 @@
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     }
 
-        .carousel-nav:hover:not(.disabled) {
+        .carousel-nav:hover {
             background: linear-gradient(135deg, rgba(45, 108, 177, 1), rgba(74, 144, 226, 1));
             transform: scale(1.15);
             box-shadow: 0 6px 30px rgba(74, 144, 226, 0.5);
             border-color: white;
         }
 
-        .carousel-nav:active:not(.disabled) {
+        .carousel-nav:active {
             transform: scale(1.05);
-        }
-
-        .carousel-nav.disabled {
-            background: rgba(100, 100, 100, 0.5);
-            border-color: rgba(150, 150, 150, 0.5);
-            cursor: not-allowed;
-            opacity: 0.4;
         }
 
     .carousel-prev {
@@ -802,11 +793,11 @@
         transform: translateY(-50%);
     }
 
-        .carousel-prev:hover:not(.disabled) {
+        .carousel-prev:hover {
             transform: translateY(-50%) scale(1.15);
         }
 
-        .carousel-prev:active:not(.disabled) {
+        .carousel-prev:active {
             transform: translateY(-50%) scale(1.05);
         }
 
@@ -816,11 +807,11 @@
         transform: translateY(-50%);
     }
 
-        .carousel-next:hover:not(.disabled) {
+        .carousel-next:hover {
             transform: translateY(-50%) scale(1.15);
         }
 
-        .carousel-next:active:not(.disabled) {
+        .carousel-next:active {
             transform: translateY(-50%) scale(1.05);
         }
 
@@ -1279,18 +1270,20 @@
 
     private void NextImage()
     {
-        if (currentCarouselIndex < carouselImages.Count - 1)
+        if (carouselImages.Count > 0)
         {
-            currentCarouselIndex++;
+            // Circular navigation: go to first image when at the end
+            currentCarouselIndex = (currentCarouselIndex + 1) % carouselImages.Count;
             StateHasChanged();
         }
     }
 
     private void PreviousImage()
     {
-        if (currentCarouselIndex > 0)
+        if (carouselImages.Count > 0)
         {
-            currentCarouselIndex--;
+            // Circular navigation: go to last image when at the beginning
+            currentCarouselIndex = (currentCarouselIndex - 1 + carouselImages.Count) % carouselImages.Count;
             StateHasChanged();
         }
     }
