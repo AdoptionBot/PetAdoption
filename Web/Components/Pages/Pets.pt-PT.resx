@@ -165,11 +165,8 @@
   <data name="LoveGuaranteed" xml:space="preserve">
     <value>Amor Garantido</value>
   </data>
-  <data name="HealthChecked" xml:space="preserve">
-    <value>Verificado Saúde</value>
-  </data>
-  <data name="Safe" xml:space="preserve">
-    <value>Seguro</value>
+  <data name="HealthVerified" xml:space="preserve">
+    <value>Saúde verificada</value>
   </data>
   <data name="SuccessPrefix" xml:space="preserve">
     <value>Sucesso!</value>
@@ -365,5 +362,8 @@
   </data>
   <data name="UseArrowsToNavigate" xml:space="preserve">
     <value>Utilize as teclas de seta ou clique nas setas para navegar • Clique fora para fechar.</value>
+  </data>
+  <data name="Safe" xml:space="preserve">
+    <value>Seguro</value>
   </data>
 </root>

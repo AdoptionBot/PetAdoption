@@ -120,7 +120,7 @@
                         <div class="col-md-4 stat-item">
                             <i class="fas fa-shield-alt fa-2x mb-2"></i>
                             <span class="stat-number">@Localizer["Safe"]</span>
-                            <span>@Localizer["HealthChecked"]</span>
+                            <span>@Localizer["HealthVerified"]</span>
                         </div>
                     </div>
                 </div>
@@ -696,16 +696,34 @@
 </div>
 
 <style>
+    .intro-banner {
+        padding: 1.5rem 0 !important;
+        margin-bottom: 1.5rem !important;
+    }
+
+    .intro-banner h2 {
+        font-size: 1.5rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .intro-banner .lead {
+        font-size: 1rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .intro-banner .stat-item {
+        padding: 0.5rem !important;
+    }
+
+    .intro-banner .stat-item i {
+        font-size: 1.5rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+
     .clickable-image {
         transition: transform 0.2s, box-shadow 0.2s;
     }
 
-        .clickable-image:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-        }
-
-    /* Image Carousel Overlay */
     .image-carousel-overlay {
         position: fixed;
         top: 0;
@@ -780,11 +798,11 @@
         z-index: 10;
     }
 
-        .carousel-close:hover {
-            background-color: rgba(255, 59, 59, 0.9);
-            transform: scale(1.1) rotate(90deg);
-            border-color: #ff3b3b;
-        }
+    .carousel-close:hover {
+        background-color: rgba(255, 59, 59, 0.9);
+        transform: scale(1.1) rotate(90deg);
+        border-color: #ff3b3b;
+    }
 
     .carousel-nav {
         position: absolute;
@@ -804,16 +822,16 @@
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     }
 
-        .carousel-nav:hover {
-            background: linear-gradient(135deg, rgba(45, 108, 177, 1), rgba(74, 144, 226, 1));
-            transform: scale(1.15);
-            box-shadow: 0 6px 30px rgba(74, 144, 226, 0.5);
-            border-color: white;
-        }
+    .carousel-nav:hover {
+        background: linear-gradient(135deg, rgba(45, 108, 177, 1), rgba(74, 144, 226, 1));
+        transform: scale(1.15);
+        box-shadow: 0 6px 30px rgba(74, 144, 226, 0.5);
+        border-color: white;
+    }
 
-        .carousel-nav:active {
-            transform: scale(1.05);
-        }
+    .carousel-nav:active {
+        transform: scale(1.05);
+    }
 
     .carousel-prev {
         left: 20px;
@@ -821,13 +839,13 @@
         transform: translateY(-50%);
     }
 
-        .carousel-prev:hover {
-            transform: translateY(-50%) scale(1.15);
-        }
+    .carousel-prev:hover {
+        transform: translateY(-50%) scale(1.15);
+    }
 
-        .carousel-prev:active {
-            transform: translateY(-50%) scale(1.05);
-        }
+    .carousel-prev:active {
+        transform: translateY(-50%) scale(1.05);
+    }
 
     .carousel-next {
         right: 20px;
@@ -835,13 +853,13 @@
         transform: translateY(-50%);
     }
 
-        .carousel-next:hover {
-            transform: translateY(-50%) scale(1.15);
-        }
+    .carousel-next:hover {
+        transform: translateY(-50%) scale(1.15);
+    }
 
-        .carousel-next:active {
-            transform: translateY(-50%) scale(1.05);
-        }
+    .carousel-next:active {
+        transform: translateY(-50%) scale(1.05);
+    }
 
     .carousel-footer {
         position: absolute;
