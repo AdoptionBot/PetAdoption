@@ -15,6 +15,7 @@
 @inject ILogger<Pets> Logger
 @inject LocalizationService LocalizationService
 @inject DynamicLocalizer<Pets> Localizer
+@inject IStringLocalizer<SharedEnumResources> EnumLocalizer
 @implements IDisposable
 @rendermode InteractiveServer
 
@@ -186,7 +187,7 @@
                                     </h5>
                                     <p class="card-text">
                                         <span class="badge bg-info mb-2">
-                                            <i class="fas fa-@(pet.Species == Species.Dog ? "dog" : "cat") me-1"></i>@pet.Species
+                                            <i class="fas fa-@(pet.Species == Species.Dog ? "dog" : "cat") me-1"></i>@pet.Species.ToLocalizedString(EnumLocalizer)
                                         </span>
                                         <br />
                                         <small class="text-muted">
@@ -194,14 +195,14 @@
                                         </small>
                                         <br />
                                         <small class="text-muted">
-                                            <i class="fas fa-@(pet.Gender == Gender.Male ? "mars" : "venus") me-1"></i><strong>@Localizer["Gender"]:</strong> @pet.Gender
+                                            <i class="fas fa-@(pet.Gender == Gender.Male ? "mars" : "venus") me-1"></i><strong>@Localizer["Gender"]:</strong> @pet.Gender.ToLocalizedString(EnumLocalizer)
                                         </small>
                                         <br />
-                                    <p class="mb-1">
-                                        <small class="text-muted">
-                                            <i class="fas fa-home me-1"></i><strong>@Localizer["Shelter"]:</strong> @pet.ShelterName
-                                        </small>
-                                    </p>
+                                        <p class="mb-1">
+                                            <small class="text-muted">
+                                                <i class="fas fa-home me-1"></i><strong>@Localizer["Shelter"]:</strong> @pet.ShelterName
+                                            </small>
+                                        </p>
                                     </p>
                                     <div class="text-center mt-3">
                                         <small class="text-primary">
@@ -271,7 +272,7 @@
                     <div class="modal-header bg-primary text-white">
                         <h5 class="modal-title">
                             <i class="fas fa-paw heartbeat me-2"></i> @Localizer["Meet"] @selectedPet.PartitionKey
-                            <span class="badge bg-light text-primary ms-2">@selectedPet.Species</span>
+                            <span class="badge bg-light text-primary ms-2">@selectedPet.Species.ToLocalizedString(EnumLocalizer)</span>
                         </h5>
                         <button type="button" class="btn-close btn-close-white" @onclick="CloseModal" aria-label="Close"></button>
                     </div>
@@ -281,7 +282,7 @@
                             <h5><i class="fas fa-heart text-danger heartbeat me-2"></i>@Localizer["About"] @selectedPet.PartitionKey</h5>
                             <p class="mb-0">
                                 <strong>@selectedPet.PartitionKey</strong> @Localizer["AboutMessage"] <strong>@GetPetAge(selectedPet.RowKey)</strong>
-                                @selectedPet.Species.ToString().ToLower() @Localizer["OldLookingForHome"]
+                                @selectedPet.Species.ToLocalizedString(EnumLocalizer).ToLower() @Localizer["OldLookingForHome"]
                             </p>
                         </div>
 
@@ -290,7 +291,7 @@
                             <div class="col-md-6">
                                 <h6 class="border-bottom pb-2">
                                     <i class="fas fa-images me-2"></i>@Localizer["Gallery"]
-                                    <small class="text-muted ms-2">@Localizer["ClickToEnlarge"]</small>
+                                    <small class="text-muted ms-2">(@Localizer["ClickToEnlarge"])</small>
                                 </h6>
                                 <div class="row g-2 mb-3">
                                     @if (!string.IsNullOrEmpty(selectedPet.Image1Url))
@@ -373,7 +374,7 @@
                                     </tr>
                                     <tr>
                                         <th><i class="fas fa-paw me-2 text-success"></i>@Localizer["Species"]:</th>
-                                        <td>@selectedPet.Species</td>
+                                        <td>@selectedPet.Species.ToLocalizedString(EnumLocalizer)</td>
                                     </tr>
                                     <tr>
                                         <th><i class="fas fa-dog me-2 text-primary"></i>@Localizer["Breed"]:</th>
@@ -385,11 +386,11 @@
                                     </tr>
                                     <tr>
                                         <th><i class="fas fa-@(selectedPet.Gender == Gender.Male ? "mars" : "venus") me-2 @(selectedPet.Gender == Gender.Male ? "text-primary" : "text-danger")"></i>@Localizer["Gender"]:</th>
-                                        <td>@selectedPet.Gender</td>
+                                        <td>@selectedPet.Gender.ToLocalizedString(EnumLocalizer)</td>
                                     </tr>
                                     <tr>
                                         <th><i class="fas fa-ruler-vertical me-2 text-secondary"></i>@Localizer["Size"]:</th>
-                                        <td><span class="badge bg-@GetSizeBadgeColor(selectedPet.Size)">@selectedPet.Size</span></td>
+                                        <td><span class="badge bg-@GetSizeBadgeColor(selectedPet.Size)">@selectedPet.Size.ToLocalizedString(EnumLocalizer)</span></td>
                                     </tr>
                                     <tr>
                                         <th><i class="fas fa-home me-2 text-success"></i>@Localizer["Shelter"]:</th>
@@ -551,7 +552,7 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <p class="mb-1"><i class="fas fa-signature me-2 text-primary"></i><strong>@Localizer["Pet"]:</strong> @petForAdoption.PartitionKey</p>
-                                        <p class="mb-1"><i class="fas fa-dog me-2 text-success"></i><strong>@Localizer["Species"]:</strong> @petForAdoption.Species</p>
+                                        <p class="mb-1"><i class="fas fa-dog me-2 text-success"></i><strong>@Localizer["Species"]:</strong> @petForAdoption.Species.ToLocalizedString(EnumLocalizer)</p>
                                         <p class="mb-0"><i class="fas fa-birthday-cake me-2 text-warning"></i><strong>@Localizer["Age"]:</strong> @GetPetAge(petForAdoption.RowKey)</p>
                                     </div>
                                     <div class="col-md-6">
@@ -1259,19 +1260,10 @@
     private string GetVaccinationsDisplay(Vaccinations vaccinations)
     {
         if (vaccinations == Vaccinations.none)
-            return "None";
+            return EnumLocalizer["Vaccinations_none"];
 
-        var vaccinationList = new List<string>();
-
-        foreach (Vaccinations vac in Enum.GetValues(typeof(Vaccinations)))
-        {
-            if (vac != Vaccinations.none && vaccinations.HasFlag(vac))
-            {
-                vaccinationList.Add(vac.ToString());
-            }
-        }
-
-        return vaccinationList.Any() ? string.Join(", ", vaccinationList) : "None";
+        var localizedVaccinations = vaccinations.ToLocalizedStrings(EnumLocalizer);
+        return string.Join(", ", localizedVaccinations);
     }
 
     // Image carousel methods - Updated to support videos

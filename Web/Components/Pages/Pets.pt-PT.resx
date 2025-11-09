@@ -229,7 +229,7 @@
     <value>Galeria</value>
   </data>
   <data name="ClickToEnlarge" xml:space="preserve">
-    <value>(Clique para ampliar)</value>
+    <value>Clique para ampliar</value>
   </data>
   <data name="Video" xml:space="preserve">
     <value>Vídeo</value>

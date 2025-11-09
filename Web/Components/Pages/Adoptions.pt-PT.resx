@@ -373,7 +373,7 @@
     <value>Não</value>
   </data>
   <data name="ClickToEnlarge" xml:space="preserve">
-    <value>(Clique para ampliar)</value>
+    <value>Clique para ampliar</value>
   </data>
   <data name="NotSpecified" xml:space="preserve">
     <value>Não especificado</value>

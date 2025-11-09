@@ -13,6 +13,7 @@
 @inject ILogger<Adoptions> Logger
 @inject LocalizationService LocalizationService
 @inject DynamicLocalizer<Adoptions> Localizer
+@inject IStringLocalizer<SharedEnumResources> EnumLocalizer
 @implements IDisposable
 @rendermode InteractiveServer
 
@@ -170,7 +171,7 @@
                                                 }
                                             }
                                         </div>
-                                        <p class="mb-1"><strong>@Localizer["Species"]:</strong> @pet.Species</p>
+                                        <p class="mb-1"><strong>@Localizer["Species"]:</strong> @pet.Species.ToLocalizedString(EnumLocalizer)</p>
                                         <p class="mb-1"><strong>@Localizer["Age"]:</strong> @GetPetAge(pet.RowKey)</p>
                                         <p class="mb-1">
                                             <strong>@Localizer["Shelter"]:</strong>
@@ -333,16 +334,16 @@
                                         }
                                     </div>
                                     <p><strong>@Localizer["Name"]:</strong> @selectedPet.PartitionKey</p>
-                                    <p><strong>@Localizer["Species"]:</strong> @selectedPet.Species</p>
+                                    <p><strong>@Localizer["Species"]:</strong> @selectedPet.Species.ToLocalizedString(EnumLocalizer)</p>
                                     <p><strong>@Localizer["Breed"]:</strong> @(selectedPet.Breed ?? Localizer["NotSpecified"])</p>
-                                    <p><strong>@Localizer["Gender"]:</strong> @selectedPet.Gender</p>
-                                    <p><strong>@Localizer["Size"]:</strong> @selectedPet.Size</p>
+                                    <p><strong>@Localizer["Gender"]:</strong> @selectedPet.Gender.ToLocalizedString(EnumLocalizer)</p>
+                                    <p><strong>@Localizer["Size"]:</strong> @selectedPet.Size.ToLocalizedString(EnumLocalizer)</p>
                                     <p><strong>@Localizer["Age"]:</strong> @GetPetAge(selectedPet.RowKey)</p>
                                     <p><strong>@Localizer["Colour"]:</strong> @(selectedPet.Colour ?? Localizer["NotSpecified"])</p>
                                     <p><strong>@Localizer["NeuteredSpayed"]:</strong> @(selectedPet.Neutered? Localizer["Yes"] : Localizer["No"])</p>
                                     <p><strong>@Localizer["Dewormed"]:</strong> @(selectedPet.Dewormed? Localizer["Yes"] : Localizer["No"])</p>
                                     <p><strong>@Localizer["Microchipped"]:</strong> @(selectedPet.Chipped? Localizer["Yes"] : Localizer["No"])</p>
-                                    <p><strong>@Localizer["Vaccinations"]:</strong> @selectedPet.Vaccinations</p>
+                                    <p><strong>@Localizer["Vaccinations"]:</strong> @GetVaccinationsDisplay(selectedPet.Vaccinations)</p>
 
                                     <h6 class="border-bottom pb-2 mb-2 mt-3">@Localizer["AboutPet"]</h6>
                                     <p class="small">@selectedPet.About</p>
@@ -1464,6 +1465,15 @@
             AdoptionStatus.Adopted => Localizer["AdoptedStatus"],
             _ => status.ToString()
         };
+    }
+
+    private string GetVaccinationsDisplay(Vaccinations vaccinations)
+    {
+        if (vaccinations == Vaccinations.none)
+            return EnumLocalizer["Vaccinations_none"];
+
+        var localizedVaccinations = vaccinations.ToLocalizedStrings(EnumLocalizer);
+        return string.Join(", ", localizedVaccinations);
     }
 
     private bool HasPetMedia(Pet pet)

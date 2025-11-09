@@ -1,0 +1,65 @@
+@using Microsoft.AspNetCore.Components.Forms
+@using PetAdoption.Services.Web
+@typeparam TEnum where TEnum : struct, Enum
+@inject IStringLocalizer<SharedEnumResources> EnumLocalizer
+@inject LocalizationService LocalizationService
+@implements IDisposable
+
+<InputSelect @bind-Value="CurrentValue" class="@CssClass" @attributes="AdditionalAttributes">
+    @if (ShowEmptyOption)
+    {
+        <option value="">@EmptyOptionText</option>
+    }
+    @foreach (var (value, display) in EnumLocalizationExtensions.GetLocalizedValues<TEnum>(EnumLocalizer))
+    {
+        <option value="@value">@display</option>
+    }
+</InputSelect>
+
+@code {
+    [Parameter]
+    public TEnum Value { get; set; }
+
+    [Parameter]
+    public EventCallback<TEnum> ValueChanged { get; set; }
+
+    [Parameter]
+    public string CssClass { get; set; } = "form-select";
+
+    [Parameter]
+    public bool ShowEmptyOption { get; set; } = false;
+
+    [Parameter]
+    public string EmptyOptionText { get; set; } = "-- Select --";
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private TEnum CurrentValue
+    {
+        get => Value;
+        set
+        {
+            if (!EqualityComparer<TEnum>.Default.Equals(Value, value))
+            {
+                Value = value;
+                ValueChanged.InvokeAsync(value);
+            }
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        LocalizationService.OnCultureChanged += OnCultureChanged;
+    }
+
+    private void OnCultureChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        LocalizationService.OnCultureChanged -= OnCultureChanged;
+    }
+}

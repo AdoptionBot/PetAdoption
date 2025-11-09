@@ -1,0 +1,160 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+        <xsd:element name="root" msdata:IsDataSet="true">
+            <xsd:complexType>
+                <xsd:choice maxOccurs="unbounded">
+                    <xsd:element name="metadata">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+                            </xsd:sequence>
+                            <xsd:attribute name="name" use="required" type="xsd:string" />
+                            <xsd:attribute name="type" type="xsd:string" />
+                            <xsd:attribute name="mimetype" type="xsd:string" />
+                            <xsd:attribute ref="xml:space" />
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="assembly">
+                        <xsd:complexType>
+                            <xsd:attribute name="alias" type="xsd:string" />
+                            <xsd:attribute name="name" type="xsd:string" />
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="data">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+                            </xsd:sequence>
+                            <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+                            <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+                            <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+                            <xsd:attribute ref="xml:space" />
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="resheader">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                            </xsd:sequence>
+                            <xsd:attribute name="name" type="xsd:string" use="required" />
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:choice>
+            </xsd:complexType>
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>2.0</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+
+  <!-- AdoptionStatus -->
+  <data name="AdoptionStatus_NotAdopted" xml:space="preserve">
+    <value>Não Adotado</value>
+  </data>
+  <data name="AdoptionStatus_Submitted" xml:space="preserve">
+    <value>Submetido</value>
+  </data>
+  <data name="AdoptionStatus_AcceptedByShelter" xml:space="preserve">
+    <value>Aceite pelo Abrigo</value>
+  </data>
+  <data name="AdoptionStatus_Adopted" xml:space="preserve">
+    <value>Adotado</value>
+  </data>
+
+  <!-- Gender -->
+  <data name="Gender_Male" xml:space="preserve">
+    <value>Macho</value>
+  </data>
+  <data name="Gender_Female" xml:space="preserve">
+    <value>Fêmea</value>
+  </data>
+
+  <!-- Size -->
+  <data name="Size_Small" xml:space="preserve">
+    <value>Pequeno</value>
+  </data>
+  <data name="Size_Medium" xml:space="preserve">
+    <value>Médio</value>
+  </data>
+  <data name="Size_Large" xml:space="preserve">
+    <value>Grande</value>
+  </data>
+
+  <!-- Species -->
+  <data name="Species_Cat" xml:space="preserve">
+    <value>Gato</value>
+  </data>
+  <data name="Species_Dog" xml:space="preserve">
+    <value>Cão</value>
+  </data>
+
+  <!-- UserRole -->
+  <data name="UserRole_User" xml:space="preserve">
+    <value>Utilizador</value>
+  </data>
+  <data name="UserRole_Foster" xml:space="preserve">
+    <value>Acolhedor</value>
+  </data>
+  <data name="UserRole_Shelter" xml:space="preserve">
+    <value>Abrigo</value>
+  </data>
+  <data name="UserRole_Admin" xml:space="preserve">
+    <value>Administrador</value>
+  </data>
+
+  <!-- Vaccinations -->
+  <data name="Vaccinations_none" xml:space="preserve">
+    <value>Nenhuma</value>
+  </data>
+  <data name="Vaccinations_Trivalent" xml:space="preserve">
+    <value>Trivalente</value>
+  </data>
+  <data name="Vaccinations_Felv" xml:space="preserve">
+    <value>Leucemia Felina</value>
+  </data>
+  <data name="Vaccinations_FIP" xml:space="preserve">
+    <value>Peritonite Infeciosa Felina</value>
+  </data>
+  <data name="Vaccinations_FIV" xml:space="preserve">
+    <value>Vírus da Imunodeficiência Felina</value>
+  </data>
+  <data name="Vaccinations_Parvovirus" xml:space="preserve">
+    <value>Parvovirose</value>
+  </data>
+  <data name="Vaccinations_Distemper" xml:space="preserve">
+    <value>Esgana</value>
+  </data>
+  <data name="Vaccinations_Hepatitis" xml:space="preserve">
+    <value>Hepatite</value>
+  </data>
+  <data name="Vaccinations_Leptospirosis" xml:space="preserve">
+    <value>Leptospirose</value>
+  </data>
+  <data name="Vaccinations_Parainfluenza" xml:space="preserve">
+    <value>Parainfluenza</value>
+  </data>
+  <data name="Vaccinations_Bordetella" xml:space="preserve">
+    <value>Tosse do Canil</value>
+  </data>
+  <data name="Vaccinations_LymeDisease" xml:space="preserve">
+    <value>Doença de Lyme</value>
+  </data>
+  <data name="Vaccinations_Coronavirus" xml:space="preserve">
+    <value>Coronavírus</value>
+  </data>
+  <data name="Vaccinations_Rabies" xml:space="preserve">
+    <value>Raiva</value>
+  </data>
+</root>

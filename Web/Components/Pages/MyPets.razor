@@ -17,6 +17,7 @@
 @inject ILogger<MyPets> Logger
 @inject LocalizationService LocalizationService
 @inject DynamicLocalizer<MyPets> Localizer
+@inject IStringLocalizer<SharedEnumResources> EnumLocalizer
 @implements IDisposable
 @rendermode InteractiveServer
 
@@ -93,20 +94,20 @@
                                    @bind="searchQuery" @bind:event="oninput" @bind:after="ApplyFilters" />
                         </div>
                         <div class="col-md-3">
-                            <select class="form-select" @bind="filterStatus" @bind:after="ApplyFilters">
+                            <select class="form-select" @bind="filterStatusString" @bind:after="OnStatusFilterChanged">
                                 <option value="">@Localizer["AllStatus"]</option>
-                                @foreach (AdoptionStatus status in Enum.GetValues(typeof(AdoptionStatus)))
+                                @foreach (var (value, display) in EnumLocalizationExtensions.GetLocalizedValues<AdoptionStatus>(EnumLocalizer))
                                 {
-                                    <option value="@status">@status</option>
+                                    <option value="@value">@display</option>
                                 }
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <select class="form-select" @bind="filterSpecies" @bind:after="ApplyFilters">
+                            <select class="form-select" @bind="filterSpeciesString" @bind:after="OnSpeciesFilterChanged">
                                 <option value="">@Localizer["AllSpecies"]</option>
-                                @foreach (var species in GetUniqueSpecies())
+                                @foreach (var (value, display) in EnumLocalizationExtensions.GetLocalizedValues<Species>(EnumLocalizer))
                                 {
-                                    <option value="@species">@species</option>
+                                    <option value="@value">@display</option>
                                 }
                             </select>
                         </div>
@@ -163,16 +164,16 @@
                                             <strong>@pet.PartitionKey</strong>
                                         </td>
                                         <td>
-                                            @pet.Species@(string.IsNullOrEmpty(pet.Breed) ? "" : $" - {pet.Breed}")
+                                            @pet.Species.ToLocalizedString(EnumLocalizer)@(string.IsNullOrEmpty(pet.Breed) ? "" : $" - {pet.Breed}")
                                         </td>
                                         <td>@DateTime.Parse(pet.RowKey).ToShortDateString()</td>
-                                        <td>@pet.Gender</td>
+                                        <td>@pet.Gender.ToLocalizedString(EnumLocalizer)</td>
                                         <td>
-                                            <span class="badge bg-@GetSizeBadgeColor(pet.Size)">@pet.Size</span>
+                                            <span class="badge bg-@GetSizeBadgeColor(pet.Size)">@pet.Size.ToLocalizedString(EnumLocalizer)</span>
                                         </td>
                                         <td>
                                             <span class="badge bg-@GetStatusBadgeColor(pet.AdoptionStatus)">
-                                                @pet.AdoptionStatus
+                                                @pet.AdoptionStatus.ToLocalizedString(EnumLocalizer)
                                             </span>
                                         </td>
                                         <td>
@@ -299,7 +300,7 @@
                                 </tr>
                                 <tr>
                                     <th>@Localizer["Species"]</th>
-                                    <td>@selectedPet.Species</td>
+                                    <td>@selectedPet.Species.ToLocalizedString(EnumLocalizer)</td>
                                 </tr>
                                 <tr>
                                     <th>@Localizer["Breed"]</th>
@@ -311,15 +312,15 @@
                                 </tr>
                                 <tr>
                                     <th>@Localizer["Gender"]</th>
-                                    <td>@selectedPet.Gender</td>
+                                    <td>@selectedPet.Gender.ToLocalizedString(EnumLocalizer)</td>
                                 </tr>
                                 <tr>
                                     <th>@Localizer["Size"]</th>
-                                    <td><span class="badge bg-@GetSizeBadgeColor(selectedPet.Size)">@selectedPet.Size</span></td>
+                                    <td><span class="badge bg-@GetSizeBadgeColor(selectedPet.Size)">@selectedPet.Size.ToLocalizedString(EnumLocalizer)</span></td>
                                 </tr>
                                 <tr>
                                     <th>@Localizer["AdoptionStatus"]</th>
-                                    <td><span class="badge bg-@GetStatusBadgeColor(selectedPet.AdoptionStatus)">@selectedPet.AdoptionStatus</span></td>
+                                    <td><span class="badge bg-@GetStatusBadgeColor(selectedPet.AdoptionStatus)">@selectedPet.AdoptionStatus.ToLocalizedString(EnumLocalizer)</span></td>
                                 </tr>
                             </table>
 
@@ -334,15 +335,15 @@
                                 </tr>
                                 <tr>
                                     <th>@Localizer["Neutered"]</th>
-                                    <td>@(selectedPet.Neutered ? Localizer["Yes"] : Localizer["No"])</td>
+                                    <td>@(selectedPet.Neutered? Localizer["Yes"] : Localizer["No"])</td>
                                 </tr>
                                 <tr>
                                     <th>@Localizer["Dewormed"]</th>
-                                    <td>@(selectedPet.Dewormed ? Localizer["Yes"] : Localizer["No"])</td>
+                                    <td>@(selectedPet.Dewormed? Localizer["Yes"] : Localizer["No"])</td>
                                 </tr>
                                 <tr>
                                     <th>@Localizer["Microchipped"]</th>
-                                    <td>@(selectedPet.Chipped ? Localizer["Yes"] : Localizer["No"])</td>
+                                    <td>@(selectedPet.Chipped? Localizer["Yes"] : Localizer["No"])</td>
                                 </tr>
                                 @if (!string.IsNullOrEmpty(selectedPet.MedicalTreatments))
                                 {
@@ -390,9 +391,9 @@
                 <div class="modal-body">
                     <p>@Localizer["DeleteConfirmMessage"] <strong>@petToDelete.PartitionKey</strong>?</p>
                     <div class="alert alert-warning">
-                        <strong>@Localizer["Name"]</strong> @petToDelete.PartitionKey<br />
-                        <strong>@Localizer["Species"]</strong> @petToDelete.Species<br />
-                        <strong>@Localizer["BirthDate"]</strong> @DateTime.Parse(petToDelete.RowKey).ToShortDateString()
+                        <strong>@Localizer["Name"]:</strong> @petToDelete.PartitionKey<br />
+                        <strong>@Localizer["Species"]:</strong> @petToDelete.Species.ToLocalizedString(EnumLocalizer)<br />
+                        <strong>@Localizer["BirthDate"]:</strong> @DateTime.Parse(petToDelete.RowKey).ToShortDateString()
                     </div>
                     <p class="text-danger">
                         <i class="fa fa-warning"></i> <strong>@Localizer["CannotBeUndone"]</strong>
@@ -432,8 +433,12 @@
     private int totalPages = 1;
 
     private string searchQuery = "";
-    private string filterStatus = "";
-    private string filterSpecies = "";
+    private AdoptionStatus? filterStatus = null;
+    private Species? filterSpecies = null;
+
+    // String representations for binding with select elements
+    private string filterStatusString = "";
+    private string filterSpeciesString = "";
 
     private Pet? selectedPet;
     private Pet? petToDelete;
@@ -473,6 +478,32 @@
     public void Dispose()
     {
         LocalizationService.OnCultureChanged -= OnCultureChanged;
+    }
+
+    private void OnStatusFilterChanged()
+    {
+        if (string.IsNullOrEmpty(filterStatusString))
+        {
+            filterStatus = null;
+        }
+        else if (Enum.TryParse<AdoptionStatus>(filterStatusString, out var status))
+        {
+            filterStatus = status;
+        }
+        ApplyFilters();
+    }
+
+    private void OnSpeciesFilterChanged()
+    {
+        if (string.IsNullOrEmpty(filterSpeciesString))
+        {
+            filterSpecies = null;
+        }
+        else if (Enum.TryParse<Species>(filterSpeciesString, out var species))
+        {
+            filterSpecies = species;
+        }
+        ApplyFilters();
     }
 
     private async Task LoadDataAsync()
@@ -548,11 +579,11 @@
                 p.Species.ToString().Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
                 (p.Breed?.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ?? false);
 
-            bool matchesStatus = string.IsNullOrEmpty(filterStatus) ||
-                p.AdoptionStatus.ToString() == filterStatus;
+            bool matchesStatus = !filterStatus.HasValue ||
+                p.AdoptionStatus == filterStatus.Value;
 
-            bool matchesSpecies = string.IsNullOrEmpty(filterSpecies) ||
-                p.Species.ToString() == filterSpecies;
+            bool matchesSpecies = !filterSpecies.HasValue ||
+                p.Species == filterSpecies.Value;
 
             return matchesSearch && matchesStatus && matchesSpecies;
         }).ToList();
@@ -588,14 +619,6 @@
     private int GetEndPage()
     {
         return Math.Min(totalPages, currentPage + 2);
-    }
-
-    private List<Species> GetUniqueSpecies()
-    {
-        return Enum.GetValues(typeof(Species))
-            .Cast<Species>()
-            .OrderBy(s => s.ToString())
-            .ToList();
     }
 
     private void ViewPet(Pet pet)
@@ -715,18 +738,9 @@
     private string GetVaccinationsDisplay(Vaccinations vaccinations)
     {
         if (vaccinations == Vaccinations.none)
-            return "None";
+            return EnumLocalizer["Vaccinations_none"];
 
-        var vaccinationList = new List<string>();
-
-        foreach (Vaccinations vac in Enum.GetValues(typeof(Vaccinations)))
-        {
-            if (vac != Vaccinations.none && vaccinations.HasFlag(vac))
-            {
-                vaccinationList.Add(vac.ToString());
-            }
-        }
-
-        return vaccinationList.Any() ? string.Join(", ", vaccinationList) : "None";
+        var localizedVaccinations = vaccinations.ToLocalizedStrings(EnumLocalizer);
+        return string.Join(", ", localizedVaccinations);
     }
 }

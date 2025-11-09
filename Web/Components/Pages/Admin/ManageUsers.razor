@@ -12,6 +12,7 @@
 @inject IConfiguration Configuration
 @inject LocalizationService LocalizationService
 @inject DynamicLocalizer<ManageUsers> Localizer
+@inject IStringLocalizer<SharedEnumResources> EnumLocalizer
 @implements IDisposable
 @rendermode InteractiveServer
 
@@ -68,9 +69,9 @@
                         <div class="col-md-3">
                             <select class="form-select" @onchange="FilterByRole">
                                 <option value="">@Localizer["AllRoles"]</option>
-                                @foreach (UserRole role in Enum.GetValues(typeof(UserRole)))
+                                @foreach (var (value, display) in EnumLocalizationExtensions.GetLocalizedValues<UserRole>(EnumLocalizer))
                                 {
-                                    <option value="@role">@role</option>
+                                    <option value="@value">@display</option>
                                 }
                             </select>
                         </div>
@@ -124,7 +125,7 @@
                                         </td>
                                         <td>
                                             <span class="badge @GetRoleBadgeClass(item.Role)">
-                                                @item.Role
+                                                @item.Role.ToLocalizedString(EnumLocalizer)
                                             </span>
                                         </td>
                                         <td>
@@ -284,12 +285,7 @@
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">@Localizer["Role"] <span class="text-danger">*</span></label>
-                                            <InputSelect @bind-Value="editingUser!.Role" class="form-select">
-                                                @foreach (UserRole role in Enum.GetValues(typeof(UserRole)))
-                                                {
-                                                    <option value="@role">@role</option>
-                                                }
-                                            </InputSelect>
+                                            <EnumSelect TEnum="UserRole" @bind-Value="editingUser!.Role" CssClass="form-select" />
                                             <ValidationMessage For="@(() => editingUser!.Role)" class="text-danger" />
                                         </div>
                                         <div class="col-md-6 mb-3">
@@ -474,7 +470,7 @@
                                     <ul class="list-group list-group-flush">
                                         <li class="list-group-item">
                                             <strong>@Localizer["Role"]</strong> 
-                                            <span class="badge @GetRoleBadgeClass(viewingUser.Role) ms-2">@viewingUser.Role</span>
+                                            <span class="badge @GetRoleBadgeClass(viewingUser.Role) ms-2">@viewingUser.Role.ToLocalizedString(EnumLocalizer)</span>
                                         </li>
                                         <li class="list-group-item">
                                             <strong>@Localizer["Status"]</strong> 

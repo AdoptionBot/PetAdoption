@@ -18,6 +18,7 @@
 @inject ILogger<AddPet> Logger
 @inject LocalizationService LocalizationService
 @inject DynamicLocalizer<AddPet> Localizer
+@inject IStringLocalizer<SharedEnumResources> EnumLocalizer
 @implements IDisposable
 @rendermode InteractiveServer
 @implements IAsyncDisposable
@@ -77,37 +78,22 @@
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
                                         <label class="form-label">@Localizer["Species"]</label>
-                                        <InputSelect @bind-Value="currentPet.Species" class="form-select">
-                                            <option value="">@Localizer["SelectSpecies"]</option>
-                                            @foreach (Species species in Enum.GetValues(typeof(Species)))
-                                            {
-                                                <option value="@species">@species</option>
-                                            }
-                                        </InputSelect>
+                                        <EnumSelect TEnum="Species" @bind-Value="currentPet.Species" CssClass="form-select"
+                                                    PlaceholderKey="SelectSpecies" />
                                         <ValidationMessage For="@(() => currentPet.Species)" />
                                     </div>
 
                                     <div class="col-md-4 mb-3">
                                         <label class="form-label">@Localizer["Gender"]</label>
-                                        <InputSelect @bind-Value="currentPet.Gender" class="form-select">
-                                            <option value="">@Localizer["SelectGender"]</option>
-                                            @foreach (Gender gender in Enum.GetValues(typeof(Gender)))
-                                            {
-                                                <option value="@gender">@gender</option>
-                                            }
-                                        </InputSelect>
+                                        <EnumSelect TEnum="Gender" @bind-Value="currentPet.Gender" CssClass="form-select"
+                                                    PlaceholderKey="SelectGender" />
                                         <ValidationMessage For="@(() => currentPet.Gender)" />
                                     </div>
 
                                     <div class="col-md-4 mb-3">
                                         <label class="form-label">@Localizer["Size"]</label>
-                                        <InputSelect @bind-Value="currentPet.Size" class="form-select">
-                                            <option value="">@Localizer["SelectSize"]</option>
-                                            @foreach (Size size in Enum.GetValues(typeof(Size)))
-                                            {
-                                                <option value="@size">@size</option>
-                                            }
-                                        </InputSelect>
+                                        <EnumSelect TEnum="Size" @bind-Value="currentPet.Size" CssClass="form-select"
+                                                    PlaceholderKey="SelectSize" />
                                         <ValidationMessage For="@(() => currentPet.Size)" />
                                     </div>
                                 </div>
@@ -148,7 +134,7 @@
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" id="vaccRabies"
                                                            @onchange="@(e => ToggleVaccination(Vaccinations.Rabies, (bool)e.Value!))" />
-                                                    <label class="form-check-label" for="vaccRabies">Rabies</label>
+                                                    <label class="form-check-label" for="vaccRabies">@EnumLocalizer["Vaccinations_Rabies"]</label>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
