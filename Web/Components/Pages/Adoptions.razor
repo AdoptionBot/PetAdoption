@@ -626,6 +626,11 @@
     </div>
 }
 <style>
+    /* Reduce gap between hero and content */
+    .ftco-section {
+        padding-top: 1.5rem !important;
+    }
+
     .application-card {
         transition: transform 0.2s, box-shadow 0.3s;
     }
@@ -757,16 +762,16 @@
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     }
 
-        .carousel-nav:hover {
-            background: linear-gradient(135deg, rgba(45, 108, 177, 1), rgba(74, 144, 226, 1));
-            transform: scale(1.15);
-            box-shadow: 0 6px 30px rgba(74, 144, 226, 0.5);
-            border-color: white;
-        }
+    .carousel-nav:hover {
+        background: linear-gradient(135deg, rgba(45, 108, 177, 1), rgba(74, 144, 226, 1));
+        transform: scale(1.15);
+        box-shadow: 0 6px 30px rgba(74, 144, 226, 0.5);
+        border-color: white;
+    }
 
-        .carousel-nav:active {
-            transform: scale(1.05);
-        }
+    .carousel-nav:active {
+        transform: scale(1.05);
+    }
 
     .carousel-prev {
         left: 20px;
@@ -774,13 +779,13 @@
         transform: translateY(-50%);
     }
 
-        .carousel-prev:hover {
-            transform: translateY(-50%) scale(1.15);
-        }
+    .carousel-prev:hover {
+        transform: translateY(-50%) scale(1.15);
+    }
 
-        .carousel-prev:active {
-            transform: translateY(-50%) scale(1.05);
-        }
+    .carousel-prev:active {
+        transform: translateY(-50%) scale(1.05);
+    }
 
     .carousel-next {
         right: 20px;
@@ -788,13 +793,13 @@
         transform: translateY(-50%);
     }
 
-        .carousel-next:hover {
-            transform: translateY(-50%) scale(1.15);
-        }
+    .carousel-next:hover {
+        transform: translateY(-50%) scale(1.15);
+    }
 
-        .carousel-next:active {
-            transform: translateY(-50%) scale(1.05);
-        }
+    .carousel-next:active {
+        transform: translateY(-50%) scale(1.05);
+    }
 
     .carousel-footer {
         position: absolute;
@@ -1096,30 +1101,30 @@
         opacity: 0.8;
     }
 
-        .confetti:nth-child(1) {
-            left: 10%;
-            animation-delay: 0s;
-        }
+    .confetti:nth-child(1) {
+        left: 10%;
+        animation-delay: 0s;
+    }
 
-        .confetti:nth-child(2) {
-            left: 30%;
-            animation-delay: 1s;
-        }
+    .confetti:nth-child(2) {
+        left: 30%;
+        animation-delay: 1s;
+    }
 
-        .confetti:nth-child(3) {
-            left: 50%;
-            animation-delay: 2s;
-        }
+    .confetti:nth-child(3) {
+        left: 50%;
+        animation-delay: 2s;
+    }
 
-        .confetti:nth-child(4) {
-            left: 70%;
-            animation-delay: 3s;
-        }
+    .confetti:nth-child(4) {
+        left: 70%;
+        animation-delay: 3s;
+    }
 
-        .confetti:nth-child(5) {
-            left: 90%;
-            animation-delay: 4s;
-        }
+    .confetti:nth-child(5) {
+        left: 90%;
+        animation-delay: 4s;
+    }
 
     @@keyframes confetti-fall {
         0% {
