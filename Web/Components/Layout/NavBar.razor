@@ -128,8 +128,8 @@
 <div class="bottom-contact-bar">
     <div class="container">
         <div class="row">
-            <div class="col-12 d-flex justify-content-end align-items-center">
-                <p class="mb-0 contact-email me-4">
+            <div class="col-12 d-flex justify-content-between align-items-center contact-bar-content">
+                <p class="mb-0 contact-email">
                     <a href="mailto:@organizationEmail?subject=Pet%20Adoption%20Inquiry">
                         <span class="fa fa-paper-plane me-2"></span> @organizationEmail
                     </a>
@@ -218,7 +218,7 @@
         margin-left: 0;
     }
 
-    /* Contact Bar - FURTHER REDUCED HEIGHT with teal gradient */
+    /* Contact Bar - email left, social media right */
     .bottom-contact-bar {
         background: linear-gradient(90deg, #0891b2 0%, #06b6d4 50%, #10b981 100%);
         padding: 4px 0;
@@ -228,7 +228,15 @@
 
     .bottom-contact-bar .container {
         padding-right: 15px;
-        padding-left: 15px;
+        padding-left: 140px;
+    }
+
+    .contact-bar-content {
+        padding-left: 90px;
+    }
+
+    .bottom-contact-bar .contact-email {
+        margin-right: 0;
     }
 
     .bottom-contact-bar .contact-email a {
@@ -300,6 +308,14 @@
             padding: 3px 0;
         }
 
+        .bottom-contact-bar .container {
+            padding-left: 100px;
+        }
+
+        .contact-bar-content {
+            padding-left: 20px;
+        }
+
         .bottom-contact-bar .contact-email a {
             font-size: 0.8rem;
         }
@@ -350,6 +366,14 @@
             padding: 2px 0;
         }
 
+        .bottom-contact-bar .container {
+            padding-left: 80px;
+        }
+
+        .contact-bar-content {
+            padding-left: 10px;
+        }
+
         .bottom-contact-bar .contact-email {
             margin-right: 0.5rem !important;
         }
@@ -358,7 +382,7 @@
             font-size: 0.7rem;
         }
 
-        .bottom-contact_bar .social-media-links {
+        .bottom-contact-bar .social-media-links {
             gap: 8px;
         }
 
