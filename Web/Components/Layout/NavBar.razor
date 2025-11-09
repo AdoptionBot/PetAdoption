@@ -11,6 +11,7 @@
 @inject ProfileStateService ProfileState
 @inject LocalizationService LocalizationService
 @inject DynamicLocalizer<NavBar> Localizer
+@inject IConfiguration Configuration
 
 <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
     <div class="container position-relative">
@@ -52,21 +53,21 @@
                         <AuthorizeView Roles="Shelter,Admin" Context="shelterContext">
                             <Authorized>
                                 <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle @GetDisabledClass()" href="#" id="shelterDropdown" role="button" 
-                                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" 
+                                    <a class="nav-link dropdown-toggle @GetDisabledClass()" href="#" id="shelterDropdown" role="button"
+                                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                        @onclick:preventDefault="@(!isProfileComplete)">
                                         <span class="fas fa-home me-1"></span><span class="nav-text">@Localizer["Shelter"]</span>
                                     </a>
                                     <div class="dropdown-menu" aria-labelledby="shelterDropdown">
-                                        <a class="dropdown-item @GetDisabledClass()" href="/shelter" 
+                                        <a class="dropdown-item @GetDisabledClass()" href="/shelter"
                                            @onclick='() => HandleNavigationClick("/shelter")' @onclick:preventDefault="true">
                                             <span class="fas fa-building me-1"></span> @Localizer["MyShelter"]
                                         </a>
-                                        <a class="dropdown-item @GetDisabledClass()" href="/mypets" 
+                                        <a class="dropdown-item @GetDisabledClass()" href="/mypets"
                                            @onclick='() => HandleNavigationClick("/mypets")' @onclick:preventDefault="true">
                                             <span class="fas fa-paw me-1"></span> @Localizer["ManagePets"]
                                         </a>
-                                        <a class="dropdown-item @GetDisabledClass()" href="/adoptionagreement" 
+                                        <a class="dropdown-item @GetDisabledClass()" href="/adoptionagreement"
                                            @onclick='() => HandleNavigationClick("/adoptionagreement")' @onclick:preventDefault="true">
                                             <span class="fas fa-file-contract me-1"></span> @Localizer["AdoptionAgreement"]
                                         </a>
@@ -77,21 +78,21 @@
                         <AuthorizeView Policy="AdminOnly" Context="adminContext">
                             <Authorized>
                                 <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle @GetDisabledClass()" href="#" id="adminDropdown" role="button" 
-                                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" 
+                                    <a class="nav-link dropdown-toggle @GetDisabledClass()" href="#" id="adminDropdown" role="button"
+                                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                        @onclick:preventDefault="@(!isProfileComplete)">
                                         <span class="fas fa-cog me-1"></span><span class="nav-text">@Localizer["Admin"]</span>
                                     </a>
                                     <div class="dropdown-menu" aria-labelledby="adminDropdown">
-                                        <a class="dropdown-item @GetDisabledClass()" href="/admin/users" 
+                                        <a class="dropdown-item @GetDisabledClass()" href="/admin/users"
                                            @onclick='() => HandleNavigationClick("/admin/users")' @onclick:preventDefault="true">
                                             <span class="fas fa-users me-1"></span> @Localizer["ManageUsers"]
                                         </a>
-                                        <a class="dropdown-item @GetDisabledClass()" href="/admin/shelters" 
+                                        <a class="dropdown-item @GetDisabledClass()" href="/admin/shelters"
                                            @onclick='() => HandleNavigationClick("/admin/shelters")' @onclick:preventDefault="true">
                                             <span class="fas fa-home me-1"></span> @Localizer["ManageShelters"]
                                         </a>
-                                        <a class="dropdown-item @GetDisabledClass()" href="/admin/veterinarians" 
+                                        <a class="dropdown-item @GetDisabledClass()" href="/admin/veterinarians"
                                            @onclick='() => HandleNavigationClick("/admin/veterinarians")' @onclick:preventDefault="true">
                                             <span class="fas fa-hospital me-1"></span> @Localizer["ManageVeterinarians"]
                                         </a>
@@ -113,7 +114,7 @@
                         </li>
                     </NotAuthorized>
                 </AuthorizeView>
-                
+
                 <!-- Language Switcher -->
                 <li class="nav-item">
                     <LanguageSwitcher />
@@ -122,6 +123,32 @@
         </div>
     </div>
 </nav>
+
+<!-- Contact Bar - positioned below navbar -->
+<div class="bottom-contact-bar">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 d-flex justify-content-end align-items-center">
+                <p class="mb-0 contact-email me-4">
+                    <a href="mailto:@organizationEmail?subject=Pet%20Adoption%20Inquiry">
+                        <span class="fa fa-paper-plane me-2"></span> @organizationEmail
+                    </a>
+                </p>
+                <div class="social-media-links">
+                    <a href="@facebookUrl" target="_blank" rel="noopener noreferrer" title="Facebook">
+                        <span class="fa-brands fa-facebook"></span>
+                    </a>
+                    <a href="@xUrl" target="_blank" rel="noopener noreferrer" title="X (Twitter)">
+                        <span class="fa-brands fa-x-twitter"></span>
+                    </a>
+                    <a href="@instagramUrl" target="_blank" rel="noopener noreferrer" title="Instagram">
+                        <span class="fa-brands fa-instagram"></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <style>
     /* Compact navbar */
@@ -140,22 +167,22 @@
             overflow: visible !important;
         }
 
-    /* Tighter navbar nav items */
-    .ftco_navbar .navbar-nav {
-        margin-top: 0;
-        margin-bottom: 0;
-    }
+        /* Tighter navbar nav items */
+        .ftco_navbar .navbar-nav {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
 
-    .ftco_navbar .nav-item {
-        padding-top: 0;
-        padding-bottom: 0;
-    }
+        .ftco_navbar .nav-item {
+            padding-top: 0;
+            padding-bottom: 0;
+        }
 
-    .ftco_navbar .nav-link {
-        padding-top: 0.5rem !important;
-        padding-bottom: 0.5rem !important;
-        font-size: 0.95rem;
-    }
+        .ftco_navbar .nav-link {
+            padding-top: 0.5rem !important;
+            padding-bottom: 0.5rem !important;
+            font-size: 0.95rem;
+        }
 
     /* Logo positioning */
     .logo-brand {
@@ -191,6 +218,51 @@
         margin-left: 0;
     }
 
+    /* Contact Bar - positioned below navbar with teal gradient */
+    .bottom-contact-bar {
+        background: linear-gradient(90deg, #0891b2 0%, #06b6d4 50%, #10b981 100%);
+        padding: 10px 0;
+        position: relative;
+        z-index: 1000;
+    }
+
+        .bottom-contact-bar .container {
+            padding-right: 15px;
+            padding-left: 15px;
+        }
+
+        .bottom-contact-bar .contact-email a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 400;
+            transition: opacity 0.3s ease;
+        }
+
+            .bottom-contact-bar .contact-email a:hover {
+                opacity: 0.85;
+            }
+
+        .bottom-contact-bar .social-media-links {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+        }
+
+            .bottom-contact-bar .social-media-links a {
+                color: #fff;
+                font-size: 1.2rem;
+                transition: transform 0.3s ease, opacity 0.3s ease;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+                .bottom-contact-bar .social-media-links a:hover {
+                    transform: scale(1.15);
+                    opacity: 0.85;
+                }
+
     /* Active state for nav links - keep green text and underline */
     .ftco_navbar .nav-link.active {
         color: #00bd56 !important;
@@ -222,73 +294,125 @@
 
     /* Mobile responsiveness */
     @@media (max-width: 991px) {
-        .ftco_navbar {
-            min-height: 45px !important;
-            padding-top: 0.15rem !important;
-            padding-bottom: 0.15rem !important;
+        .bottom-contact-bar
+
+    {
+        padding: 8px 0;
+    }
+
+    .bottom-contact-bar .contact-email a {
+        font-size: 0.85rem;
+    }
+
+    .bottom-contact-bar .social-media-links {
+        gap: 15px;
+    }
+
+        .bottom-contact-bar .social-media-links a {
+            font-size: 1.1rem;
         }
 
-        .navbar-logo {
-            height: 85px;
-            width: 85px;
-            border-width: 1px;
-            background-color: transparent;
-        }
+    .ftco_navbar {
+        min-height: 45px !important;
+        padding-top: 0.15rem !important;
+        padding-bottom: 0.15rem !important;
+    }
 
-        .logo-brand {
-            left: 10px;
-            top: -20px; /* -20px for tablet */
-        }
+    .navbar-logo {
+        height: 85px;
+        width: 85px;
+        border-width: 1px;
+        background-color: transparent;
+    }
 
-        .ftco_navbar .container {
-            padding-left: 100px;
-        }
+    .logo-brand {
+        left: 10px;
+        top: -20px;
+    }
 
-        .ftco_navbar .nav-link {
-            font-size: 0.9rem;
-        }
+    .ftco_navbar .container {
+        padding-left: 100px;
+    }
+
+    .ftco_navbar .nav-link {
+        font-size: 0.9rem;
+    }
 
         .ftco_navbar .nav-link.active:before {
             display: none;
         }
+
     }
 
     @@media (max-width: 576px) {
-        .ftco_navbar {
-            min-height: 42px !important;
-            padding-top: 0.1rem !important;
-            padding-bottom: 0.1rem !important;
+        .bottom-contact-bar
+
+    {
+        padding: 6px 0;
+    }
+
+    .bottom-contact-bar .contact-email {
+        margin-right: 0.75rem !important;
+    }
+
+        .bottom-contact-bar .contact-email a {
+            font-size: 0.75rem;
         }
 
-        .navbar-logo {
-            height: 65px;
-            width: 65px;
-            border-width: 1px;
-            background-color: transparent;
+    .bottom-contact-bar .social-media-links {
+        gap: 12px;
+    }
+
+        .bottom-contact-bar .social-media-links a {
+            font-size: 1rem;
         }
 
-        .logo-brand {
-            top: -15px; /* -15px for mobile */
-        }
+    .ftco_navbar {
+        min-height: 42px !important;
+        padding-top: 0.1rem !important;
+        padding-bottom: 0.1rem !important;
+    }
 
-        .ftco_navbar .container {
-            padding-left: 80px;
-        }
+    .navbar-logo {
+        height: 65px;
+        width: 65px;
+        border-width: 1px;
+        background-color: transparent;
+    }
 
-        .ftco_navbar .nav-link {
-            padding-top: 0.4rem !important;
-            padding-bottom: 0.4rem !important;
-            font-size: 0.85rem;
-        }
+    .logo-brand {
+        top: -15px;
+    }
+
+    .ftco_navbar .container {
+        padding-left: 80px;
+    }
+
+    .ftco_navbar .nav-link {
+        padding-top: 0.4rem !important;
+        padding-bottom: 0.4rem !important;
+        font-size: 0.85rem;
+    }
+
     }
 </style>
 
 @code {
     private bool isProfileComplete = true;
     private string? userEmail;
+    private string organizationEmail = string.Empty;
+    private string facebookUrl = string.Empty;
+    private string xUrl = string.Empty;
+    private string instagramUrl = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
+        // Load configuration values
+        organizationEmail = Configuration["OrganizationEmail"] ?? String.Empty;
+        facebookUrl = Configuration["FacebookUrl"] ?? String.Empty;
+        xUrl = Configuration["XUrl"] ?? String.Empty;
+        instagramUrl = Configuration["InstagramUrl"] ?? String.Empty;
+
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
 
@@ -307,7 +431,7 @@
 
         // Subscribe to profile completion event
         ProfileState.OnProfileCompleted += HandleProfileCompleted;
-        
+
         // Subscribe to culture change
         LocalizationService.OnCultureChanged += OnCultureChanged;
     }
