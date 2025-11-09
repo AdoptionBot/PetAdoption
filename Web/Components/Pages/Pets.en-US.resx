@@ -268,7 +268,7 @@
     <value>Vaccinations</value>
   </data>
   <data name="NeuteredSpayed" xml:space="preserve">
-    <value>Neutered/Spayed</value>
+    <value>Neutered</value>
   </data>
   <data name="Dewormed" xml:space="preserve">
     <value>Dewormed</value>

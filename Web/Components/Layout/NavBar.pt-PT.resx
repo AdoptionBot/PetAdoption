@@ -126,8 +126,8 @@
   <data name="Shelters" xml:space="preserve">
     <value>Abrigos</value>
   </data>
-  <data name="Adoptions" xml:space="preserve">
-    <value>Adoções</value>
+  <data name="MyAdoptions" xml:space="preserve">
+    <value>Minhas Adoções</value>
   </data>
   <data name="Vets" xml:space="preserve">
     <value>Veterinários</value>
@@ -135,11 +135,8 @@
   <data name="Testimonials" xml:space="preserve">
     <value>Testemunhos</value>
   </data>
-  <data name="Profile" xml:space="preserve">
+  <data name="MyProfile" xml:space="preserve">
     <value>O Meu Perfil</value>
-  </data>
-  <data name="Shelter" xml:space="preserve">
-    <value>Abrigo</value>
   </data>
   <data name="MyShelter" xml:space="preserve">
     <value>O Meu Abrigo</value>
@@ -167,5 +164,8 @@
   </data>
   <data name="Login" xml:space="preserve">
     <value>Entrar</value>
+  </data>
+  <data name="ShelterAdoptions" xml:space="preserve">
+    <value>Adoções em abrigos</value>
   </data>
 </root>

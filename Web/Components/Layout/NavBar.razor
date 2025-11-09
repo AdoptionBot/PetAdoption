@@ -29,13 +29,6 @@
                 <li class="nav-item">
                     <NavLink class="@($"nav-link {GetDisabledClass()}")" href="/shelters" Match="NavLinkMatch.Prefix" @onclick="@((e) => HandleNavLinkClick(e, "/shelters"))">@Localizer["Shelters"]</NavLink>
                 </li>
-                <AuthorizeView Roles="User,Foster,Shelter,Admin">
-                    <Authorized>
-                        <li class="nav-item">
-                            <NavLink class="@($"nav-link {GetDisabledClass()}")" href="/adoptions" Match="NavLinkMatch.Prefix" @onclick="@((e) => HandleNavLinkClick(e, "/adoptions"))">@Localizer["Adoptions"]</NavLink>
-                        </li>
-                    </Authorized>
-                </AuthorizeView>
                 <li class="nav-item">
                     <NavLink class="@($"nav-link {GetDisabledClass()}")" href="/vet" Match="NavLinkMatch.Prefix" @onclick="@((e) => HandleNavLinkClick(e, "/vet"))">@Localizer["Vets"]</NavLink>
                 </li>
@@ -45,18 +38,41 @@
 
                 <AuthorizeView>
                     <Authorized>
-                        <li class="nav-item">
-                            <NavLink class="nav-link" href="/profile">
-                                <span class="fas fa-user me-1"></span><span class="nav-text">@Localizer["Profile"]</span>
-                            </NavLink>
-                        </li>
-                        <AuthorizeView Roles="Shelter,Admin" Context="shelterContext">
+                        <AuthorizeView Roles="User,Foster" Context="profileContext">
+                            <Authorized>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle @GetDisabledClass()" href="#" id="profileDropdown" role="button"
+                                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                       @onclick:preventDefault="@(!isProfileComplete)">
+                                        <span class="fas fa-user me-1"></span><span class="nav-text">@Localizer["MyProfile"]</span>
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="profileDropdown">
+                                        <a class="dropdown-item @GetDisabledClass()" href="/profile"
+                                           @onclick='() => HandleNavigationClick("/profile")' @onclick:preventDefault="true">
+                                            <span class="fas fa-user-circle me-1"></span> @Localizer["MyProfile"]
+                                        </a>
+                                        <a class="dropdown-item @GetDisabledClass()" href="/adoptions"
+                                           @onclick='() => HandleNavigationClick("/adoptions")' @onclick:preventDefault="true">
+                                            <span class="fas fa-heart me-1"></span> @Localizer["MyAdoptions"]
+                                        </a>
+                                    </div>
+                                </li>
+                            </Authorized>
+                            <NotAuthorized>
+                                <li class="nav-item">
+                                    <NavLink class="nav-link" href="/profile">
+                                        <span class="fas fa-user me-1"></span><span class="nav-text">@Localizer["MyProfile"]</span>
+                                    </NavLink>
+                                </li>
+                            </NotAuthorized>
+                        </AuthorizeView>
+                        <AuthorizeView Roles="Shelter" Context="shelterContext">
                             <Authorized>
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle @GetDisabledClass()" href="#" id="shelterDropdown" role="button"
                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                        @onclick:preventDefault="@(!isProfileComplete)">
-                                        <span class="fas fa-home me-1"></span><span class="nav-text">@Localizer["Shelter"]</span>
+                                        <span class="fas fa-home me-1"></span><span class="nav-text">@Localizer["MyShelter"]</span>
                                     </a>
                                     <div class="dropdown-menu" aria-labelledby="shelterDropdown">
                                         <a class="dropdown-item @GetDisabledClass()" href="/shelter"
@@ -70,6 +86,10 @@
                                         <a class="dropdown-item @GetDisabledClass()" href="/adoptionagreement"
                                            @onclick='() => HandleNavigationClick("/adoptionagreement")' @onclick:preventDefault="true">
                                             <span class="fas fa-file-contract me-1"></span> @Localizer["AdoptionAgreement"]
+                                        </a>
+                                        <a class="dropdown-item @GetDisabledClass()" href="/adoptions"
+                                           @onclick='() => HandleNavigationClick("/adoptions")' @onclick:preventDefault="true">
+                                            <span class="fas fa-heart me-1"></span> @Localizer["ShelterAdoptions"]
                                         </a>
                                     </div>
                                 </li>
@@ -161,28 +181,28 @@
         z-index: 1030;
     }
 
-    .ftco_navbar .container {
-        padding-left: 140px;
-        position: relative;
-        overflow: visible !important;
-    }
+        .ftco_navbar .container {
+            padding-left: 140px;
+            position: relative;
+            overflow: visible !important;
+        }
 
-    /* Tighter navbar nav items with increased padding */
-    .ftco_navbar .navbar-nav {
-        margin-top: 0;
-        margin-bottom: 0;
-    }
+        /* Tighter navbar nav items with increased padding */
+        .ftco_navbar .navbar-nav {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
 
-    .ftco_navbar .nav-item {
-        padding-top: 0;
-        padding-bottom: 0;
-    }
+        .ftco_navbar .nav-item {
+            padding-top: 0;
+            padding-bottom: 0;
+        }
 
-    .ftco_navbar .nav-link {
-        padding-top: 0.875rem !important;
-        padding-bottom: 0.875rem !important;
-        font-size: 0.95rem;
-    }
+        .ftco_navbar .nav-link {
+            padding-top: 0.875rem !important;
+            padding-bottom: 0.875rem !important;
+            font-size: 0.95rem;
+        }
 
     /* Logo positioning */
     .logo-brand {
@@ -208,10 +228,10 @@
         display: block;
     }
 
-    .navbar-logo:hover {
-        transform: scale(1.05);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-    }
+        .navbar-logo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
 
     /* Navbar navigation items */
     .navbar-collapse {
@@ -226,10 +246,10 @@
         z-index: 1000;
     }
 
-    .bottom-contact-bar .container {
-        padding-right: 15px;
-        padding-left: 140px;
-    }
+        .bottom-contact-bar .container {
+            padding-right: 15px;
+            padding-left: 140px;
+        }
 
     .contact-bar-content {
         padding-left: 90px;
@@ -239,18 +259,18 @@
         margin-right: 0;
     }
 
-    .bottom-contact-bar .contact-email a {
-        color: #fff;
-        text-decoration: none;
-        font-size: 0.85rem;
-        font-weight: 400;
-        transition: opacity 0.3s ease;
-        line-height: 1;
-    }
+        .bottom-contact-bar .contact-email a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 400;
+            transition: opacity 0.3s ease;
+            line-height: 1;
+        }
 
-    .bottom-contact-bar .contact-email a:hover {
-        opacity: 0.85;
-    }
+            .bottom-contact-bar .contact-email a:hover {
+                opacity: 0.85;
+            }
 
     .bottom-contact-bar .social-media-links {
         display: flex;
@@ -258,49 +278,49 @@
         align-items: center;
     }
 
-    .bottom-contact-bar .social-media-links a {
-        color: #fff;
-        font-size: 1rem;
-        transition: transform 0.3s ease, opacity 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        line-height: 1;
-    }
+        .bottom-contact-bar .social-media-links a {
+            color: #fff;
+            font-size: 1rem;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
 
-    .bottom-contact-bar .social-media-links a:hover {
-        transform: scale(1.15);
-        opacity: 0.85;
-    }
+            .bottom-contact-bar .social-media-links a:hover {
+                transform: scale(1.15);
+                opacity: 0.85;
+            }
 
     /* Active state for nav links - keep green text and underline */
     .ftco_navbar .nav-link.active {
         color: #00bd56 !important;
     }
 
-    .ftco_navbar .nav-link.active:before {
-        content: "";
-        position: absolute;
-        width: 100%;
-        height: 2px;
-        bottom: 0px;
-        left: 0;
-        background-color: #00bd56;
-        visibility: visible;
-        -webkit-transform: scaleX(1);
-        -ms-transform: scaleX(1);
-        transform: scaleX(1);
-        z-index: -1;
-    }
+        .ftco_navbar .nav-link.active:before {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            bottom: 0px;
+            left: 0;
+            background-color: #00bd56;
+            visibility: visible;
+            -webkit-transform: scaleX(1);
+            -ms-transform: scaleX(1);
+            transform: scaleX(1);
+            z-index: -1;
+        }
 
     /* Ensure disabled links don't show active styling */
     .ftco_navbar .nav-link.disabled {
         color: #6c757d !important;
     }
 
-    .ftco_navbar .nav-link.disabled:before {
-        visibility: hidden !important;
-    }
+        .ftco_navbar .nav-link.disabled:before {
+            visibility: hidden !important;
+        }
 
     /* Mobile responsiveness */
     @@media (max-width: 991px) {
@@ -308,9 +328,9 @@
             padding: 3px 0;
         }
 
-        .bottom-contact-bar .container {
-            padding-left: 100px;
-        }
+            .bottom-contact-bar .container {
+                padding-left: 100px;
+            }
 
         .contact-bar-content {
             padding-left: 20px;
@@ -324,9 +344,9 @@
             gap: 12px;
         }
 
-        .bottom-contact-bar .social-media-links a {
-            font-size: 0.95rem;
-        }
+            .bottom-contact-bar .social-media-links a {
+                font-size: 0.95rem;
+            }
 
         .ftco_navbar {
             min-height: 55px !important;
@@ -356,9 +376,9 @@
             padding-bottom: 0.6rem !important;
         }
 
-        .ftco_navbar .nav-link.active:before {
-            display: none;
-        }
+            .ftco_navbar .nav-link.active:before {
+                display: none;
+            }
     }
 
     @@media (max-width: 576px) {
@@ -366,9 +386,9 @@
             padding: 2px 0;
         }
 
-        .bottom-contact-bar .container {
-            padding-left: 80px;
-        }
+            .bottom-contact-bar .container {
+                padding-left: 80px;
+            }
 
         .contact-bar-content {
             padding-left: 10px;
@@ -378,17 +398,17 @@
             margin-right: 0.5rem !important;
         }
 
-        .bottom-contact-bar .contact-email a {
-            font-size: 0.7rem;
-        }
+            .bottom-contact-bar .contact-email a {
+                font-size: 0.7rem;
+            }
 
         .bottom-contact-bar .social-media-links {
             gap: 8px;
         }
 
-        .bottom-contact-bar .social-media-links a {
-            font-size: 0.9rem;
-        }
+            .bottom-contact-bar .social-media-links a {
+                font-size: 0.9rem;
+            }
 
         .ftco_navbar {
             min-height: 48px !important;
