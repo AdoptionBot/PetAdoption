@@ -198,11 +198,11 @@
                                             <i class="fas fa-@(pet.Gender == Gender.Male ? "mars" : "venus") me-1"></i><strong>@Localizer["Gender"]:</strong> @pet.Gender.ToLocalizedString(EnumLocalizer)
                                         </small>
                                         <br />
-                                        <p class="mb-1">
-                                            <small class="text-muted">
-                                                <i class="fas fa-home me-1"></i><strong>@Localizer["Shelter"]:</strong> @pet.ShelterName
-                                            </small>
-                                        </p>
+                                    <p class="mb-1">
+                                        <small class="text-muted">
+                                            <i class="fas fa-home me-1"></i><strong>@Localizer["Shelter"]:</strong> @pet.ShelterName
+                                        </small>
+                                    </p>
                                     </p>
                                     <div class="text-center mt-3">
                                         <small class="text-primary">
@@ -345,11 +345,16 @@
                                         <h6 class="border-bottom pb-2">
                                             <i class="fas fa-video me-2"></i>@Localizer["Video"]
                                         </h6>
-                                        <video src="@selectedPet.Video1Url"
-                                               class="w-100 rounded shadow-sm"
-                                               controls
-                                               @onclick="() => OpenCarousel(4)"
-                                               @onclick:stopPropagation="true" />
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <video src="@selectedPet.Video1Url"
+                                                       class="img-fluid rounded shadow-sm"
+                                                       style="height: 200px; width: 100%; object-fit: cover; cursor: pointer;"
+                                                       controls
+                                                       @onclick="() => OpenCarousel(4)"
+                                                       @onclick:stopPropagation="true" />
+                                            </div>
+                                        </div>
                                     </div>
                                 }
                             </div>
@@ -412,16 +417,16 @@
                                 <h6 class="border-bottom pb-2 mt-4">
                                     <i class="fas fa-heartbeat me-2"></i>@Localizer["MedicalInformation"]
                                 </h6>
-                                <table class="table table-sm">
+                                <table class="table table-sm medical-info-table">
                                     <tr>
                                         <th style="width: 40%;"><i class="fas fa-syringe me-2 text-info"></i>@Localizer["Vaccinations"]:</th>
-                                        <td>
+                                        <td class="wrap-content">
                                             <span class="badge bg-success">@GetVaccinationsDisplay(selectedPet.Vaccinations)</span>
                                         </td>
                                     </tr>
                                     <tr>
                                         <th><i class="fas fa-check-circle me-2 text-success"></i>@Localizer["NeuteredSpayed"]:</th>
-                                        <td>
+                                        <td class="wrap-content">
                                             @if (selectedPet.Neutered)
                                             {
                                                 <span class="badge bg-success"><i class="fas fa-check me-1"></i>@Localizer["Yes"]</span>
@@ -434,7 +439,7 @@
                                     </tr>
                                     <tr>
                                         <th><i class="fas fa-pills me-2 text-warning"></i>@Localizer["Dewormed"]:</th>
-                                        <td>
+                                        <td class="wrap-content">
                                             @if (selectedPet.Dewormed)
                                             {
                                                 <span class="badge bg-success"><i class="fas fa-check me-1"></i>@Localizer["Yes"]</span>
@@ -447,7 +452,7 @@
                                     </tr>
                                     <tr>
                                         <th><i class="fas fa-microchip me-2 text-primary"></i>@Localizer["Microchipped"]:</th>
-                                        <td>
+                                        <td class="wrap-content">
                                             @if (selectedPet.Chipped)
                                             {
                                                 <span class="badge bg-success"><i class="fas fa-check me-1"></i>@Localizer["Yes"]</span>
@@ -462,14 +467,14 @@
                                     {
                                         <tr>
                                             <th><i class="fas fa-notes-medical me-2 text-info"></i>@Localizer["MedicalTreatments"]:</th>
-                                            <td>@selectedPet.MedicalTreatments</td>
+                                            <td class="wrap-content">@selectedPet.MedicalTreatments</td>
                                         </tr>
                                     }
                                     @if (!string.IsNullOrEmpty(selectedPet.KnownMedicalIssues))
                                     {
                                         <tr>
                                             <th><i class="fas fa-exclamation-triangle me-2 text-warning"></i>@Localizer["KnownMedicalIssues"]:</th>
-                                            <td class="text-danger">@selectedPet.KnownMedicalIssues</td>
+                                            <td class="text-danger wrap-content">@selectedPet.KnownMedicalIssues</td>
                                         </tr>
                                     }
                                 </table>
@@ -707,28 +712,47 @@
         margin-top: 0 !important;
     }
 
-    .intro-banner h2 {
-        font-size: 1.5rem !important;
-        margin-bottom: 0.5rem !important;
-    }
+        .intro-banner h2 {
+            font-size: 1.5rem !important;
+            margin-bottom: 0.5rem !important;
+        }
 
-    .intro-banner .lead {
-        font-size: 1rem !important;
-        margin-bottom: 1rem !important;
-    }
+        .intro-banner .lead {
+            font-size: 1rem !important;
+            margin-bottom: 1rem !important;
+        }
 
-    .intro-banner .stat-item {
-        padding: 0.5rem !important;
-    }
+        .intro-banner .stat-item {
+            padding: 0.5rem !important;
+        }
 
-    .intro-banner .stat-item i {
-        font-size: 1.5rem !important;
-        margin-bottom: 0.5rem !important;
-    }
+            .intro-banner .stat-item i {
+                font-size: 1.5rem !important;
+                margin-bottom: 0.5rem !important;
+            }
 
     .clickable-image {
         transition: transform 0.2s, box-shadow 0.2s;
     }
+
+    /* Medical Information Table Styles */
+    .medical-info-table th {
+        white-space: nowrap;
+        vertical-align: top;
+    }
+
+    .medical-info-table td.wrap-content {
+        word-wrap: break-word;
+        word-break: break-word;
+        white-space: normal;
+        overflow-wrap: break-word;
+    }
+
+        .medical-info-table td.wrap-content .badge {
+            white-space: normal;
+            word-wrap: break-word;
+            word-break: break-word;
+        }
 
     .image-carousel-overlay {
         position: fixed;
@@ -804,11 +828,11 @@
         z-index: 10;
     }
 
-    .carousel-close:hover {
-        background-color: rgba(255, 59, 59, 0.9);
-        transform: scale(1.1) rotate(90deg);
-        border-color: #ff3b3b;
-    }
+        .carousel-close:hover {
+            background-color: rgba(255, 59, 59, 0.9);
+            transform: scale(1.1) rotate(90deg);
+            border-color: #ff3b3b;
+        }
 
     .carousel-nav {
         position: absolute;
@@ -828,16 +852,16 @@
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     }
 
-    .carousel-nav:hover {
-        background: linear-gradient(135deg, rgba(45, 108, 177, 1), rgba(74, 144, 226, 1));
-        transform: scale(1.15);
-        box-shadow: 0 6px 30px rgba(74, 144, 226, 0.5);
-        border-color: white;
-    }
+        .carousel-nav:hover {
+            background: linear-gradient(135deg, rgba(45, 108, 177, 1), rgba(74, 144, 226, 1));
+            transform: scale(1.15);
+            box-shadow: 0 6px 30px rgba(74, 144, 226, 0.5);
+            border-color: white;
+        }
 
-    .carousel-nav:active {
-        transform: scale(1.05);
-    }
+        .carousel-nav:active {
+            transform: scale(1.05);
+        }
 
     .carousel-prev {
         left: 20px;
@@ -845,13 +869,13 @@
         transform: translateY(-50%);
     }
 
-    .carousel-prev:hover {
-        transform: translateY(-50%) scale(1.15);
-    }
+        .carousel-prev:hover {
+            transform: translateY(-50%) scale(1.15);
+        }
 
-    .carousel-prev:active {
-        transform: translateY(-50%) scale(1.05);
-    }
+        .carousel-prev:active {
+            transform: translateY(-50%) scale(1.05);
+        }
 
     .carousel-next {
         right: 20px;
@@ -859,13 +883,13 @@
         transform: translateY(-50%);
     }
 
-    .carousel-next:hover {
-        transform: translateY(-50%) scale(1.15);
-    }
+        .carousel-next:hover {
+            transform: translateY(-50%) scale(1.15);
+        }
 
-    .carousel-next:active {
-        transform: translateY(-50%) scale(1.05);
-    }
+        .carousel-next:active {
+            transform: translateY(-50%) scale(1.05);
+        }
 
     .carousel-footer {
         position: absolute;
